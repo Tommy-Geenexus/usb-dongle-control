@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:ItemFilter.kt$@Composable fun ItemFilter( currentFilter: Filter = Filter.default(), onFilterSelected: (Filter) -> Unit = {} )</ID>
+    <ID>FunctionNaming:ItemFilter.kt$@Preview(name = "ItemFilter") @Composable fun ItemFilterPreview()</ID>
+    <ID>FunctionNaming:ItemGain.kt$@Composable fun ItemGain( currentGain: Gain = Gain.default(), onGainSelected: (Gain) -> Unit = {} )</ID>
+    <ID>FunctionNaming:ItemGain.kt$@Preview(name = "ItemGain") @Composable fun ItemGainPreview()</ID>
+    <ID>FunctionNaming:ItemIndicatorState.kt$@Composable fun ItemIndicatorState( currentIndicatorState: IndicatorState = IndicatorState.default(), onIndicatorStateSelected: (IndicatorState) -> Unit = {} )</ID>
+    <ID>FunctionNaming:ItemIndicatorState.kt$@Preview(name = "ItemIndicatorState") @Composable fun ItemIndicatorStatePreview()</ID>
+    <ID>FunctionNaming:MainScreen.kt$@Composable fun MainScreen( snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }, filter: Filter = Filter.default(), gain: Gain = Gain.default(), indicatorState: IndicatorState = IndicatorState.default(), isDeviceAttached: Boolean = false, isLoading: Boolean = false, usbPermissionGranted: Boolean = false, onPermissionRequest: () -> Unit = {}, onFilterSelected: (Filter) -> Unit = {}, onGainSelected: (Gain) -> Unit = {}, onIndicatorStateSelected: (IndicatorState) -> Unit = {} )</ID>
+    <ID>FunctionNaming:MainScreen.kt$@Composable fun MainScreen(viewModel: MainViewModel)</ID>
+    <ID>FunctionNaming:MainScreen.kt$@Preview(name = "Main Screen") @Composable fun MainScreenPreview()</ID>
+    <ID>FunctionNaming:MoondropUsbControlTheme.kt$@Composable fun MoondropUsbControlTheme( darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit )</ID>
+    <ID>FunctionNaming:NavGraph.kt$@Composable fun NavGraph( navController: NavHostController, startDestination: String = NavDestinations.ROUTE_MAIN )</ID>
+    <ID>LongMethod:MainScreen.kt$@Composable fun MainScreen( snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }, filter: Filter = Filter.default(), gain: Gain = Gain.default(), indicatorState: IndicatorState = IndicatorState.default(), isDeviceAttached: Boolean = false, isLoading: Boolean = false, usbPermissionGranted: Boolean = false, onPermissionRequest: () -> Unit = {}, onFilterSelected: (Filter) -> Unit = {}, onGainSelected: (Gain) -> Unit = {}, onIndicatorStateSelected: (IndicatorState) -> Unit = {} )</ID>
+    <ID>LongParameterList:MainScreen.kt$( snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }, filter: Filter = Filter.default(), gain: Gain = Gain.default(), indicatorState: IndicatorState = IndicatorState.default(), isDeviceAttached: Boolean = false, isLoading: Boolean = false, usbPermissionGranted: Boolean = false, onPermissionRequest: () -> Unit = {}, onFilterSelected: (Filter) -> Unit = {}, onGainSelected: (Gain) -> Unit = {}, onIndicatorStateSelected: (IndicatorState) -> Unit = {} )</ID>
+    <ID>MagicNumber:MoondropDawnUsbCommand.kt$MoondropDawnUsbCommand$6</ID>
+    <ID>MagicNumber:MoondropDawnUsbCommand.kt$MoondropDawnUsbCommand$64</ID>
+    <ID>MagicNumber:MoondropDawnUsbCommand.kt$MoondropDawnUsbCommand$91</ID>
+    <ID>MagicNumber:MoondropDawnUsbCommand.kt$MoondropDawnUsbCommand$93</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources>
+    <string name="app_name">MoondropUsbControl</string>
+
+    <string name="attach_device">Attach device</string>
+
+    <string name="disabled">Disabled</string>
+    <string name="disabled_tmp">Temporarily disabled</string>
+
+    <string name="enabled">Enabled</string>
+
+    <string name="filter">Filter</string>
+    <string name="filter_fast_roll_off_low_latency">Fast roll-off, low-latency</string>
+    <string name="filter_fast_roll_off_phase_compensated">Fast roll-off, phase-compensated</string>
+    <string name="filter_non_over_sampling">Non-oversampling</string>
+    <string name="filter_set">Successfully updated filter</string>
+    <string name="filter_slow_roll_off_low_latency">Slow roll-off, low-latency</string>
+    <string name="filter_slow_roll_off_phase_compensated">Slow roll-off, phase-compensated</string>
+
+    <string name="gain">Gain</string>
+    <string name="gain_set">Successfully updated gain</string>
+
+    <string name="grant_permission">Grant USB permission</string>
+
+    <string name="high">High</string>
+
+    <string name="indicator">Indicator</string>
+    <string name="indicator_state_set">Successfully updated indicator state</string>
+
+    <string name="low">Low</string>
+</resources>
