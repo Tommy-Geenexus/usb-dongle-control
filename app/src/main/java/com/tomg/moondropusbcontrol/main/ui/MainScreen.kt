@@ -38,10 +38,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -145,7 +145,7 @@ fun MainScreen(
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
                 modifier = Modifier.statusBarsPadding(),
                 navigationIcon = {

@@ -16,4 +16,4 @@ jobs:
           distribution: 'zulu'
           java-version: 11
       - name: Run ktlint
-        run: ./gradlew ktlintCheck
+        run: ./gradlew lintKotlin
