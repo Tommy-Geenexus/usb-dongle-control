@@ -48,11 +48,10 @@ class UsbCommunicationRepository @Inject constructor(
         const val ID_VENDOR = 12230
         const val ID_PRODUCT = 61543
 
-        const val INDEX_SET = 3
-
         const val DELAY_MS = 100L
         const val TIMEOUT_MS = 100
 
+        const val REQUEST_PAYLOAD_INDEX_SET = 3
         const val REQUEST_PAYLOAD_SIZE = 7
         const val REQUEST_TYPE_WRITE = 67
         const val REQUEST_TYPE_READ = 195
@@ -74,183 +73,190 @@ class UsbCommunicationRepository @Inject constructor(
         }
     }
 
-    suspend fun requestUsbPermission(): Boolean? {
+    suspend fun hasUsbPermission(device: UsbDevice): Boolean {
         return withContext(Dispatchers.IO) {
-            val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-            val device = getAttachedDeviceOrNull() ?: return@withContext null
-            if (!manager.hasPermission(device)) {
-                manager.requestPermission(
-                    device,
-                    PendingIntent.getBroadcast(
-                        context,
-                        0,
-                        Intent(INTENT_ACTION_USB_PERMISSION),
-                        PendingIntent.FLAG_MUTABLE
+            runCatching {
+                val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+                manager.hasPermission(device)
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                false
+            }
+        }
+    }
+
+    suspend fun requestUsbPermission(device: UsbDevice): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+                if (!hasUsbPermission(device)) {
+                    manager.requestPermission(
+                        device,
+                        PendingIntent.getBroadcast(
+                            context,
+                            0,
+                            Intent(INTENT_ACTION_USB_PERMISSION),
+                            PendingIntent.FLAG_MUTABLE
+                        )
                     )
+                    true
+                } else {
+                    false
+                }
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                false
+            }
+        }
+    }
+
+    suspend fun getCurrentState(
+        connection: UsbDeviceConnection
+    ): Triple<Filter, Gain, IndicatorState>? {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                MoondropDawnUsbCommand.getAny.copyInto(data)
+                var result = connection.controlTransfer(
+                    REQUEST_TYPE_WRITE,
+                    REQUEST_ID_WRITE,
+                    0,
+                    REQUEST_INDEX,
+                    data,
+                    REQUEST_PAYLOAD_SIZE,
+                    TIMEOUT_MS
                 )
+                if (result != REQUEST_PAYLOAD_SIZE) {
+                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                }
+                delay(DELAY_MS)
+                result = connection.controlTransfer(
+                    REQUEST_TYPE_READ,
+                    REQUEST_ID_READ,
+                    0,
+                    REQUEST_INDEX,
+                    data,
+                    REQUEST_PAYLOAD_SIZE,
+                    TIMEOUT_MS
+                )
+                if (result != REQUEST_PAYLOAD_SIZE) {
+                    error("USB control transfer $REQUEST_TYPE_READ failed")
+                }
+                connection.close()
+                val filter = Filter.findById(data[REQUEST_RESULT_INDEX_FILTER])
+                val gain = Gain.findById(data[REQUEST_RESULT_INDEX_GAIN])
+                val indicatorState = IndicatorState.findById(
+                    data[REQUEST_RESULT_INDEX_INDICATOR_STATE]
+                )
+                if (filter != null && gain != null && indicatorState != null) {
+                    return@runCatching Triple(filter, gain, indicatorState)
+                }
+                null
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                connection.close()
+                null
+            }
+        }
+    }
+
+    suspend fun setFilter(
+        connection: UsbDeviceConnection,
+        filter: Filter
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                MoondropDawnUsbCommand.setFilter.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
+                val result = connection.controlTransfer(
+                    REQUEST_TYPE_WRITE,
+                    REQUEST_ID_WRITE,
+                    0,
+                    REQUEST_INDEX,
+                    data,
+                    REQUEST_PAYLOAD_SIZE,
+                    TIMEOUT_MS
+                )
+                if (result != REQUEST_PAYLOAD_SIZE) {
+                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                }
+                connection.close()
                 true
-            } else {
-                false
-            }
-        }
-    }
-
-    suspend fun getCurrentState(): Triple<Filter, Gain, IndicatorState>? {
-        return withContext(Dispatchers.IO) {
-            val connection = openAttachedDeviceOrNull()
-            runCatching {
-                if (connection != null) {
-                    val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                    MoondropDawnUsbCommand.getAny.copyInto(data)
-                    var result = connection.controlTransfer(
-                        REQUEST_TYPE_WRITE,
-                        REQUEST_ID_WRITE,
-                        0,
-                        REQUEST_INDEX,
-                        data,
-                        REQUEST_PAYLOAD_SIZE,
-                        TIMEOUT_MS
-                    )
-                    if (result != REQUEST_PAYLOAD_SIZE) {
-                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
-                    }
-                    delay(DELAY_MS)
-                    result = connection.controlTransfer(
-                        REQUEST_TYPE_READ,
-                        REQUEST_ID_READ,
-                        0,
-                        REQUEST_INDEX,
-                        data,
-                        REQUEST_PAYLOAD_SIZE,
-                        TIMEOUT_MS
-                    )
-                    if (result != REQUEST_PAYLOAD_SIZE) {
-                        error("USB control transfer $REQUEST_TYPE_READ failed")
-                    }
-                    connection.close()
-                    val filter = Filter.findById(data[REQUEST_RESULT_INDEX_FILTER])
-                    val gain = Gain.findById(data[REQUEST_RESULT_INDEX_GAIN])
-                    val indicatorState = IndicatorState.findById(
-                        data[REQUEST_RESULT_INDEX_INDICATOR_STATE]
-                    )
-                    if (filter != null && gain != null && indicatorState != null) {
-                        return@runCatching Triple(filter, gain, indicatorState)
-                    }
-                }
-                null
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection?.close()
-                null
+                connection.close()
+                false
             }
         }
     }
 
-    suspend fun setFilter(filter: Filter): Boolean {
+    suspend fun setGain(
+        connection: UsbDeviceConnection,
+        gain: Gain
+    ): Boolean {
         return withContext(Dispatchers.IO) {
-            val connection = openAttachedDeviceOrNull()
             runCatching {
-                if (connection != null) {
-                    val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                    MoondropDawnUsbCommand.setFilter.copyInto(data)
-                    data[INDEX_SET] = filter.id
-                    val result = connection.controlTransfer(
-                        REQUEST_TYPE_WRITE,
-                        REQUEST_ID_WRITE,
-                        0,
-                        REQUEST_INDEX,
-                        data,
-                        REQUEST_PAYLOAD_SIZE,
-                        TIMEOUT_MS
-                    )
-                    if (result != REQUEST_PAYLOAD_SIZE) {
-                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
-                    }
-                    connection.close()
-                    return@runCatching true
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                MoondropDawnUsbCommand.setGain.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
+                val result = connection.controlTransfer(
+                    REQUEST_TYPE_WRITE,
+                    REQUEST_ID_WRITE,
+                    0,
+                    REQUEST_INDEX,
+                    data,
+                    REQUEST_PAYLOAD_SIZE,
+                    TIMEOUT_MS
+                )
+                if (result != REQUEST_PAYLOAD_SIZE) {
+                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                false
+                connection.close()
+                true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection?.close()
+                connection.close()
                 false
             }
         }
     }
 
-    suspend fun setGain(gain: Gain): Boolean {
+    suspend fun setIndicatorState(
+        connection: UsbDeviceConnection,
+        indicatorState: IndicatorState
+    ): Boolean {
         return withContext(Dispatchers.IO) {
-            val connection = openAttachedDeviceOrNull()
             runCatching {
-                if (connection != null) {
-                    val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                    MoondropDawnUsbCommand.setGain.copyInto(data)
-                    data[INDEX_SET] = gain.id
-                    val result = connection.controlTransfer(
-                        REQUEST_TYPE_WRITE,
-                        REQUEST_ID_WRITE,
-                        0,
-                        REQUEST_INDEX,
-                        data,
-                        REQUEST_PAYLOAD_SIZE,
-                        TIMEOUT_MS
-                    )
-                    if (result != REQUEST_PAYLOAD_SIZE) {
-                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
-                    }
-                    connection.close()
-                    return@runCatching true
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                MoondropDawnUsbCommand.setIndicatorState.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = indicatorState.id
+                val result = connection.controlTransfer(
+                    REQUEST_TYPE_WRITE,
+                    REQUEST_ID_WRITE,
+                    0,
+                    REQUEST_INDEX,
+                    data,
+                    REQUEST_PAYLOAD_SIZE,
+                    TIMEOUT_MS
+                )
+                if (result != REQUEST_PAYLOAD_SIZE) {
+                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                false
+                connection.close()
+                true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection?.close()
+                connection.close()
                 false
             }
         }
     }
 
-    suspend fun setIndicatorState(indicatorState: IndicatorState): Boolean {
-        return withContext(Dispatchers.IO) {
-            val connection = openAttachedDeviceOrNull()
-            runCatching {
-                if (connection != null) {
-                    val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                    MoondropDawnUsbCommand.setIndicatorState.copyInto(data)
-                    data[INDEX_SET] = indicatorState.id
-                    val result = connection.controlTransfer(
-                        REQUEST_TYPE_WRITE,
-                        REQUEST_ID_WRITE,
-                        0,
-                        REQUEST_INDEX,
-                        data,
-                        REQUEST_PAYLOAD_SIZE,
-                        TIMEOUT_MS
-                    )
-                    if (result != REQUEST_PAYLOAD_SIZE) {
-                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
-                    }
-                    connection.close()
-                    return@runCatching true
-                }
-                false
-            }.getOrElse { exception ->
-                Timber.e(exception)
-                connection?.close()
-                false
-            }
-        }
-    }
-
-    private suspend fun openAttachedDeviceOrNull(): UsbDeviceConnection? {
+    suspend fun openDeviceOrNull(device: UsbDevice): UsbDeviceConnection? {
         return withContext(Dispatchers.IO) {
             val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-            val device = getAttachedDeviceOrNull()
-            return@withContext if (device != null) {
-                manager.openDevice(device)
-            } else {
-                null
-            }
+            manager.openDevice(device)
         }
     }
 }

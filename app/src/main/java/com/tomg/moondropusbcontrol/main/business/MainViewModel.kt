@@ -53,12 +53,22 @@ class MainViewModel @Inject constructor(
         }
         val isAttached = usbCommunicationRepository.getAttachedDeviceOrNull() != null
         if (state.usbPermissionGranted) {
-            val result = usbCommunicationRepository.getCurrentState()
+            val device = usbCommunicationRepository.getAttachedDeviceOrNull()
+            val deviceState = if (device != null) {
+                val connection = usbCommunicationRepository.openDeviceOrNull(device)
+                if (connection != null) {
+                    usbCommunicationRepository.getCurrentState(connection)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
             reduce {
                 state.copy(
-                    filter = result?.first ?: state.filter,
-                    gain = result?.second ?: state.gain,
-                    indicatorState = result?.third ?: state.indicatorState,
+                    filter = deviceState?.first ?: state.filter,
+                    gain = deviceState?.second ?: state.gain,
+                    indicatorState = deviceState?.third ?: state.indicatorState,
                     isDeviceAttached = isAttached,
                     isLoading = false
                 )
@@ -70,17 +80,26 @@ class MainViewModel @Inject constructor(
                     isLoading = false
                 )
             }
-            requestUsbPermission()
+            if (isAttached) {
+                requestUsbPermission()
+            }
         }
     }
 
     fun handleAttachedDevicesChanged() = intent {
+        reduce {
+            state.copy(isLoading = true)
+        }
         val isAttached = usbCommunicationRepository.getAttachedDeviceOrNull() != null
         reduce {
             state.copy(
                 isDeviceAttached = isAttached,
+                isLoading = false,
                 usbPermissionGranted = if (!isAttached) false else state.usbPermissionGranted
             )
+        }
+        if (isAttached) {
+            requestUsbPermission()
         }
     }
 
@@ -88,12 +107,22 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val result = usbCommunicationRepository.getCurrentState()
+        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
+        val deviceState = if (device != null) {
+            val connection = usbCommunicationRepository.openDeviceOrNull(device)
+            if (connection != null) {
+                usbCommunicationRepository.getCurrentState(connection)
+            } else {
+                null
+            }
+        } else {
+            null
+        }
         reduce {
             state.copy(
-                filter = result?.first ?: state.filter,
-                gain = result?.second ?: state.gain,
-                indicatorState = result?.third ?: state.indicatorState,
+                filter = deviceState?.first ?: state.filter,
+                gain = deviceState?.second ?: state.gain,
+                indicatorState = deviceState?.third ?: state.indicatorState,
                 isLoading = false,
                 usbPermissionGranted = true
             )
@@ -104,12 +133,18 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val result = usbCommunicationRepository.requestUsbPermission()
+        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
+        if (device != null) {
+            val permissionRequested = usbCommunicationRepository.requestUsbPermission(device)
+            if (!permissionRequested) {
+                if (usbCommunicationRepository.hasUsbPermission(device)) {
+                    handleUsbPermissionGranted()
+                    return@intent
+                }
+            }
+        }
         reduce {
             state.copy(isLoading = false)
-        }
-        if (result != null && !result) {
-            handleUsbPermissionGranted()
         }
     }
 
@@ -117,7 +152,17 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val success = usbCommunicationRepository.setFilter(filter)
+        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
+        val success = if (device != null) {
+            val connection = usbCommunicationRepository.openDeviceOrNull(device)
+            if (connection != null) {
+                usbCommunicationRepository.setFilter(connection, filter)
+            } else {
+                false
+            }
+        } else {
+            false
+        }
         reduce {
             state.copy(
                 filter = if (success) filter else state.filter,
@@ -133,7 +178,17 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val success = usbCommunicationRepository.setGain(gain)
+        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
+        val success = if (device != null) {
+            val connection = usbCommunicationRepository.openDeviceOrNull(device)
+            if (connection != null) {
+                usbCommunicationRepository.setGain(connection, gain)
+            } else {
+                false
+            }
+        } else {
+            false
+        }
         reduce {
             state.copy(
                 gain = if (success) gain else state.gain,
@@ -149,7 +204,17 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val success = usbCommunicationRepository.setIndicatorState(indicatorState)
+        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
+        val success = if (device != null) {
+            val connection = usbCommunicationRepository.openDeviceOrNull(device)
+            if (connection != null) {
+                usbCommunicationRepository.setIndicatorState(connection, indicatorState)
+            } else {
+                false
+            }
+        } else {
+            false
+        }
         reduce {
             state.copy(
                 indicatorState = if (success) indicatorState else state.indicatorState,
