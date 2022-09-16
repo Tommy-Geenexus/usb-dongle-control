@@ -27,7 +27,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.SideEffect
 import androidx.core.view.WindowCompat
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.tomg.moondropusbcontrol.navigation.NavGraph
 import com.tomg.moondropusbcontrol.theme.MoondropUsbControlTheme
@@ -51,7 +51,7 @@ class MoondropUsbControlActivity : ComponentActivity() {
                         isNavigationBarContrastEnforced = false
                     )
                 }
-                NavGraph(navController = rememberAnimatedNavController())
+                NavGraph(navController = rememberNavController())
             }
         }
     }

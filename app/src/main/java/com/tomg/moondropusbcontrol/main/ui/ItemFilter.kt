@@ -40,11 +40,12 @@ import com.tomg.moondropusbcontrol.main.Filter
 
 @Composable
 fun ItemFilter(
+    modifier: Modifier = Modifier,
     currentFilter: Filter = Filter.default(),
     onFilterSelected: (Filter) -> Unit = {}
 ) {
     OutlinedCard(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(all = 8.dp)
     ) {

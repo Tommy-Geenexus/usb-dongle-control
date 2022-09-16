@@ -40,11 +40,12 @@ import com.tomg.moondropusbcontrol.main.IndicatorState
 
 @Composable
 fun ItemIndicatorState(
+    modifier: Modifier = Modifier,
     currentIndicatorState: IndicatorState = IndicatorState.default(),
     onIndicatorStateSelected: (IndicatorState) -> Unit = {}
 ) {
     OutlinedCard(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(all = 8.dp)
     ) {

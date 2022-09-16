@@ -68,7 +68,10 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -114,6 +117,7 @@ fun MainScreen(viewModel: MainViewModel) {
     }
     val state by viewModel.collectAsState()
     MainScreen(
+        modifier = modifier,
         snackBarHostState = snackBarHostState,
         filter = state.filter,
         gain = state.gain,
@@ -130,6 +134,7 @@ fun MainScreen(viewModel: MainViewModel) {
 
 @Composable
 fun MainScreen(
+    modifier: Modifier = Modifier,
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     filter: Filter = Filter.default(),
     gain: Gain = Gain.default(),
@@ -143,7 +148,7 @@ fun MainScreen(
     onIndicatorStateSelected: (IndicatorState) -> Unit = {}
 ) {
     Scaffold(
-        modifier = Modifier.systemBarsPadding(),
+        modifier = modifier.systemBarsPadding(),
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },

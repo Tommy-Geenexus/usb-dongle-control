@@ -40,11 +40,12 @@ import com.tomg.moondropusbcontrol.main.Gain
 
 @Composable
 fun ItemGain(
+    modifier: Modifier = Modifier,
     currentGain: Gain = Gain.default(),
     onGainSelected: (Gain) -> Unit = {}
 ) {
     OutlinedCard(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(all = 8.dp)
     ) {

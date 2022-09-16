@@ -21,37 +21,28 @@
 package com.tomg.moondropusbcontrol.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.tomg.moondropusbcontrol.main.ui.MainScreen
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
+    modifier: Modifier = Modifier,
     startDestination: String = NavDestinations.ROUTE_MAIN
 ) {
-    AnimatedNavHost(
+    NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(
-            route = NavDestinations.ROUTE_MAIN,
-            enterTransition = {
-                materialSharedAxisZForward
-            },
-            exitTransition = {
-                materialSharedAxisZBackward
-            },
-            popEnterTransition = {
-                materialSharedAxisZForward
-            },
-            popExitTransition = {
-                materialSharedAxisZBackward
-            }
-        ) {
-            MainScreen(viewModel = hiltViewModel())
+        composable(route = NavDestinations.ROUTE_MAIN) {
+            MainScreen(
+                viewModel = hiltViewModel(),
+                modifier = modifier
+            )
         }
     }
 }

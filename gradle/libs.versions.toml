@@ -1,12 +1,12 @@
 [versions]
 accompanist = "0.25.1"
 activity-compose = "1.5.1"
-agp = "7.2.2"
+agp = "7.3.0"
 app-compat = "1.5.1"
 compose = "1.2.1"
 compose-material3 = "1.0.0-beta02"
 compose-preferences = "0.1.4"
-compose-rules = "0.0.10"
+compose-rules = "0.0.11"
 core-ktx = "1.9.0"
 coroutines = "1.6.4"
 dagger-hilt = "2.43.2"
@@ -21,12 +21,11 @@ lifecycle = "2.5.1"
 material = "1.6.1"
 navigation_compose = "2.5.2"
 orbit = "4.3.2"
-spotless = "6.10.0"
+spotless = "6.11.0"
 timber = "5.0.1"
 versions = "0.42.0"
 
 [libraries]
-accompanist-navigation_animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist" }
 accompanist-system-ui-controller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 app-compat = { module = "androidx.appcompat:appcompat", version.ref = "app-compat" }
@@ -57,7 +56,6 @@ classpath = [
     "compose-rules"
 ]
 implementation = [
-    "accompanist-navigation_animation",
     "accompanist-system-ui-controller",
     "activity-compose",
     "app-compat",
