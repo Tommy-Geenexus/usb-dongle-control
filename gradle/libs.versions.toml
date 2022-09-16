@@ -6,6 +6,7 @@ app-compat = "1.5.1"
 compose = "1.2.1"
 compose-material3 = "1.0.0-beta02"
 compose-preferences = "0.1.4"
+compose-rules = "0.0.10"
 core-ktx = "1.9.0"
 coroutines = "1.6.4"
 dagger-hilt = "2.43.2"
@@ -31,6 +32,7 @@ activity-compose = { module = "androidx.activity:activity-compose", version.ref 
 app-compat = { module = "androidx.appcompat:appcompat", version.ref = "app-compat" }
 compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+compose-rules = { module = "com.twitter.compose.rules:ktlint", version.ref = "compose-rules" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
@@ -51,6 +53,9 @@ orbit-vm = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbit" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [bundles]
+classpath = [
+    "compose-rules"
+]
 implementation = [
     "accompanist-navigation_animation",
     "accompanist-system-ui-controller",

@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath libs.bundles.classpath
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
