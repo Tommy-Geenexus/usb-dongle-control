@@ -5,7 +5,7 @@
     <uses-feature android:name="android.hardware.usb.host" />
 
     <application
-        android:name=".MoondropUsbControlApplication"
+        android:name="io.github.tommy_geenexus.usbdonglecontrol.UsbDongleControlApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
@@ -16,7 +16,7 @@
         android:theme="@style/Theme.Material3.DayNight.NoActionBar"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".MoondropUsbControlActivity"
+            android:name="io.github.tommy_geenexus.usbdonglecontrol.UsbDongleControlActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

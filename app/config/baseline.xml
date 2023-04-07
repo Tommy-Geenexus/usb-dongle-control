@@ -20,5 +20,24 @@
     <ID>MagicNumber:MoondropDawnUsbCommand.kt$MoondropDawnUsbCommand$64</ID>
     <ID>MagicNumber:MoondropDawnUsbCommand.kt$MoondropDawnUsbCommand$91</ID>
     <ID>MagicNumber:MoondropDawnUsbCommand.kt$MoondropDawnUsbCommand$93</ID>
+    <ID>PackageNaming:Filter.kt$package io.github.tommy_geenexus.usbdonglecontrol.main</ID>
+    <ID>PackageNaming:Gain.kt$package io.github.tommy_geenexus.usbdonglecontrol.main</ID>
+    <ID>PackageNaming:IndicatorState.kt$package io.github.tommy_geenexus.usbdonglecontrol.main</ID>
+    <ID>PackageNaming:ItemFilter.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.ui</ID>
+    <ID>PackageNaming:ItemGain.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.ui</ID>
+    <ID>PackageNaming:ItemIndicatorState.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.ui</ID>
+    <ID>PackageNaming:MainScreen.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.ui</ID>
+    <ID>PackageNaming:MainSideEffect.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.business</ID>
+    <ID>PackageNaming:MainState.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.business</ID>
+    <ID>PackageNaming:MainViewModel.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.business</ID>
+    <ID>PackageNaming:MoondropDawnUsbCommand.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.data</ID>
+    <ID>PackageNaming:MoondropUsbControlTheme.kt$package io.github.tommy_geenexus.usbdonglecontrol.theme</ID>
+    <ID>PackageNaming:NavDestinations.kt$package io.github.tommy_geenexus.usbdonglecontrol.navigation</ID>
+    <ID>PackageNaming:NavGraph.kt$package io.github.tommy_geenexus.usbdonglecontrol.navigation</ID>
+    <ID>PackageNaming:UsbCommunicationRepository.kt$package io.github.tommy_geenexus.usbdonglecontrol.main.data</ID>
+    <ID>PackageNaming:UsbDongleControlActivity.kt$package io.github.tommy_geenexus.usbdonglecontrol</ID>
+    <ID>PackageNaming:UsbDongleControlApplication.kt$package io.github.tommy_geenexus.usbdonglecontrol</ID>
+    <ID>PackageNaming:UsbReceiver.kt$package io.github.tommy_geenexus.usbdonglecontrol</ID>
+    <ID>PackageNaming:Utils.kt$package io.github.tommy_geenexus.usbdonglecontrol</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -15,5 +15,5 @@ dependencyResolutionManagement {
         }
     }
 }
-rootProject.name = "MoondropUsbControl"
+rootProject.name = "UsbDongleControl"
 include ':app'
