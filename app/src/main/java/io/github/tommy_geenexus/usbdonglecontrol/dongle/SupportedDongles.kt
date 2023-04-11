@@ -18,15 +18,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle
 
-import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
-import kotlinx.parcelize.Parcelize
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
 
-@Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+val supportedDongles = listOf(
+    FiioKa5(),
+    MoondropDawn44()
+)

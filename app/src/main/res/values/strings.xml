@@ -4,8 +4,21 @@
 
     <string name="attach_device">Attach device</string>
 
+    <string name="channel_balance">Channel balance</string>
+    <string name="channel_balance_offset">Offset: %1$.1f dB %2$s</string>
+
+    <string name="dac_mode">Amplifier work mode</string>
+    <string name="dac_mode_ab">Class AB</string>
+    <string name="dac_mode_h">Class H</string>
+
     <string name="disabled">Disabled</string>
     <string name="disabled_tmp">Temporarily disabled</string>
+
+    <string name="display_brightness">Display brightness</string>
+    <string name="display_brightness_level">Level: %s</string>
+    <string name="display_invert">Invert display</string>
+    <string name="display_timeout">Display timeout</string>
+    <string name="display_timeout_delay">Delay: %1$.0fs</string>
 
     <string name="enabled">Enabled</string>
 
@@ -13,19 +26,39 @@
     <string name="filter_fast_roll_off_low_latency">Fast roll-off, low-latency</string>
     <string name="filter_fast_roll_off_phase_compensated">Fast roll-off, phase-compensated</string>
     <string name="filter_non_over_sampling">Non-oversampling</string>
-    <string name="filter_set">Successfully updated filter</string>
     <string name="filter_slow_roll_off_low_latency">Slow roll-off, low-latency</string>
     <string name="filter_slow_roll_off_phase_compensated">Slow roll-off, phase-compensated</string>
 
+    <string name="fw_version">Firmware version: %s</string>
+
     <string name="gain">Gain</string>
-    <string name="gain_set">Successfully updated gain</string>
 
     <string name="grant_permission">Grant USB permission</string>
 
+    <string name="hid_mode">Volume-button long-press behaviour</string>
+    <string name="hid_mode_a">Play previous/next track</string>
+    <string name="hid_mode_b">Increase/decrease volume</string>
+
     <string name="high">High</string>
 
+    <string name="hw_mute">Hardware mute</string>
+
     <string name="indicator">Indicator</string>
-    <string name="indicator_state_set">Successfully updated indicator state</string>
+
+    <string name="left">left</string>
 
     <string name="low">Low</string>
+
+    <string name="right">right</string>
+
+    <string name="sample_rate">Sample rate: %s</string>
+
+    <string name="spdif_out">S/PDIF output</string>
+
+    <string name="volume">Volume</string>
+    <string name="volume_level">Level: %s</string>
+    <string name="volume_steps">Volume steps</string>
+    <string name="volume_steps_120">120</string>
+    <string name="volume_steps_60">60</string>
+
 </resources>

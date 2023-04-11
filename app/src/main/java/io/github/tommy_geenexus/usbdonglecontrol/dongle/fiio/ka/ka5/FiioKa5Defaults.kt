@@ -18,15 +18,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5
 
-import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
-import kotlinx.parcelize.Parcelize
+object FiioKa5Defaults {
 
-@Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+    const val CHANNEL_BALANCE_MIN = -12
+    const val CHANNEL_BALANCE_MAX = 12
+    const val DISPLAY_BRIGHTNESS_MIN = 1
+    const val DISPLAY_BRIGHTNESS_MAX = 10
+    const val DISPLAY_TIMEOUT_MIN = 0
+    const val DISPLAY_TIMEOUT_MAX = 60
+    const val VOLUME_LEVEL_MIN = 0
+    const val VOLUME_LEVEL_A_MAX = 120
+    const val VOLUME_LEVEL_B_MAX = 60
+
+    const val CHANNEL_BALANCE = CHANNEL_BALANCE_MAX + CHANNEL_BALANCE_MIN
+    const val DISPLAY_BRIGHTNESS = DISPLAY_BRIGHTNESS_MIN
+    const val DISPLAY_TIMEOUT = DISPLAY_TIMEOUT_MIN
+    const val FW_VERSION = "01.00"
+    const val SAMPLE_RATE = "48kHz"
+    const val VOLUME_LEVEL = VOLUME_LEVEL_MIN
+}

@@ -18,33 +18,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main
+package io.github.tommy_geenexus.usbdonglecontrol.dongle
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-sealed class IndicatorState(val id: Byte) : Parcelable {
-
-    companion object {
-
-        fun default() = Enabled
-
-        fun findById(id: Byte): IndicatorState? {
-            return when (id) {
-                Enabled.id -> Enabled
-                DisabledTemp.id -> DisabledTemp
-                Disabled.id -> Disabled
-                else -> null
-            }
-        }
-    }
-
-    @Parcelize
-    object Enabled : IndicatorState(id = 0)
-
-    @Parcelize
-    object DisabledTemp : IndicatorState(id = 1)
-
-    @Parcelize
-    object Disabled : IndicatorState(id = 2)
-}
+interface UsbCommand

@@ -18,15 +18,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle
 
-import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
-import kotlinx.parcelize.Parcelize
+import android.hardware.usb.UsbDeviceConnection
 
-@Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+interface UsbTransfer {
+
+    suspend fun getCurrentState(connection: UsbDeviceConnection): UsbDongle?
+}

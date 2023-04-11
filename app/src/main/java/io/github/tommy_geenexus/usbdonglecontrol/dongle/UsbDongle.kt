@@ -18,15 +18,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle
 
+import android.hardware.usb.UsbDevice
 import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+abstract class UsbDongle(
+    val manufacturerName: String,
+    open val modelName: String
+) : UsbCommand,
+    Parcelable
+
+fun UsbDevice?.toUsbDongleOrNull() = supportedDongles.find { usbDongle ->
+    this?.manufacturerName == usbDongle.manufacturerName &&
+        this.productName?.endsWith(usbDongle.modelName) == true
+}

@@ -1,0 +1,13 @@
+complexity:
+  LongParameterList:
+    ignoreDefaultParameters: true
+naming:
+  FunctionNaming:
+    functionPattern: "[a-zA-Z][a-zA-Z0-9]*"
+  PackageNaming:
+    active: false
+  TopLevelPropertyNaming:
+    constantPattern: "[A-Z][A-Za-z0-9]*"
+style:
+  MagicNumber:
+    ignorePropertyDeclaration: true

@@ -18,15 +18,41 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
 import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+sealed class Filter(val id: Byte) : Parcelable {
+
+    companion object {
+
+        fun default() = FastRollOffLowLatency
+
+        fun findById(id: Byte): Filter? {
+            return when (id) {
+                FastRollOffLowLatency.id -> FastRollOffLowLatency
+                FastRollOffPhaseCompensated.id -> FastRollOffPhaseCompensated
+                SlowRollOffLowLatency.id -> SlowRollOffLowLatency
+                SlowRollOffPhaseCompensated.id -> SlowRollOffPhaseCompensated
+                NonOversampling.id -> NonOversampling
+                else -> null
+            }
+        }
+    }
+
+    @Parcelize
+    object FastRollOffLowLatency : Filter(id = 0)
+
+    @Parcelize
+    object FastRollOffPhaseCompensated : Filter(id = 1)
+
+    @Parcelize
+    object SlowRollOffLowLatency : Filter(id = 2)
+
+    @Parcelize
+    object SlowRollOffPhaseCompensated : Filter(id = 3)
+
+    @Parcelize
+    object NonOversampling : Filter(id = 4)
+}

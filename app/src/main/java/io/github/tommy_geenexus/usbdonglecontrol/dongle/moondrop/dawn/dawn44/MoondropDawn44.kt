@@ -18,15 +18,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44
 
-import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.MoondropUsbDongle
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.MoondropDawn44UsbCommand
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+data class MoondropDawn44(
+    val filter: Filter = Filter.default(),
+    val gain: Gain = Gain.default(),
+    val indicatorState: IndicatorState = IndicatorState.default()
+) : MoondropUsbDongle(modelName = "Nano audio 1"),
+    MoondropDawn44UsbCommand {
+
+    @IgnoredOnParcel
+    override val setFilter = byteArrayOf(-64, -91, 1)
+
+    @IgnoredOnParcel
+    override val setGain = byteArrayOf(-64, -91, 2)
+
+    @IgnoredOnParcel
+    override val setIndicatorState = byteArrayOf(-64, -91, 6)
+
+    @IgnoredOnParcel
+    override val getAny = byteArrayOf(-64, -91, -93)
+}

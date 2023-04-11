@@ -18,15 +18,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
 import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+sealed class HidMode(val id: Byte) : Parcelable {
+
+    companion object {
+
+        fun default() = A
+
+        fun findById(id: Byte): HidMode? {
+            return when (id) {
+                A.id -> A
+                B.id -> B
+                else -> null
+            }
+        }
+    }
+
+    @Parcelize
+    object A : HidMode(id = 0)
+
+    @Parcelize
+    object B : HidMode(id = 1)
+}

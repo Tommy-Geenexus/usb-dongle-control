@@ -1,6 +1,8 @@
 root = true
 
 [*.{kt,kts}]
+# noinspection EditorConfigKeyCorrectness
+ktlint_standard_package-name = disabled
 ij_kotlin_allow_trailing_comma_on_call_site = false
 ij_kotlin_allow_trailing_comma = false
 trim_trailing_whitespace = true

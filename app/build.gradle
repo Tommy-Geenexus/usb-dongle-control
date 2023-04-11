@@ -81,7 +81,9 @@ tasks.withType(DetektCreateBaselineTask).configureEach {
 }
 
 detekt {
-    baseline = file("$projectDir/config/baseline.xml")
+    baseline = file("$projectDir/config/detekt/baseline.xml")
+    config = files("$projectDir/config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
@@ -108,4 +110,5 @@ dependencies {
     implementation platform(libs.compose.bom)
     implementation libs.bundles.implementation
     kapt libs.bundles.kapt
+    lintChecks libs.bundles.lint.checks
 }

@@ -18,7 +18,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.ui
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,13 +36,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
-import io.github.tommy_geenexus.usbdonglecontrol.main.IndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 
 @Composable
-fun ItemIndicatorState(
+fun ItemFilter(
     modifier: Modifier = Modifier,
-    currentIndicatorState: IndicatorState = IndicatorState.default(),
-    onIndicatorStateSelected: (IndicatorState) -> Unit = {}
+    filter: Filter = Filter.default(),
+    onFilterSelected: (Filter) -> Unit = {}
 ) {
     OutlinedCard(
         modifier = modifier
@@ -51,28 +51,30 @@ fun ItemIndicatorState(
     ) {
         Column {
             Text(
-                text = stringResource(id = R.string.indicator),
+                text = stringResource(id = R.string.filter),
                 modifier = Modifier.padding(all = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
-            val indicatorStates = listOf(
-                stringResource(id = R.string.enabled),
-                stringResource(id = R.string.disabled_tmp),
-                stringResource(id = R.string.disabled)
+            val filters = listOf(
+                stringResource(id = R.string.filter_fast_roll_off_low_latency),
+                stringResource(id = R.string.filter_fast_roll_off_phase_compensated),
+                stringResource(id = R.string.filter_slow_roll_off_low_latency),
+                stringResource(id = R.string.filter_slow_roll_off_phase_compensated),
+                stringResource(id = R.string.filter_non_over_sampling)
             )
-            indicatorStates.forEachIndexed { index, indicatorState ->
+            filters.forEachIndexed { index, f ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = index.toByte() == currentIndicatorState.id,
+                        selected = index.toByte() == filter.id,
                         onClick = {
-                            val newIndicatorState = IndicatorState.findById(index.toByte())
-                            if (newIndicatorState != null) {
-                                onIndicatorStateSelected(newIndicatorState)
+                            val newFilter = Filter.findById(index.toByte())
+                            if (newFilter != null) {
+                                onFilterSelected(newFilter)
                             }
                         }
                     )
                     Text(
-                        text = indicatorState,
+                        text = f,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -82,8 +84,8 @@ fun ItemIndicatorState(
     }
 }
 
-@Preview(name = "ItemIndicatorState")
+@Preview
 @Composable
-fun ItemIndicatorStatePreview() {
-    ItemIndicatorState()
+fun ItemFilterPreview() {
+    ItemFilter()
 }

@@ -22,14 +22,15 @@ package io.github.tommy_geenexus.usbdonglecontrol.main.business
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import io.github.tommy_geenexus.usbdonglecontrol.main.Filter
-import io.github.tommy_geenexus.usbdonglecontrol.main.Gain
-import io.github.tommy_geenexus.usbdonglecontrol.main.IndicatorState
-import io.github.tommy_geenexus.usbdonglecontrol.main.data.UsbCommunicationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.MoondropDawn44UsbCommunicationRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
@@ -37,11 +38,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val usbCommunicationRepository: UsbCommunicationRepository
+    val usbRepository: UsbRepository,
+    val fiioKa5UsbCommunicationRepository: FiioKa5UsbCommunicationRepository,
+    val moondropDawn44UsbCommunicationRepository: MoondropDawn44UsbCommunicationRepository
 ) : ViewModel(),
-    ContainerHost<MainState, MainSideEffect> {
+    ContainerHost<MainState, Nothing> {
 
-    override val container = container<MainState, MainSideEffect>(
+    override val container = container<MainState, Nothing>(
         initialState = MainState(),
         savedStateHandle = savedStateHandle,
         onCreate = { getCurrentState() }
@@ -51,67 +54,23 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val isAttached = usbCommunicationRepository.getAttachedDeviceOrNull() != null
-        if (state.usbPermissionGranted) {
-            val device = usbCommunicationRepository.getAttachedDeviceOrNull()
-            val deviceState = if (device != null) {
-                val connection = usbCommunicationRepository.openDeviceOrNull(device)
+        val device = usbRepository.getAttachedDeviceOrNull()
+        val usbDongle = if (state.usbPermissionGranted) {
+            if (device != null) {
+                val connection = usbRepository.openDeviceOrNull(device)
                 if (connection != null) {
-                    usbCommunicationRepository.getCurrentState(connection)
+                    when (device.toUsbDongleOrNull()) {
+                        is FiioKa5 -> {
+                            fiioKa5UsbCommunicationRepository.getCurrentState(connection)
+                        }
+                        is MoondropDawn44 -> {
+                            moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
+                        }
+                        else -> null
+                    }
                 } else {
                     null
                 }
-            } else {
-                null
-            }
-            reduce {
-                state.copy(
-                    filter = deviceState?.first ?: state.filter,
-                    gain = deviceState?.second ?: state.gain,
-                    indicatorState = deviceState?.third ?: state.indicatorState,
-                    isDeviceAttached = isAttached,
-                    isLoading = false
-                )
-            }
-        } else {
-            reduce {
-                state.copy(
-                    isDeviceAttached = isAttached,
-                    isLoading = false
-                )
-            }
-            if (isAttached) {
-                requestUsbPermission()
-            }
-        }
-    }
-
-    fun handleAttachedDevicesChanged() = intent {
-        reduce {
-            state.copy(isLoading = true)
-        }
-        val isAttached = usbCommunicationRepository.getAttachedDeviceOrNull() != null
-        reduce {
-            state.copy(
-                isDeviceAttached = isAttached,
-                isLoading = false,
-                usbPermissionGranted = if (!isAttached) false else state.usbPermissionGranted
-            )
-        }
-        if (isAttached) {
-            requestUsbPermission()
-        }
-    }
-
-    fun handleUsbPermissionGranted() = intent {
-        reduce {
-            state.copy(isLoading = true)
-        }
-        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
-        val deviceState = if (device != null) {
-            val connection = usbCommunicationRepository.openDeviceOrNull(device)
-            if (connection != null) {
-                usbCommunicationRepository.getCurrentState(connection)
             } else {
                 null
             }
@@ -120,11 +79,66 @@ class MainViewModel @Inject constructor(
         }
         reduce {
             state.copy(
-                filter = deviceState?.first ?: state.filter,
-                gain = deviceState?.second ?: state.gain,
-                indicatorState = deviceState?.third ?: state.indicatorState,
+                usbDongle = usbDongle,
+                isLoading = false
+            )
+        }
+        if (device != null && !state.usbPermissionGranted) {
+            requestUsbPermission()
+        }
+    }
+
+    fun handleAttachedDevicesChanged() = intent {
+        reduce {
+            state.copy(isLoading = true)
+        }
+        val usbDongle = usbRepository.getAttachedDeviceOrNull()?.toUsbDongleOrNull()
+        reduce {
+            state.copy(
+                usbDongle = usbDongle,
                 isLoading = false,
+                usbPermissionGranted = false
+            )
+        }
+        if (usbDongle != null) {
+            requestUsbPermission()
+        }
+    }
+
+    fun handleUsbPermissionGranted() = intent {
+        reduce {
+            state.copy(
+                isLoading = true,
                 usbPermissionGranted = true
+            )
+        }
+        val device = usbRepository.getAttachedDeviceOrNull()
+        val usbDongle = if (state.usbPermissionGranted) {
+            if (device != null) {
+                val connection = usbRepository.openDeviceOrNull(device)
+                if (connection != null) {
+                    when (device.toUsbDongleOrNull()) {
+                        is FiioKa5 -> {
+                            fiioKa5UsbCommunicationRepository.getCurrentState(connection)
+                        }
+                        is MoondropDawn44 -> {
+                            moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
+                        }
+                        else -> null
+                    }
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+        reduce {
+            state.copy(
+                usbDongle = usbDongle,
+                isLoading = false
             )
         }
     }
@@ -133,11 +147,11 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
+        val device = usbRepository.getAttachedDeviceOrNull()
         if (device != null) {
-            val permissionRequested = usbCommunicationRepository.requestUsbPermission(device)
+            val permissionRequested = usbRepository.requestUsbPermission(device)
             if (!permissionRequested) {
-                if (usbCommunicationRepository.hasUsbPermission(device)) {
+                if (usbRepository.hasUsbPermission(device)) {
                     handleUsbPermissionGranted()
                     return@intent
                 }
@@ -145,84 +159,6 @@ class MainViewModel @Inject constructor(
         }
         reduce {
             state.copy(isLoading = false)
-        }
-    }
-
-    fun setFilter(filter: Filter) = intent {
-        reduce {
-            state.copy(isLoading = true)
-        }
-        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
-        val success = if (device != null) {
-            val connection = usbCommunicationRepository.openDeviceOrNull(device)
-            if (connection != null) {
-                usbCommunicationRepository.setFilter(connection, filter)
-            } else {
-                false
-            }
-        } else {
-            false
-        }
-        reduce {
-            state.copy(
-                filter = if (success) filter else state.filter,
-                isLoading = false
-            )
-        }
-        if (success) {
-            postSideEffect(MainSideEffect.Filter)
-        }
-    }
-
-    fun setGain(gain: Gain) = intent {
-        reduce {
-            state.copy(isLoading = true)
-        }
-        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
-        val success = if (device != null) {
-            val connection = usbCommunicationRepository.openDeviceOrNull(device)
-            if (connection != null) {
-                usbCommunicationRepository.setGain(connection, gain)
-            } else {
-                false
-            }
-        } else {
-            false
-        }
-        reduce {
-            state.copy(
-                gain = if (success) gain else state.gain,
-                isLoading = false
-            )
-        }
-        if (success) {
-            postSideEffect(MainSideEffect.Gain)
-        }
-    }
-
-    fun setIndicatorState(indicatorState: IndicatorState) = intent {
-        reduce {
-            state.copy(isLoading = true)
-        }
-        val device = usbCommunicationRepository.getAttachedDeviceOrNull()
-        val success = if (device != null) {
-            val connection = usbCommunicationRepository.openDeviceOrNull(device)
-            if (connection != null) {
-                usbCommunicationRepository.setIndicatorState(connection, indicatorState)
-            } else {
-                false
-            }
-        } else {
-            false
-        }
-        reduce {
-            state.copy(
-                indicatorState = if (success) indicatorState else state.indicatorState,
-                isLoading = false
-            )
-        }
-        if (success) {
-            postSideEffect(MainSideEffect.IndicatorState)
         }
     }
 }

@@ -18,7 +18,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.ui
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,13 +36,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
-import io.github.tommy_geenexus.usbdonglecontrol.main.Gain
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
 
 @Composable
-fun ItemGain(
+fun ItemIndicatorState(
     modifier: Modifier = Modifier,
-    currentGain: Gain = Gain.default(),
-    onGainSelected: (Gain) -> Unit = {}
+    indicatorState: IndicatorState = IndicatorState.default(),
+    onIndicatorStateSelected: (IndicatorState) -> Unit = {}
 ) {
     OutlinedCard(
         modifier = modifier
@@ -51,27 +51,28 @@ fun ItemGain(
     ) {
         Column {
             Text(
-                text = stringResource(id = R.string.gain),
+                text = stringResource(id = R.string.indicator),
                 modifier = Modifier.padding(all = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
-            val gains = listOf(
-                stringResource(id = R.string.low),
-                stringResource(id = R.string.high)
+            val indicatorStates = listOf(
+                stringResource(id = R.string.enabled),
+                stringResource(id = R.string.disabled_tmp),
+                stringResource(id = R.string.disabled)
             )
-            gains.forEachIndexed { index, gain ->
+            indicatorStates.forEachIndexed { index, i ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = index.toByte() == currentGain.id,
+                        selected = index.toByte() == indicatorState.id,
                         onClick = {
-                            val newGain = Gain.findById(index.toByte())
-                            if (newGain != null) {
-                                onGainSelected(newGain)
+                            val newIndicatorState = IndicatorState.findById(index.toByte())
+                            if (newIndicatorState != null) {
+                                onIndicatorStateSelected(newIndicatorState)
                             }
                         }
                     )
                     Text(
-                        text = gain,
+                        text = i,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -81,8 +82,8 @@ fun ItemGain(
     }
 }
 
-@Preview(name = "ItemGain")
+@Preview
 @Composable
-fun ItemGainPreview() {
-    ItemGain()
+fun ItemIndicatorStatePreview() {
+    ItemIndicatorState()
 }

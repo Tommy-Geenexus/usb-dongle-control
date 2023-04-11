@@ -18,15 +18,43 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.business
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
-import android.os.Parcelable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
-import kotlinx.parcelize.Parcelize
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.FiioUsbCommand
 
-@Parcelize
-data class MainState(
-    val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
-) : Parcelable
+interface FiioKa5UsbCommand : FiioUsbCommand {
+
+    val setFilter: ByteArray
+
+    val setGain: ByteArray
+
+    val setVolumeLevel: ByteArray
+
+    val setChannelBalance: ByteArray
+
+    val setDacMode: ByteArray
+
+    val setHardwareMute: ByteArray
+
+    val setSpdifOut: ByteArray
+
+    val setDisplayTimeout: ByteArray
+
+    val setHidMode: ByteArray
+
+    val setDisplayBrightness: ByteArray
+
+    val setDisplayInvert: ByteArray
+
+    val setVolumeMode: ByteArray
+
+    val getVersion: ByteArray
+
+    val getSampleRate: ByteArray
+
+    val getVolumeLevel: ByteArray
+
+    val getFilter: ByteArray
+
+    val getOtherState: ByteArray
+}

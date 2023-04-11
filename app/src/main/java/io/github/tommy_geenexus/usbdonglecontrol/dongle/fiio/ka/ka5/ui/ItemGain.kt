@@ -18,7 +18,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.ui
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,13 +36,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
-import io.github.tommy_geenexus.usbdonglecontrol.main.Filter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
 
 @Composable
-fun ItemFilter(
+fun ItemGain(
     modifier: Modifier = Modifier,
-    currentFilter: Filter = Filter.default(),
-    onFilterSelected: (Filter) -> Unit = {}
+    gain: Gain = Gain.default(),
+    onGainSelected: (Gain) -> Unit = {}
 ) {
     OutlinedCard(
         modifier = modifier
@@ -51,30 +51,27 @@ fun ItemFilter(
     ) {
         Column {
             Text(
-                text = stringResource(id = R.string.filter),
+                text = stringResource(id = R.string.gain),
                 modifier = Modifier.padding(all = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
-            val filters = listOf(
-                stringResource(id = R.string.filter_fast_roll_off_low_latency),
-                stringResource(id = R.string.filter_fast_roll_off_phase_compensated),
-                stringResource(id = R.string.filter_slow_roll_off_low_latency),
-                stringResource(id = R.string.filter_slow_roll_off_phase_compensated),
-                stringResource(id = R.string.filter_non_over_sampling)
+            val gains = listOf(
+                stringResource(id = R.string.low),
+                stringResource(id = R.string.high)
             )
-            filters.forEachIndexed { index, filter ->
+            gains.forEachIndexed { index, g ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = index.toByte() == currentFilter.id,
+                        selected = index.toByte() == gain.id,
                         onClick = {
-                            val newFilter = Filter.findById(index.toByte())
-                            if (newFilter != null) {
-                                onFilterSelected(newFilter)
+                            val newGain = Gain.findById(index.toByte())
+                            if (newGain != null) {
+                                onGainSelected(newGain)
                             }
                         }
                     )
                     Text(
-                        text = filter,
+                        text = g,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -84,8 +81,8 @@ fun ItemFilter(
     }
 }
 
-@Preview(name = "ItemFilter")
+@Preview
 @Composable
-fun ItemFilterPreview() {
-    ItemFilter()
+fun ItemGainPreview() {
+    ItemGain()
 }

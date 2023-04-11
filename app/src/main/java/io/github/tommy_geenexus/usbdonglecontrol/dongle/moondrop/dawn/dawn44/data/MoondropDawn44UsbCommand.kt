@@ -18,29 +18,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.MoondropUsbCommand
 
-sealed class Gain(val id: Byte) : Parcelable {
+interface MoondropDawn44UsbCommand : MoondropUsbCommand {
 
-    companion object {
-
-        fun default() = High
-
-        fun findById(id: Byte): Gain? {
-            return when (id) {
-                Low.id -> Low
-                High.id -> High
-                else -> null
-            }
-        }
-    }
-
-    @Parcelize
-    object Low : Gain(id = 0)
-
-    @Parcelize
-    object High : Gain(id = 1)
+    val getAny: ByteArray
+    val setFilter: ByteArray
+    val setGain: ByteArray
+    val setIndicatorState: ByteArray
 }

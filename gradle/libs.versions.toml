@@ -4,6 +4,7 @@ activity-compose = "1.7.0"
 agp = "7.4.2"
 app-compat = "1.6.1"
 compose-bom = "2023.04.00"
+compose-lint-checks = "1.1.1"
 core-ktx = "1.9.0"
 coroutines = "1.6.4"
 dagger-hilt = "2.45"
@@ -28,6 +29,7 @@ activity-compose = { module = "androidx.activity:activity-compose", version.ref 
 app-compat = { module = "androidx.appcompat:appcompat", version.ref = "app-compat" }
 compose-animation = { module = "androidx.compose.animation:animation" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+compose-lint-checks = { module = "com.slack.lint.compose:compose-lint-checks", version.ref = "compose-lint-checks" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
@@ -73,6 +75,9 @@ implementation = [
 kapt = [
     "dagger-hilt-android-compiler",
     "dagger-hilt-compiler"
+]
+lint-checks = [
+    "compose-lint-checks"
 ]
 
 [plugins]

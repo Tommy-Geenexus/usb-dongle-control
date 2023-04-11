@@ -18,19 +18,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.data
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data
 
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
-import android.hardware.usb.UsbManager
-import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
-import io.github.tommy_geenexus.usbdonglecontrol.main.Filter
-import io.github.tommy_geenexus.usbdonglecontrol.main.Gain
-import io.github.tommy_geenexus.usbdonglecontrol.main.IndicatorState
-import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbTransfer
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.suspendRunCatching
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -39,17 +34,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class UsbCommunicationRepository @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
+class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransfer {
 
     private companion object {
 
-        const val ID_VENDOR = 12230
-        const val ID_PRODUCT = 61543
-
         const val DELAY_MS = 100L
         const val TIMEOUT_MS = 100
+
+        const val USB_ENDPOINT = 0
 
         const val REQUEST_PAYLOAD_INDEX_SET = 3
         const val REQUEST_PAYLOAD_SIZE = 7
@@ -64,63 +56,18 @@ class UsbCommunicationRepository @Inject constructor(
         const val REQUEST_RESULT_INDEX_INDICATOR_STATE = 5
     }
 
-    suspend fun getAttachedDeviceOrNull(): UsbDevice? {
-        return withContext(Dispatchers.IO) {
-            val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-            manager.deviceList?.values?.find { device ->
-                device.vendorId == ID_VENDOR && device.productId == ID_PRODUCT
-            }
-        }
-    }
-
-    suspend fun hasUsbPermission(device: UsbDevice): Boolean {
-        return withContext(Dispatchers.IO) {
-            runCatching {
-                val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-                manager.hasPermission(device)
-            }.getOrElse { exception ->
-                Timber.e(exception)
-                false
-            }
-        }
-    }
-
-    suspend fun requestUsbPermission(device: UsbDevice): Boolean {
-        return withContext(Dispatchers.IO) {
-            runCatching {
-                val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-                if (!hasUsbPermission(device)) {
-                    manager.requestPermission(
-                        device,
-                        PendingIntent.getBroadcast(
-                            context,
-                            0,
-                            Intent(INTENT_ACTION_USB_PERMISSION),
-                            PendingIntent.FLAG_MUTABLE
-                        )
-                    )
-                    true
-                } else {
-                    false
-                }
-            }.getOrElse { exception ->
-                Timber.e(exception)
-                false
-            }
-        }
-    }
-
-    suspend fun getCurrentState(
+    override suspend fun getCurrentState(
         connection: UsbDeviceConnection
-    ): Triple<Filter, Gain, IndicatorState>? {
+    ): MoondropDawn44? {
         return withContext(Dispatchers.IO) {
-            runCatching {
+            coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                MoondropDawnUsbCommand.getAny.copyInto(data)
+                val moondropDawn44 = MoondropDawn44()
+                moondropDawn44.getAny.copyInto(data)
                 var result = connection.controlTransfer(
                     REQUEST_TYPE_WRITE,
                     REQUEST_ID_WRITE,
-                    0,
+                    USB_ENDPOINT,
                     REQUEST_INDEX,
                     data,
                     REQUEST_PAYLOAD_SIZE,
@@ -133,7 +80,7 @@ class UsbCommunicationRepository @Inject constructor(
                 result = connection.controlTransfer(
                     REQUEST_TYPE_READ,
                     REQUEST_ID_READ,
-                    0,
+                    USB_ENDPOINT,
                     REQUEST_INDEX,
                     data,
                     REQUEST_PAYLOAD_SIZE,
@@ -143,15 +90,20 @@ class UsbCommunicationRepository @Inject constructor(
                     error("USB control transfer $REQUEST_TYPE_READ failed")
                 }
                 connection.close()
-                val filter = Filter.findById(data[REQUEST_RESULT_INDEX_FILTER])
-                val gain = Gain.findById(data[REQUEST_RESULT_INDEX_GAIN])
-                val indicatorState = IndicatorState.findById(
-                    data[REQUEST_RESULT_INDEX_INDICATOR_STATE]
+                val filter = Filter
+                    .findById(data[REQUEST_RESULT_INDEX_FILTER])
+                    ?: Filter.default()
+                val gain = Gain
+                    .findById(data[REQUEST_RESULT_INDEX_GAIN])
+                    ?: Gain.default()
+                val indicatorState = IndicatorState
+                    .findById(data[REQUEST_RESULT_INDEX_INDICATOR_STATE])
+                    ?: IndicatorState.default()
+                moondropDawn44.copy(
+                    filter = filter,
+                    gain = gain,
+                    indicatorState = indicatorState
                 )
-                if (filter != null && gain != null && indicatorState != null) {
-                    return@runCatching Triple(filter, gain, indicatorState)
-                }
-                null
             }.getOrElse { exception ->
                 Timber.e(exception)
                 connection.close()
@@ -165,14 +117,14 @@ class UsbCommunicationRepository @Inject constructor(
         filter: Filter
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            runCatching {
+            coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                MoondropDawnUsbCommand.setFilter.copyInto(data)
+                MoondropDawn44().setFilter.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
                 val result = connection.controlTransfer(
                     REQUEST_TYPE_WRITE,
                     REQUEST_ID_WRITE,
-                    0,
+                    USB_ENDPOINT,
                     REQUEST_INDEX,
                     data,
                     REQUEST_PAYLOAD_SIZE,
@@ -196,14 +148,14 @@ class UsbCommunicationRepository @Inject constructor(
         gain: Gain
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            runCatching {
+            coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                MoondropDawnUsbCommand.setGain.copyInto(data)
+                MoondropDawn44().setGain.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
                 val result = connection.controlTransfer(
                     REQUEST_TYPE_WRITE,
                     REQUEST_ID_WRITE,
-                    0,
+                    USB_ENDPOINT,
                     REQUEST_INDEX,
                     data,
                     REQUEST_PAYLOAD_SIZE,
@@ -227,14 +179,14 @@ class UsbCommunicationRepository @Inject constructor(
         indicatorState: IndicatorState
     ): Boolean {
         return withContext(Dispatchers.IO) {
-            runCatching {
+            coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
-                MoondropDawnUsbCommand.setIndicatorState.copyInto(data)
+                MoondropDawn44().setIndicatorState.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = indicatorState.id
                 val result = connection.controlTransfer(
                     REQUEST_TYPE_WRITE,
                     REQUEST_ID_WRITE,
-                    0,
+                    USB_ENDPOINT,
                     REQUEST_INDEX,
                     data,
                     REQUEST_PAYLOAD_SIZE,
@@ -250,13 +202,6 @@ class UsbCommunicationRepository @Inject constructor(
                 connection.close()
                 false
             }
-        }
-    }
-
-    suspend fun openDeviceOrNull(device: UsbDevice): UsbDeviceConnection? {
-        return withContext(Dispatchers.IO) {
-            val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-            manager.openDevice(device)
         }
     }
 }

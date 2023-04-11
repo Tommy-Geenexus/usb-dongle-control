@@ -18,12 +18,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.main.data
+package io.github.tommy_geenexus.usbdonglecontrol
 
-object MoondropDawnUsbCommand {
+import kotlinx.coroutines.ensureActive
+import kotlin.coroutines.CoroutineContext
 
-    val getAny = byteArrayOf(-64, -91, -93)
-    val setFilter = byteArrayOf(-64, -91, 1)
-    val setGain = byteArrayOf(-64, -91, 2)
-    val setIndicatorState = byteArrayOf(-64, -91, 6)
+suspend fun <T> CoroutineContext.suspendRunCatching(block: suspend () -> T): Result<T> = try {
+    Result.success(block())
+} catch (exception: Exception) {
+    ensureActive()
+    Result.failure(exception)
 }

@@ -29,9 +29,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.navigation.NavGraph
 import io.github.tommy_geenexus.usbdonglecontrol.theme.MoondropUsbControlTheme
-import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class UsbDongleControlActivity : ComponentActivity() {
