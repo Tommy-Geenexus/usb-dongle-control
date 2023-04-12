@@ -21,6 +21,7 @@
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
 import android.hardware.usb.UsbDeviceConnection
+import io.github.tommy_geenexus.usbdonglecontrol.clamp
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbTransfer
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
@@ -32,8 +33,6 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 @Singleton
 class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
@@ -151,11 +150,6 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         38 to "Native512",
         39 to "Native512"
     )
-
-    private fun Int.clamp(
-        minV: Int,
-        maxV: Int
-    ) = max(minV, min(this, maxV))
 
     private fun Byte.toMaskedByte() = (toInt() and MASK).toByte()
 
@@ -450,15 +444,15 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                     data[REQUEST_PAYLOAD_INDEX_SET] = 0
                     data[REQUEST_PAYLOAD_INDEX_SET + 1] = abs(
                         channelBalance.clamp(
-                            minV = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
-                            maxV = FiioKa5Defaults.CHANNEL_BALANCE_MAX
+                            min = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
+                            max = FiioKa5Defaults.CHANNEL_BALANCE_MAX
                         )
                     ).toByte()
                 } else if (channelBalance > 0) {
                     data[REQUEST_PAYLOAD_INDEX_SET] = abs(
                         channelBalance.clamp(
-                            minV = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
-                            maxV = FiioKa5Defaults.CHANNEL_BALANCE_MAX
+                            min = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
+                            max = FiioKa5Defaults.CHANNEL_BALANCE_MAX
                         )
                     ).toByte()
                     data[REQUEST_PAYLOAD_INDEX_SET + 1] = 0
@@ -593,8 +587,8 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setDisplayTimeout.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = displayTimeout.clamp(
-                    minV = FiioKa5Defaults.DISPLAY_TIMEOUT_MIN,
-                    maxV = FiioKa5Defaults.DISPLAY_TIMEOUT_MAX
+                    min = FiioKa5Defaults.DISPLAY_TIMEOUT_MIN,
+                    max = FiioKa5Defaults.DISPLAY_TIMEOUT_MAX
                 ).toByte()
                 val result = connection.controlTransfer(
                     REQUEST_TYPE_WRITE,

@@ -20,4 +20,6 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol
 
-const val INTENT_ACTION_USB_PERMISSION = "com.tomg.moondropusbcontrol.USB_PERMISSION"
+const val TOP_LEVEL_PACKAGE_NAME = "io.github.tommy_geenexus."
+const val INTENT_ACTION_USB_PERMISSION =
+    TOP_LEVEL_PACKAGE_NAME + "com.tomg.moondropusbcontrol.USB_PERMISSION"

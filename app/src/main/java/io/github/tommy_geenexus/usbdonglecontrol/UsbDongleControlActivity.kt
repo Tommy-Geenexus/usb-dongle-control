@@ -20,6 +20,7 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,7 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.navigation.NavGraph
-import io.github.tommy_geenexus.usbdonglecontrol.theme.MoondropUsbControlTheme
+import io.github.tommy_geenexus.usbdonglecontrol.theme.UsbDongleControlTheme
 
 @AndroidEntryPoint
 class UsbDongleControlActivity : ComponentActivity() {
@@ -40,7 +41,7 @@ class UsbDongleControlActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            MoondropUsbControlTheme {
+            UsbDongleControlTheme {
                 val systemUiController = rememberSystemUiController()
                 val useDarkIcons = !isSystemInDarkTheme()
                 val surfaceColor = MaterialTheme.colorScheme.surface
@@ -54,5 +55,11 @@ class UsbDongleControlActivity : ComponentActivity() {
                 NavGraph(navController = rememberNavController())
             }
         }
+        startService(Intent(applicationContext, UsbService::class.java))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopService(Intent(applicationContext, UsbService::class.java))
     }
 }

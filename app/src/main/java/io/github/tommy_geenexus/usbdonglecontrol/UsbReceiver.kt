@@ -47,11 +47,13 @@ class UsbReceiver(
             if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) &&
                 device != null
             ) {
+                context?.startService(Intent(context, UsbService::class.java))
                 onPermissionGranted()
             }
         } else if (intent?.action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
             onDeviceAttached()
         } else if (intent?.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
+            context?.stopService(Intent(context, UsbService::class.java))
             onDeviceDetached()
         }
     }

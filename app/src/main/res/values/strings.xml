@@ -56,9 +56,10 @@
     <string name="spdif_out">S/PDIF output</string>
 
     <string name="volume">Volume</string>
-    <string name="volume_level">Level: %s</string>
+    <string name="volume_down">Volume down</string>
+    <string name="volume_level">Volume level: %s</string>
     <string name="volume_steps">Volume steps</string>
     <string name="volume_steps_120">120</string>
     <string name="volume_steps_60">60</string>
-
+    <string name="volume_up">Volume Up</string>
 </resources>

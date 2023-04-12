@@ -22,6 +22,13 @@ package io.github.tommy_geenexus.usbdonglecontrol
 
 import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.max
+import kotlin.math.min
+
+fun Int.clamp(
+    min: Int,
+    max: Int
+) = max(min, min(this, max))
 
 suspend fun <T> CoroutineContext.suspendRunCatching(block: suspend () -> T): Result<T> = try {
     Result.success(block())
