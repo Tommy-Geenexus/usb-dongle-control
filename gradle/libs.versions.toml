@@ -1,7 +1,7 @@
 [versions]
 accompanist = "0.30.1"
 activity-compose = "1.7.0"
-agp = "7.4.2"
+agp = "8.0.0"
 app-compat = "1.6.1"
 compose-bom = "2023.04.00"
 compose-lint-checks = "1.1.1"
@@ -12,7 +12,7 @@ dagger-hilt-extensions = "1.0.0"
 dagger-hilt-navigation-compose = "1.0.0"
 dagger-hilt-vm-compiler = "1.0.0"
 detekt = "1.22.0"
-kotlin = "1.8.10"
+kotlin = "1.8.20"
 kotlinter = "3.14.0"
 leakcanary = "2.10"
 lifecycle = "2.5.1"
@@ -24,6 +24,7 @@ timber = "5.0.1"
 versions = "0.46.0"
 
 [libraries]
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 accompanist-system-ui-controller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 app-compat = { module = "androidx.appcompat:appcompat", version.ref = "app-compat" }
@@ -52,6 +53,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [bundles]
 implementation = [
+    "accompanist-permissions",
     "accompanist-system-ui-controller",
     "activity-compose",
     "app-compat",
