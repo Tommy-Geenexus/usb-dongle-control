@@ -49,6 +49,8 @@
 
     <string name="low">Low</string>
 
+    <string name="refresh">Refresh</string>
+
     <string name="right">right</string>
 
     <string name="sample_rate">Sample rate: %s</string>

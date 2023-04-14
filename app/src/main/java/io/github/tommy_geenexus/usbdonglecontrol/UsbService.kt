@@ -39,6 +39,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -78,10 +79,10 @@ class UsbService : Service() {
                     if (usbDongle is FiioKa5) {
                         showOrUpdateNotification(
                             usbDongle = usbDongle,
-                            volumePercent = "${(
-                                usbDongle.volumeLevel * 100 /
-                                    usbDongle.volumeMode.steps
-                                ).toDouble().roundToInt()}%"
+                            volumePercent = "${
+                                (usbDongle.volumeLevel * 100 / usbDongle.volumeMode.steps).toDouble()
+                                    .roundToInt()
+                            }%"
                         )
                     }
                 }
@@ -217,24 +218,30 @@ class UsbService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         coroutineScope.cancel()
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        kotlin.runCatching { nm.cancelAll() }
     }
 
-    private fun showOrUpdateNotification(
+    private suspend fun showOrUpdateNotification(
         usbDongle: UsbDongle,
         volumePercent: String
     ) {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.createNotificationChannel(
-            NotificationChannel(
-                ID_NOTIFICATION_CHANNEL,
-                getString(R.string.app_name),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                setShowBadge(false)
+        coroutineScope.coroutineContext.suspendRunCatching {
+            nm.createNotificationChannel(
+                NotificationChannel(
+                    ID_NOTIFICATION_CHANNEL,
+                    getString(R.string.app_name),
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    setShowBadge(false)
+                }
+            )
+            if (nm.areNotificationsEnabled()) {
+                nm.notify(ID_NOTIFICATION, createOrUpdateNotification(usbDongle, volumePercent))
             }
-        )
-        if (nm.areNotificationsEnabled()) {
-            nm.notify(ID_NOTIFICATION, createOrUpdateNotification(usbDongle, volumePercent))
+        }.getOrElse { exception ->
+            Timber.e(exception)
         }
     }
 

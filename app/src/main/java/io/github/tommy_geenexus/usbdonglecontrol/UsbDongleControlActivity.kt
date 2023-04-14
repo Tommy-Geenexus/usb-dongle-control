@@ -51,7 +51,10 @@ class UsbDongleControlActivity : ComponentActivity() {
                         isNavigationBarContrastEnforced = false
                     )
                 }
-                NavGraph(navController = rememberNavController())
+                NavGraph(
+                    systemUiController = systemUiController,
+                    navController = rememberNavController()
+                )
             }
         }
     }

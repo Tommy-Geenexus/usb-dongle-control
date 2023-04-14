@@ -28,37 +28,50 @@ import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cable
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.google.accompanist.systemuicontroller.SystemUiController
 import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.UsbReceiver
@@ -96,6 +109,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun MainScreen(
+    systemUiController: SystemUiController,
     viewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -145,12 +159,36 @@ fun MainScreen(
         }
     }
     val state by viewModel.collectAsState()
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val bottomAppBarColor =
+        MaterialTheme.colorScheme.surfaceColorAtElevation(BottomAppBarDefaults.ContainerElevation)
+    SideEffect {
+        systemUiController.setNavigationBarColor(
+            if (state.usbDongle != null && state.usbPermissionGranted) {
+                bottomAppBarColor
+            } else {
+                surfaceColor
+            }
+        )
+    }
     MainScreen(
         modifier = modifier,
+        title = with(state.usbDongle) {
+            if (this != null) {
+                "$manufacturerName $modelName"
+            } else {
+                stringResource(id = R.string.app_name)
+            }
+        },
         usbDongle = state.usbDongle,
         isLoading = state.isLoading,
         usbPermissionGranted = state.usbPermissionGranted,
         onPermissionRequest = { viewModel.requestUsbPermission() },
+        onRefresh = {
+            if (!state.isLoading) {
+                viewModel.getCurrentState()
+            }
+        },
         onDisplayBrightnessSelected = { dongle, brightness ->
             if (dongle is FiioKa5) {
                 viewModel.setDisplayBrightness(dongle, brightness.toInt())
@@ -224,11 +262,14 @@ fun MainScreen(
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    title: String = stringResource(id = R.string.app_name),
+    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     usbDongle: UsbDongle? = null,
     isLoading: Boolean = false,
     usbPermissionGranted: Boolean = false,
     onPermissionRequest: () -> Unit = {},
+    onRefresh: () -> Unit = {},
     onChannelBalanceSelected: (UsbDongle, Int) -> Unit = { _, _ -> },
     onDacModeSelected: (UsbDongle, DacMode) -> Unit = { _, _ -> },
     onDisplayBrightnessSelected: (UsbDongle, Float) -> Unit = { _, _ -> },
@@ -244,35 +285,49 @@ fun MainScreen(
     onVolumeModeSelected: (UsbDongle, VolumeMode) -> Unit = { _, _ -> }
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_logo),
-                            contentDescription = null,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                        if (usbDongle != null) {
-                            Text(
-                                text = "${usbDongle.manufacturerName} ${usbDongle.modelName}",
-                                maxLines = 1
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(id = R.string.app_name),
-                                maxLines = 1
+                    Text(
+                        text = title,
+                        modifier = Modifier.padding(start = 16.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                modifier = Modifier.statusBarsPadding(),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_logo),
+                        contentDescription = stringResource(id = R.string.app_name),
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                },
+                scrollBehavior = scrollBehavior
+            )
+        },
+        bottomBar = {
+            if (usbDongle != null && usbPermissionGranted) {
+                BottomAppBar(
+                    actions = {},
+                    modifier = Modifier.navigationBarsPadding(),
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = onRefresh,
+                            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Refresh,
+                                contentDescription = stringResource(id = R.string.refresh)
                             )
                         }
                     }
-                },
-                modifier = Modifier.statusBarsPadding()
-            )
+                )
+            }
         },
-        snackbarHost = {
-            SnackbarHost(snackBarHostState)
-        }
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
