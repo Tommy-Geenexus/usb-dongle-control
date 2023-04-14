@@ -21,8 +21,10 @@
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 
+@Immutable
 sealed class Gain(val id: Byte) : Parcelable {
 
     companion object {

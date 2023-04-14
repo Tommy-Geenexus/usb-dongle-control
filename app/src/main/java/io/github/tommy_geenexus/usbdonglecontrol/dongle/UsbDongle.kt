@@ -22,7 +22,9 @@ package io.github.tommy_geenexus.usbdonglecontrol.dongle
 
 import android.hardware.usb.UsbDevice
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 
+@Immutable
 abstract class UsbDongle(
     val manufacturerName: String,
     open val modelName: String

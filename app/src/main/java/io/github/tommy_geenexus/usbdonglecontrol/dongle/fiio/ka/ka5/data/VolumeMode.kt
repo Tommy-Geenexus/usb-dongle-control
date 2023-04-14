@@ -21,8 +21,11 @@
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import kotlinx.parcelize.Parcelize
 
+@Immutable
 sealed class VolumeMode(
     val id: Byte,
     val steps: Int
@@ -42,8 +45,8 @@ sealed class VolumeMode(
     }
 
     @Parcelize
-    object S120 : VolumeMode(id = 0, steps = 120)
+    object S120 : VolumeMode(id = 0, steps = FiioKa5Defaults.VOLUME_LEVEL_A_MAX)
 
     @Parcelize
-    object S60 : VolumeMode(id = 1, steps = 60)
+    object S60 : VolumeMode(id = 1, steps = FiioKa5Defaults.VOLUME_LEVEL_B_MAX)
 }

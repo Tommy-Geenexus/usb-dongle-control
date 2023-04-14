@@ -21,9 +21,11 @@
 package io.github.tommy_geenexus.usbdonglecontrol.main.business
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import kotlinx.parcelize.Parcelize
 
+@Immutable
 @Parcelize
 data class MainState(
     val usbDongle: UsbDongle? = null,

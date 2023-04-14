@@ -3,6 +3,7 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.compose.compiler.report.generator)
     alias(libs.plugins.dagger.hilt.android)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.android)
