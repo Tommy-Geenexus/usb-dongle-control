@@ -20,7 +20,6 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -55,11 +54,5 @@ class UsbDongleControlActivity : ComponentActivity() {
                 NavGraph(navController = rememberNavController())
             }
         }
-        startService(Intent(applicationContext, UsbService::class.java))
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        stopService(Intent(applicationContext, UsbService::class.java))
     }
 }

@@ -20,8 +20,11 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.main.ui
 
+import android.Manifest
+import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbManager
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,9 +56,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.UsbReceiver
+import io.github.tommy_geenexus.usbdonglecontrol.UsbService
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.business.setChannelBalance
@@ -82,15 +89,43 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.bus
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.business.setIndicatorState
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.MoondropDawn44Items
+import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainSideEffect
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainViewModel
 import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
+    val permissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS) {
+            viewModel.getCurrentState()
+        }
+    } else {
+        null
+    }
     val context = LocalContext.current
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            MainSideEffect.NotificationService.Start -> {
+                context.startService(Intent(context, UsbService::class.java))
+            }
+            MainSideEffect.NotificationService.Stop -> {
+                context.stopService(Intent(context, UsbService::class.java))
+            }
+            MainSideEffect.RequestPermissions -> {
+                if (permissionState?.status?.isGranted == false &&
+                    !permissionState.status.shouldShowRationale
+                ) {
+                    permissionState.launchPermissionRequest()
+                } else {
+                    viewModel.requestUsbPermission()
+                }
+            }
+        }
+    }
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val usbReceiver = UsbReceiver(

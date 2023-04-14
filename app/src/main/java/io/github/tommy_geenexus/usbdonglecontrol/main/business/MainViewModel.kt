@@ -31,6 +31,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.dat
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
@@ -42,15 +43,15 @@ class MainViewModel @Inject constructor(
     val fiioKa5UsbCommunicationRepository: FiioKa5UsbCommunicationRepository,
     val moondropDawn44UsbCommunicationRepository: MoondropDawn44UsbCommunicationRepository
 ) : ViewModel(),
-    ContainerHost<MainState, Nothing> {
+    ContainerHost<MainState, MainSideEffect> {
 
-    override val container = container<MainState, Nothing>(
+    override val container = container<MainState, MainSideEffect>(
         initialState = MainState(),
         savedStateHandle = savedStateHandle,
         onCreate = { getCurrentState() }
     )
 
-    private fun getCurrentState() = intent {
+    fun getCurrentState() = intent {
         reduce {
             state.copy(isLoading = true)
         }
@@ -83,9 +84,13 @@ class MainViewModel @Inject constructor(
                 isLoading = false
             )
         }
-        if (device != null && !state.usbPermissionGranted) {
-            requestUsbPermission()
-        }
+        postSideEffect(
+            if (device != null && !state.usbPermissionGranted) {
+                MainSideEffect.RequestPermissions
+            } else {
+                MainSideEffect.NotificationService.Start
+            }
+        )
     }
 
     fun handleAttachedDevicesChanged() = intent {
@@ -100,9 +105,13 @@ class MainViewModel @Inject constructor(
                 usbPermissionGranted = false
             )
         }
-        if (usbDongle != null) {
-            requestUsbPermission()
-        }
+        postSideEffect(
+            if (usbDongle != null) {
+                MainSideEffect.RequestPermissions
+            } else {
+                MainSideEffect.NotificationService.Stop
+            }
+        )
     }
 
     fun handleUsbPermissionGranted() = intent {
@@ -140,6 +149,9 @@ class MainViewModel @Inject constructor(
                 usbDongle = usbDongle,
                 isLoading = false
             )
+        }
+        if (usbDongle != null) {
+            postSideEffect(MainSideEffect.NotificationService.Start)
         }
     }
 

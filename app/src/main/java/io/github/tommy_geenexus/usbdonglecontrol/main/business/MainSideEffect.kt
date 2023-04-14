@@ -25,12 +25,15 @@ import kotlinx.parcelize.Parcelize
 
 sealed class MainSideEffect : Parcelable {
 
-    sealed class Write : MainSideEffect() {
+    sealed class NotificationService : MainSideEffect() {
 
         @Parcelize
-        object Success : Write()
+        object Start : NotificationService()
 
         @Parcelize
-        object Failure : Write()
+        object Stop : NotificationService()
     }
+
+    @Parcelize
+    object RequestPermissions : MainSideEffect()
 }
