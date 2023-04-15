@@ -26,6 +26,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.isUsbServiceSupported
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.MoondropDawn44UsbCommunicationRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
@@ -52,6 +53,9 @@ class MainViewModel @Inject constructor(
     )
 
     fun getCurrentState() = intent {
+        if (state.isLoading) {
+            return@intent
+        }
         reduce {
             state.copy(isLoading = true)
         }
@@ -84,13 +88,11 @@ class MainViewModel @Inject constructor(
                 isLoading = false
             )
         }
-        postSideEffect(
-            if (device != null && !state.usbPermissionGranted) {
-                MainSideEffect.RequestPermissions
-            } else {
-                MainSideEffect.NotificationService.Start
-            }
-        )
+        if (device != null && !state.usbPermissionGranted) {
+            postSideEffect(MainSideEffect.RequestPermissions)
+        } else if (usbDongle?.isUsbServiceSupported() == true) {
+            postSideEffect(MainSideEffect.NotificationService.Start)
+        }
     }
 
     fun handleAttachedDevicesChanged() = intent {
@@ -150,7 +152,7 @@ class MainViewModel @Inject constructor(
                 isLoading = false
             )
         }
-        if (usbDongle != null) {
+        if (usbDongle?.isUsbServiceSupported() == true) {
             postSideEffect(MainSideEffect.NotificationService.Start)
         }
     }

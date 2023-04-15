@@ -41,7 +41,6 @@ import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
 import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
 
 @Composable
 fun ItemAudio(
@@ -53,6 +52,7 @@ fun ItemAudio(
         FiioKa5Defaults.CHANNEL_BALANCE_MIN.toFloat()..FiioKa5Defaults.CHANNEL_BALANCE_MAX.toFloat(),
     volumeMode: VolumeMode = VolumeMode.default(),
     volumeLevel: Float = FiioKa5Defaults.VOLUME_LEVEL.toFloat(),
+    volumeLevelInPercent: String = FiioKa5Defaults.VOLUME_LEVEL.toString(),
     volumeStepSize: Int = volumeMode.steps,
     volumeRange: ClosedFloatingPointRange<Float> = if (volumeMode == VolumeMode.S120) {
         FiioKa5Defaults.VOLUME_LEVEL_MIN.toFloat()..FiioKa5Defaults.VOLUME_LEVEL_A_MAX.toFloat()
@@ -123,10 +123,7 @@ fun ItemAudio(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = stringResource(
-                    id = R.string.volume_level,
-                    "${(volumeLevel * 100 / volumeMode.steps).toDouble().roundToInt()}%"
-                ),
+                text = stringResource(id = R.string.volume_level, volumeLevelInPercent),
                 modifier = Modifier.padding(
                     start = 16.dp,
                     end = 16.dp,

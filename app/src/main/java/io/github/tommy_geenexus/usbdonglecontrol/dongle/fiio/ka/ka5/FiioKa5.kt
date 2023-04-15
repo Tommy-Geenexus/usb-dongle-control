@@ -99,4 +99,6 @@ data class FiioKa5(
 
     @IgnoredOnParcel
     override val getOtherState = byteArrayOf(-57, -91, -92)
+
+    fun currentVolumeLevelInPercent() = "${(volumeLevel * 100 / volumeMode.steps)}%"
 }

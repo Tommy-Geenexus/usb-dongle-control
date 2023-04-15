@@ -26,14 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
 
 @Composable
 fun MoondropDawn44Items(
     modifier: Modifier = Modifier,
-    filter: Filter = Filter.default(),
-    gain: Gain = Gain.default(),
-    indicatorState: IndicatorState = IndicatorState.default(),
+    moondropDawn44: MoondropDawn44 = MoondropDawn44(),
     onFilterSelected: (Filter) -> Unit = {},
     onGainSelected: (Gain) -> Unit = {},
     onIndicatorStateSelected: (IndicatorState) -> Unit = {}
@@ -41,19 +40,19 @@ fun MoondropDawn44Items(
     LazyColumn(modifier = modifier) {
         item {
             ItemFilter(
-                filter = filter,
+                filter = moondropDawn44.filter,
                 onFilterSelected = onFilterSelected
             )
         }
         item {
             ItemGain(
-                gain = gain,
+                gain = moondropDawn44.gain,
                 onGainSelected = onGainSelected
             )
         }
         item {
             ItemIndicatorState(
-                indicatorState = indicatorState,
+                indicatorState = moondropDawn44.indicatorState,
                 onIndicatorStateSelected = onIndicatorStateSelected
             )
         }

@@ -24,7 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.DacMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
@@ -36,28 +36,15 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.
 @Composable
 fun FiioKa5Items(
     modifier: Modifier = Modifier,
-    firmwareVersion: String = FiioKa5Defaults.FW_VERSION,
-    sampleRate: String = FiioKa5Defaults.SAMPLE_RATE,
-    channelBalance: Float = FiioKa5Defaults.CHANNEL_BALANCE.toFloat(),
-    volumeLevel: Float = FiioKa5Defaults.VOLUME_LEVEL.toFloat(),
-    volumeMode: VolumeMode = VolumeMode.default(),
+    fiioKa5: FiioKa5 = FiioKa5(),
     onChannelBalanceSelected: (Float) -> Unit = {},
     onVolumeLevelSelected: (Float) -> Unit = {},
     onVolumeModeSelected: (VolumeMode) -> Unit = {},
-    displayBrightness: Float = FiioKa5Defaults.DISPLAY_BRIGHTNESS.toFloat(),
-    displayTimeout: Float = FiioKa5Defaults.DISPLAY_TIMEOUT.toFloat(),
-    displayInvertEnabled: Boolean = false,
     onDisplayBrightnessSelected: (Float) -> Unit = {},
     onDisplayTimeoutSelected: (Float) -> Unit = {},
     onDisplayInvertChange: (Boolean) -> Unit = {},
-    gain: Gain = Gain.default(),
     onGainSelected: (Gain) -> Unit = {},
-    filter: Filter = Filter.default(),
     onFilterSelected: (Filter) -> Unit = {},
-    spdifOutEnabled: Boolean = false,
-    hardwareMuteEnabled: Boolean = false,
-    dacMode: DacMode = DacMode.default(),
-    hidMode: HidMode = HidMode.default(),
     onSpdifOutEnabledSelected: (Boolean) -> Unit = {},
     onHardwareMuteEnabledSelected: (Boolean) -> Unit = {},
     onDacModeSelected: (DacMode) -> Unit = {},
@@ -66,15 +53,16 @@ fun FiioKa5Items(
     LazyColumn(modifier = modifier) {
         item {
             ItemInfo(
-                firmwareVersion = firmwareVersion,
-                sampleRate = sampleRate
+                firmwareVersion = fiioKa5.firmwareVersion,
+                sampleRate = fiioKa5.sampleRate
             )
         }
         item {
             ItemAudio(
-                channelBalance = channelBalance,
-                volumeLevel = volumeLevel,
-                volumeMode = volumeMode,
+                channelBalance = fiioKa5.channelBalance.toFloat(),
+                volumeLevel = fiioKa5.volumeLevel.toFloat(),
+                volumeLevelInPercent = fiioKa5.currentVolumeLevelInPercent(),
+                volumeMode = fiioKa5.volumeMode,
                 onChannelBalanceSelected = onChannelBalanceSelected,
                 onVolumeLevelSelected = onVolumeLevelSelected,
                 onVolumeModeSelected = onVolumeModeSelected
@@ -82,9 +70,9 @@ fun FiioKa5Items(
         }
         item {
             ItemDisplay(
-                displayBrightness = displayBrightness,
-                displayTimeout = displayTimeout,
-                displayInvertEnabled = displayInvertEnabled,
+                displayBrightness = fiioKa5.displayBrightness.toFloat(),
+                displayTimeout = fiioKa5.displayTimeout.toFloat(),
+                displayInvertEnabled = fiioKa5.displayInvertEnabled,
                 onDisplayBrightnessSelected = onDisplayBrightnessSelected,
                 onDisplayTimeoutSelected = onDisplayTimeoutSelected,
                 onDisplayInvertChange = onDisplayInvertChange
@@ -92,22 +80,22 @@ fun FiioKa5Items(
         }
         item {
             ItemGain(
-                gain = gain,
+                gain = fiioKa5.gain,
                 onGainSelected = onGainSelected
             )
         }
         item {
             ItemFilter(
-                filter = filter,
+                filter = fiioKa5.filter,
                 onFilterSelected = onFilterSelected
             )
         }
         item {
             ItemMisc(
-                spdifOutEnabled = spdifOutEnabled,
-                hardwareMuteEnabled = hardwareMuteEnabled,
-                dacMode = dacMode,
-                hidMode = hidMode,
+                spdifOutEnabled = fiioKa5.spdifOutEnabled,
+                hardwareMuteEnabled = fiioKa5.hardwareMuteEnabled,
+                dacMode = fiioKa5.dacMode,
+                hidMode = fiioKa5.hidMode,
                 onSpdifOutEnabledSelected = onSpdifOutEnabledSelected,
                 onHardwareMuteEnabledSelected = onHardwareMuteEnabledSelected,
                 onDacModeSelected = onDacModeSelected,

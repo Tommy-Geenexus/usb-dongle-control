@@ -35,13 +35,13 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.productName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class UsbService : Service() {
@@ -49,7 +49,7 @@ class UsbService : Service() {
     private companion object {
 
         const val REQUEST_CODE = 0
-        const val ID_NOTIFICATION = 0
+        const val ID_NOTIFICATION = 1
         const val ID_NOTIFICATION_CHANNEL = TOP_LEVEL_PACKAGE_NAME + "NOTIFICATION_CHANNEL"
         const val INTENT_ACTION_VOLUME_UP = TOP_LEVEL_PACKAGE_NAME + "VOLUME_UP"
         const val INTENT_ACTION_VOLUME_DOWN = TOP_LEVEL_PACKAGE_NAME + "VOLUME_DOWN"
@@ -77,13 +77,28 @@ class UsbService : Service() {
                 if (connection != null) {
                     val usbDongle = fiioKa5UsbCommunicationRepository.getCurrentState(connection)
                     if (usbDongle is FiioKa5) {
-                        showOrUpdateNotification(
-                            usbDongle = usbDongle,
-                            volumePercent = "${
-                                (usbDongle.volumeLevel * 100 / usbDongle.volumeMode.steps).toDouble()
-                                    .roundToInt()
-                            }%"
-                        )
+                        withContext(Dispatchers.Main.immediate) {
+                            coroutineContext.suspendRunCatching {
+                                val nm = getSystemService(Context.NOTIFICATION_SERVICE)
+                                    as NotificationManager
+                                nm.createNotificationChannel(
+                                    NotificationChannel(
+                                        ID_NOTIFICATION_CHANNEL,
+                                        getString(R.string.app_name),
+                                        NotificationManager.IMPORTANCE_HIGH
+                                    ).apply {
+                                        setShowBadge(false)
+                                    }
+                                )
+                                startForeground(
+                                    ID_NOTIFICATION,
+                                    buildNotification(
+                                        usbDongle = usbDongle,
+                                        volumePercent = usbDongle.currentVolumeLevelInPercent()
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -111,26 +126,26 @@ class UsbService : Service() {
                             intent.getParcelableExtra(INTENT_EXTRA_USB_DONGLE)
                         }
                         if (connection != null && usbDongle is FiioKa5) {
-                            val volumeLevel = usbDongle.volumeLevel + 1
+                            val volumeLevel = (usbDongle.volumeLevel + 1).clamp(
+                                min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
+                                max = if (usbDongle.volumeMode == VolumeMode.S120) {
+                                    FiioKa5Defaults.VOLUME_LEVEL_A_MAX
+                                } else {
+                                    FiioKa5Defaults.VOLUME_LEVEL_B_MAX
+                                }
+                            )
                             val success = fiioKa5UsbCommunicationRepository.setVolumeLevel(
                                 connection = connection,
                                 volumeMode = usbDongle.volumeMode,
-                                volumeLevel = volumeLevel.clamp(
-                                    min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
-                                    max = if (usbDongle.volumeMode == VolumeMode.S120) {
-                                        FiioKa5Defaults.VOLUME_LEVEL_A_MAX
-                                    } else {
-                                        FiioKa5Defaults.VOLUME_LEVEL_B_MAX
-                                    }
-                                )
+                                volumeLevel = volumeLevel
                             )
                             if (success) {
-                                showOrUpdateNotification(
-                                    usbDongle = usbDongle.copy(volumeLevel = volumeLevel),
-                                    volumePercent =
-                                    "${(volumeLevel * 100 / usbDongle.volumeMode.steps)
-                                        .toDouble()
-                                        .roundToInt()}%"
+                                val dongle = usbDongle.copy(volumeLevel = volumeLevel)
+                                updateNotification(
+                                    buildNotification(
+                                        usbDongle = dongle,
+                                        volumePercent = dongle.currentVolumeLevelInPercent()
+                                    )
                                 )
                             }
                         }
@@ -151,26 +166,26 @@ class UsbService : Service() {
                             intent.getParcelableExtra(INTENT_EXTRA_USB_DONGLE)
                         }
                         if (connection != null && usbDongle is FiioKa5) {
-                            val volumeLevel = usbDongle.volumeLevel - 1
+                            val volumeLevel = (usbDongle.volumeLevel - 1).clamp(
+                                min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
+                                max = if (usbDongle.volumeMode == VolumeMode.S120) {
+                                    FiioKa5Defaults.VOLUME_LEVEL_A_MAX
+                                } else {
+                                    FiioKa5Defaults.VOLUME_LEVEL_B_MAX
+                                }
+                            )
                             val success = fiioKa5UsbCommunicationRepository.setVolumeLevel(
                                 connection = connection,
                                 volumeMode = usbDongle.volumeMode,
-                                volumeLevel = volumeLevel.clamp(
-                                    min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
-                                    max = if (usbDongle.volumeMode == VolumeMode.S120) {
-                                        FiioKa5Defaults.VOLUME_LEVEL_A_MAX
-                                    } else {
-                                        FiioKa5Defaults.VOLUME_LEVEL_B_MAX
-                                    }
-                                )
+                                volumeLevel = volumeLevel
                             )
                             if (success) {
-                                showOrUpdateNotification(
-                                    usbDongle = usbDongle.copy(volumeLevel = volumeLevel),
-                                    volumePercent =
-                                    "${(volumeLevel * 100 / usbDongle.volumeMode.steps)
-                                        .toDouble()
-                                        .roundToInt()}%"
+                                val dongle = usbDongle.copy(volumeLevel = volumeLevel)
+                                updateNotification(
+                                    buildNotification(
+                                        usbDongle = dongle,
+                                        volumePercent = dongle.currentVolumeLevelInPercent()
+                                    )
                                 )
                             }
                         }
@@ -197,14 +212,13 @@ class UsbService : Service() {
                                 displayInvertEnabled = displayInvertEnabled
                             )
                             if (success) {
-                                showOrUpdateNotification(
-                                    usbDongle = usbDongle.copy(
-                                        displayInvertEnabled = displayInvertEnabled
-                                    ),
-                                    volumePercent =
-                                    "${(usbDongle.volumeLevel * 100 / usbDongle.volumeMode.steps)
-                                        .toDouble()
-                                        .roundToInt()}%"
+                                updateNotification(
+                                    buildNotification(
+                                        usbDongle = usbDongle.copy(
+                                            displayInvertEnabled = displayInvertEnabled
+                                        ),
+                                        volumePercent = usbDongle.currentVolumeLevelInPercent()
+                                    )
                                 )
                             }
                         }
@@ -212,47 +226,22 @@ class UsbService : Service() {
                 }
             }
         }
-        return START_NOT_STICKY
+        return START_REDELIVER_INTENT
     }
 
     override fun onDestroy() {
         super.onDestroy()
         coroutineScope.cancel()
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        kotlin.runCatching { nm.cancelAll() }
     }
 
-    private suspend fun showOrUpdateNotification(
-        usbDongle: UsbDongle,
-        volumePercent: String
-    ) {
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        coroutineScope.coroutineContext.suspendRunCatching {
-            nm.createNotificationChannel(
-                NotificationChannel(
-                    ID_NOTIFICATION_CHANNEL,
-                    getString(R.string.app_name),
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply {
-                    setShowBadge(false)
-                }
-            )
-            if (nm.areNotificationsEnabled()) {
-                nm.notify(ID_NOTIFICATION, createOrUpdateNotification(usbDongle, volumePercent))
-            }
-        }.getOrElse { exception ->
-            Timber.e(exception)
-        }
-    }
-
-    private fun createOrUpdateNotification(
+    private fun buildNotification(
         usbDongle: UsbDongle,
         volumePercent: String
     ): Notification {
         return Notification
             .Builder(applicationContext, ID_NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.ic_logo)
-            .setContentTitle(getString(R.string.app_name))
+            .setContentTitle(usbDongle.productName())
             .setContentText(getString(R.string.volume_level, volumePercent))
             .setContentIntent(
                 PendingIntent.getActivity(
@@ -311,5 +300,14 @@ class UsbService : Service() {
             .setOngoing(true)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .build()
+    }
+
+    private suspend fun updateNotification(notification: Notification) {
+        withContext(Dispatchers.Main.immediate) {
+            coroutineContext.suspendRunCatching {
+                val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                nm.notify(ID_NOTIFICATION, notification)
+            }
+        }
     }
 }

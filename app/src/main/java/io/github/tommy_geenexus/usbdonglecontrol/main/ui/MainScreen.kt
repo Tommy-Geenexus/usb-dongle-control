@@ -47,8 +47,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -57,13 +55,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -102,6 +98,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.bus
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.business.setIndicatorState
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.MoondropDawn44Items
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.productName
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainSideEffect
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainViewModel
 import org.orbitmvi.orbit.compose.collectAsState
@@ -173,22 +170,11 @@ fun MainScreen(
     }
     MainScreen(
         modifier = modifier,
-        title = with(state.usbDongle) {
-            if (this != null) {
-                "$manufacturerName $modelName"
-            } else {
-                stringResource(id = R.string.app_name)
-            }
-        },
         usbDongle = state.usbDongle,
         isLoading = state.isLoading,
         usbPermissionGranted = state.usbPermissionGranted,
         onPermissionRequest = { viewModel.requestUsbPermission() },
-        onRefresh = {
-            if (!state.isLoading) {
-                viewModel.getCurrentState()
-            }
-        },
+        onRefresh = { viewModel.getCurrentState() },
         onDisplayBrightnessSelected = { dongle, brightness ->
             if (dongle is FiioKa5) {
                 viewModel.setDisplayBrightness(dongle, brightness.toInt())
@@ -262,9 +248,7 @@ fun MainScreen(
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    title: String = stringResource(id = R.string.app_name),
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     usbDongle: UsbDongle? = null,
     isLoading: Boolean = false,
     usbPermissionGranted: Boolean = false,
@@ -290,21 +274,14 @@ fun MainScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = title,
+                        text = usbDongle?.productName() ?: stringResource(id = R.string.app_name),
                         modifier = Modifier.padding(start = 16.dp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
                 modifier = Modifier.statusBarsPadding(),
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_logo),
-                        contentDescription = stringResource(id = R.string.app_name),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = if (usbDongle != null) scrollBehavior else null
             )
         },
         bottomBar = {
@@ -326,8 +303,7 @@ fun MainScreen(
                     }
                 )
             }
-        },
-        snackbarHost = { SnackbarHost(snackBarHostState) }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -371,11 +347,7 @@ fun MainScreen(
                 }
             } else if (usbDongle is FiioKa5) {
                 FiioKa5Items(
-                    firmwareVersion = usbDongle.firmwareVersion,
-                    sampleRate = usbDongle.sampleRate,
-                    channelBalance = usbDongle.channelBalance.toFloat(),
-                    volumeLevel = usbDongle.volumeLevel.toFloat(),
-                    volumeMode = usbDongle.volumeMode,
+                    fiioKa5 = usbDongle,
                     onChannelBalanceSelected = { channelBalance ->
                         onChannelBalanceSelected(usbDongle, channelBalance.toInt())
                     },
@@ -385,9 +357,6 @@ fun MainScreen(
                     onVolumeModeSelected = { volumeMode ->
                         onVolumeModeSelected(usbDongle, volumeMode)
                     },
-                    displayBrightness = usbDongle.displayBrightness.toFloat(),
-                    displayTimeout = usbDongle.displayTimeout.toFloat(),
-                    displayInvertEnabled = usbDongle.displayInvertEnabled,
                     onDisplayBrightnessSelected = { displayBrightness ->
                         onDisplayBrightnessSelected(usbDongle, displayBrightness)
                     },
@@ -397,18 +366,12 @@ fun MainScreen(
                     onDisplayInvertChange = { displayInvertEnabled ->
                         onDisplayInvertChange(usbDongle, displayInvertEnabled)
                     },
-                    gain = usbDongle.gain,
                     onGainSelected = { gain ->
                         onGainSelected(usbDongle, gain)
                     },
-                    filter = usbDongle.filter,
                     onFilterSelected = { filter ->
                         onFilterSelected(usbDongle, filter)
                     },
-                    spdifOutEnabled = usbDongle.spdifOutEnabled,
-                    hardwareMuteEnabled = usbDongle.hardwareMuteEnabled,
-                    dacMode = usbDongle.dacMode,
-                    hidMode = usbDongle.hidMode,
                     onSpdifOutEnabledSelected = { spdifOutEnabled ->
                         onSpdifOutEnabledSelected(usbDongle, spdifOutEnabled)
                     },
@@ -424,9 +387,7 @@ fun MainScreen(
                 )
             } else if (usbDongle is MoondropDawn44) {
                 MoondropDawn44Items(
-                    filter = usbDongle.filter,
-                    gain = usbDongle.gain,
-                    indicatorState = usbDongle.indicatorState,
+                    moondropDawn44 = usbDongle,
                     onFilterSelected = { filter ->
                         onFilterSelected(usbDongle, filter)
                     },

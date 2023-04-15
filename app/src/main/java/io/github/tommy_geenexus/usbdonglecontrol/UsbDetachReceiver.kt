@@ -18,25 +18,32 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle
+package io.github.tommy_geenexus.usbdonglecontrol
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.hardware.usb.UsbDevice
-import android.os.Parcelable
-import androidx.compose.runtime.Immutable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
+import android.hardware.usb.UsbManager
+import android.os.Build
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
 
-@Immutable
-abstract class UsbDongle(
-    val manufacturerName: String,
-    open val modelName: String
-) : UsbCommand,
-    Parcelable
+class UsbDetachReceiver : BroadcastReceiver() {
 
-fun UsbDongle.productName() = "$manufacturerName $modelName"
-
-fun UsbDongle.isUsbServiceSupported() = this is FiioKa5
-
-fun UsbDevice?.toUsbDongleOrNull() = supportedDongles.find { usbDongle ->
-    this?.manufacturerName == usbDongle.manufacturerName &&
-        this.productName?.endsWith(usbDongle.modelName) == true
+    @Suppress("DEPRECATION")
+    override fun onReceive(
+        context: Context?,
+        intent: Intent?
+    ) {
+        if (context != null && intent?.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
+            val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+            } else {
+                intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+            }
+            if (device.toUsbDongleOrNull() != null) {
+                context.stopService(Intent(context, UsbService::class.java))
+            }
+        }
+    }
 }
