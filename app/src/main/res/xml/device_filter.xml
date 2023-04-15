@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- FiiO KA5 -->
+    <usb-device vendor-id="10610" product-id="85" />
+    <!-- Moondrop Dawn 4.4mm -->
+    <usb-device vendor-id="12230" product-id="61543" />
+</resources>
