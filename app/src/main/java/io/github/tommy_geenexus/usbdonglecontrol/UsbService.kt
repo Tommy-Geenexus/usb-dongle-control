@@ -27,7 +27,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
@@ -105,6 +104,9 @@ class UsbService : Service() {
         }
     }
 
+    // FIXME:
+    //  intent.getParcelableExtra(INTENT_EXTRA_USB_DONGLE, UsbDongle::class.java))
+    //  breaks with R8 optimization enabled
     @Suppress("DEPRECATION")
     override fun onStartCommand(
         intent: Intent?,
@@ -117,14 +119,8 @@ class UsbService : Service() {
                     val device = usbRepository.getAttachedDeviceOrNull()
                     if (device != null) {
                         val connection = usbRepository.openDeviceOrNull(device)
-                        val usbDongle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            intent.getParcelableExtra(
-                                INTENT_EXTRA_USB_DONGLE,
-                                UsbDongle::class.java
-                            )
-                        } else {
-                            intent.getParcelableExtra(INTENT_EXTRA_USB_DONGLE)
-                        }
+                        val usbDongle =
+                            intent.getParcelableExtra<UsbDongle>(INTENT_EXTRA_USB_DONGLE)
                         if (connection != null && usbDongle is FiioKa5) {
                             val volumeLevel = (usbDongle.volumeLevel + 1).clamp(
                                 min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
@@ -157,14 +153,8 @@ class UsbService : Service() {
                     val device = usbRepository.getAttachedDeviceOrNull()
                     if (device != null) {
                         val connection = usbRepository.openDeviceOrNull(device)
-                        val usbDongle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            intent.getParcelableExtra(
-                                INTENT_EXTRA_USB_DONGLE,
-                                UsbDongle::class.java
-                            )
-                        } else {
-                            intent.getParcelableExtra(INTENT_EXTRA_USB_DONGLE)
-                        }
+                        val usbDongle =
+                            intent.getParcelableExtra<UsbDongle>(INTENT_EXTRA_USB_DONGLE)
                         if (connection != null && usbDongle is FiioKa5) {
                             val volumeLevel = (usbDongle.volumeLevel - 1).clamp(
                                 min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
@@ -197,14 +187,8 @@ class UsbService : Service() {
                     val device = usbRepository.getAttachedDeviceOrNull()
                     if (device != null) {
                         val connection = usbRepository.openDeviceOrNull(device)
-                        val usbDongle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            intent.getParcelableExtra(
-                                INTENT_EXTRA_USB_DONGLE,
-                                UsbDongle::class.java
-                            )
-                        } else {
-                            intent.getParcelableExtra(INTENT_EXTRA_USB_DONGLE)
-                        }
+                        val usbDongle =
+                            intent.getParcelableExtra<UsbDongle>(INTENT_EXTRA_USB_DONGLE)
                         if (connection != null && usbDongle is FiioKa5) {
                             val displayInvertEnabled = !usbDongle.displayInvertEnabled
                             val success = fiioKa5UsbCommunicationRepository.setDisplayInvertEnabled(
