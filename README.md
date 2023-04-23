@@ -11,3 +11,6 @@ Android application for controlling USB audio dongles.
 ## Supported devices
 - FiiO KA5
 - Moondrop Dawn 4.4mm
+
+## Translations
+- [Help translate this application into the language of your preference](https://tomgappdev.oneskyapp.com/collaboration/project?id=390304)
