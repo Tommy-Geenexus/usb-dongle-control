@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources>
+    <string name="attach_device">Gerät anschließen</string>
+
+    <string name="channel_balance">Kanal-Balance</string>
+    <string name="channel_balance_offset">Offset: %1$.1f dB %2$s</string>
+
+    <string name="dac_mode">Arbeitsmodus des Verstärkers</string>
+    <string name="dac_mode_ab">Klasse AB</string>
+    <string name="dac_mode_h">Klasse H</string>
+
+    <string name="disabled">Deaktiviert</string>
+    <string name="disabled_tmp">Vorübergehend deaktiviert</string>
+
+    <string name="display_brightness">Display-Helligkeit</string>
+    <string name="display_brightness_level">Level: %s</string>
+    <string name="display_invert">Anzeige invertieren</string>
+    <string name="display_timeout">Display automatisch ausschalten</string>
+    <string name="display_timeout_delay">Verzögerung: %1$.0fs</string>
+
+    <string name="enabled">Aktiviert</string>
+
+    <string name="filter">Filter</string>
+    <string name="filter_fast_roll_off_low_latency">Schnelles Abrollen, kurze Verzögerung</string>
+    <string name="filter_fast_roll_off_phase_compensated">Schnelles Abrollen, phasenkompensiert</string>
+    <string name="filter_non_over_sampling">Keine Überabtastung</string>
+    <string name="filter_slow_roll_off_low_latency">Langsames Abrollen, kurze Verzögerung</string>
+    <string name="filter_slow_roll_off_phase_compensated">Langsames Abrollen, phasenkompensiert</string>
+
+    <string name="fw_version">Firmware-Version: %s</string>
+
+    <string name="gain">Gain</string>
+
+    <string name="grant_permission">USB-Berechtigung erteilen</string>
+
+    <string name="hid_mode">Verhalten bei langem Drücken der Lautstärketaste</string>
+    <string name="hid_mode_a">Vorherigen/nächsten Titel abspielen</string>
+    <string name="hid_mode_b">Lautstärke erhöhen/verringern</string>
+
+    <string name="high">Hoch</string>
+
+    <string name="hw_mute">Hardware-Stummschaltung</string>
+
+    <string name="indicator">Indikator</string>
+
+    <string name="left">links</string>
+
+    <string name="low">Niedrig</string>
+
+    <string name="refresh">Auffrischen</string>
+
+    <string name="right">rechts</string>
+
+    <string name="sample_rate">Abtastrate: %s</string>
+
+    <string name="spdif_out">S/PDIF-Ausgang</string>
+
+    <string name="volume">Lautstärke</string>
+    <string name="volume_down">Lautstärke verringern</string>
+    <string name="volume_level">Lautstärke: %s</string>
+    <string name="volume_steps">Lautstärke-Schritte</string>
+    <string name="volume_steps_120">120</string>
+    <string name="volume_steps_60">60</string>
+    <string name="volume_up">Lautstärke erhöhen</string>
+</resources>
