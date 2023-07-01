@@ -26,6 +26,10 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbManager
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,13 +54,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.TopAppBarState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -68,6 +76,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.UsbReceiver
@@ -170,6 +179,7 @@ fun MainScreen(
     }
     MainScreen(
         modifier = modifier,
+        systemUiController = systemUiController,
         usbDongle = state.usbDongle,
         isLoading = state.isLoading,
         usbPermissionGranted = state.usbPermissionGranted,
@@ -248,7 +258,10 @@ fun MainScreen(
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
+    systemUiController: SystemUiController = rememberSystemUiController(),
+    topAppBarState: TopAppBarState = rememberTopAppBarState(),
+    scrollBehavior: TopAppBarScrollBehavior =
+        TopAppBarDefaults.pinnedScrollBehavior(topAppBarState),
     usbDongle: UsbDongle? = null,
     isLoading: Boolean = false,
     usbPermissionGranted: Boolean = false,
@@ -271,6 +284,22 @@ fun MainScreen(
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
+            val surfaceColor = MaterialTheme.colorScheme.surface
+            val bottomAppBarColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                BottomAppBarDefaults.ContainerElevation
+            )
+            val overlappedFraction = if (topAppBarState.overlappedFraction > 0.01f) 1f else 0f
+            val statusBarColor by animateColorAsState(
+                targetValue = lerp(
+                    surfaceColor,
+                    bottomAppBarColor,
+                    FastOutLinearInEasing.transform(overlappedFraction)
+                ),
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+            )
+            LaunchedEffect(statusBarColor) {
+                systemUiController.setStatusBarColor(statusBarColor)
+            }
             CenterAlignedTopAppBar(
                 title = {
                     Text(
