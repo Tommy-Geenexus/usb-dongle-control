@@ -91,6 +91,7 @@ class MainViewModel @Inject constructor(
         if (device != null && !state.usbPermissionGranted) {
             postSideEffect(MainSideEffect.RequestPermissions)
         } else if (usbDongle?.isUsbServiceSupported() == true) {
+            postSideEffect(MainSideEffect.NotificationService.Stop)
             postSideEffect(MainSideEffect.NotificationService.Start)
         }
     }
