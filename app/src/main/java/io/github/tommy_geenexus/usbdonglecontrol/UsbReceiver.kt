@@ -25,7 +25,6 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
-import android.os.Build
 
 class UsbReceiver(
     val onPermissionGranted: () -> Unit,
@@ -33,17 +32,12 @@ class UsbReceiver(
     val onDeviceDetached: () -> Unit
 ) : BroadcastReceiver() {
 
-    @Suppress("DEPRECATION")
     override fun onReceive(
         context: Context?,
         intent: Intent?
     ) {
         if (intent?.action == INTENT_ACTION_USB_PERMISSION) {
-            val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
-            } else {
-                intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
-            }
+            val device = intent.getParcelableExtra2<UsbDevice>(UsbManager.EXTRA_DEVICE)
             if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) &&
                 device != null
             ) {
