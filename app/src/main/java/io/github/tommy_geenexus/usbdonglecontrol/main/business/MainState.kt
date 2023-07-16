@@ -23,6 +23,7 @@ package io.github.tommy_geenexus.usbdonglecontrol.main.business
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
+import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfilesList
 import kotlinx.parcelize.Parcelize
 
 @Immutable
@@ -30,5 +31,6 @@ import kotlinx.parcelize.Parcelize
 data class MainState(
     val usbDongle: UsbDongle? = null,
     val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false
+    val usbPermissionGranted: Boolean = false,
+    val profiles: ProfilesList = ProfilesList()
 ) : Parcelable

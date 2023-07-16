@@ -25,4 +25,6 @@ import android.hardware.usb.UsbDeviceConnection
 interface UsbTransfer {
 
     suspend fun getCurrentState(connection: UsbDeviceConnection): UsbDongle?
+
+    suspend fun closeConnection(connection: UsbDeviceConnection)
 }

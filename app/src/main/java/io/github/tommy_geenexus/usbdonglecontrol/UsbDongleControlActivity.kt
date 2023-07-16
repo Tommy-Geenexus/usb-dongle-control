@@ -36,6 +36,12 @@ import io.github.tommy_geenexus.usbdonglecontrol.theme.UsbDongleControlTheme
 @AndroidEntryPoint
 class UsbDongleControlActivity : ComponentActivity() {
 
+    init {
+        addOnNewIntentListener { intent ->
+            setIntent(intent)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)

@@ -79,13 +79,13 @@ fun ItemAudio(
                     stringResource(
                         id = R.string.channel_balance_offset,
                         channelBalance.absoluteValue / 2,
-                        stringResource(id = R.string.left)
+                        stringResource(id = R.string.right)
                     )
                 } else if (channelBalance < 0) {
                     stringResource(
                         id = R.string.channel_balance_offset,
                         channelBalance.absoluteValue / 2,
-                        stringResource(id = R.string.right)
+                        stringResource(id = R.string.left)
                     )
                 } else {
                     stringResource(

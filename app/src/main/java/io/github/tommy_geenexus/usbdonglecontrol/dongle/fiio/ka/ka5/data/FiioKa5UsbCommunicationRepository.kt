@@ -318,6 +318,14 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         }
     }
 
+    override suspend fun closeConnection(connection: UsbDeviceConnection) {
+        return withContext(Dispatchers.IO) {
+            coroutineContext.suspendRunCatching {
+                connection.close()
+            }
+        }
+    }
+
     suspend fun setFilter(
         connection: UsbDeviceConnection,
         filter: Filter
@@ -339,11 +347,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -370,11 +376,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -419,11 +423,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -472,11 +474,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -503,11 +503,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -534,11 +532,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -565,11 +561,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -602,11 +596,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -633,11 +625,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -673,11 +663,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -704,11 +692,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -735,11 +721,9 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 if (result != REQUEST_PAYLOAD_SIZE) {
                     error("USB control transfer $REQUEST_TYPE_WRITE failed")
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }

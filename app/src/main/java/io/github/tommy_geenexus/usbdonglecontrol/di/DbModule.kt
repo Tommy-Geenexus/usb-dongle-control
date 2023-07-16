@@ -18,22 +18,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop
+package io.github.tommy_geenexus.usbdonglecontrol.di
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
+import android.content.Context
+import androidx.room.Room
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfileDatabase
 
-abstract class MoondropUsbDongle(
-    override val modelName: String,
-    override val productId: Long
-) : UsbDongle(
-    manufacturerName = "MOONDROP",
-    modelName = modelName,
-    vendorId = VENDOR_ID,
-    productId = productId
-) {
+@Module
+@InstallIn(SingletonComponent::class)
+object DbModule {
 
-    companion object {
+    @Provides
+    fun provideAppDatabase(
+        @ApplicationContext context: Context
+    ) = Room
+        .databaseBuilder(context, ProfileDatabase::class.java, "app.db")
+        .build()
 
-        const val VENDOR_ID = 12230L
-    }
+    @Provides
+    fun provideFiioKa5ProfileDao(profileDatabase: ProfileDatabase) =
+        profileDatabase.fiioKa5ProfileDao()
+
+    @Provides
+    fun provideMoondropDawn44ProfileDao(profileDatabase: ProfileDatabase) =
+        profileDatabase.moondropDawn44ProfileDao()
 }

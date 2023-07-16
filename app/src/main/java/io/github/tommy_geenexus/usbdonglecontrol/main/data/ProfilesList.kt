@@ -18,22 +18,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop
+package io.github.tommy_geenexus.usbdonglecontrol.main.data
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
+import kotlinx.parcelize.Parcelize
 
-abstract class MoondropUsbDongle(
-    override val modelName: String,
-    override val productId: Long
-) : UsbDongle(
-    manufacturerName = "MOONDROP",
-    modelName = modelName,
-    vendorId = VENDOR_ID,
-    productId = productId
-) {
-
-    companion object {
-
-        const val VENDOR_ID = 12230L
-    }
-}
+@Immutable
+@Parcelize
+data class ProfilesList(
+    val items: List<Profile> = emptyList()
+) : Parcelable

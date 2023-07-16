@@ -23,13 +23,19 @@ package io.github.tommy_geenexus.usbdonglecontrol.main.business
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.isUsbServiceSupported
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.MoondropDawn44UsbCommunicationRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
+import io.github.tommy_geenexus.usbdonglecontrol.main.data.Profile
+import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfileRepository
+import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfilesList
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
@@ -41,6 +47,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     val usbRepository: UsbRepository,
+    private val profileRepository: ProfileRepository,
     val fiioKa5UsbCommunicationRepository: FiioKa5UsbCommunicationRepository,
     val moondropDawn44UsbCommunicationRepository: MoondropDawn44UsbCommunicationRepository
 ) : ViewModel(),
@@ -49,8 +56,51 @@ class MainViewModel @Inject constructor(
     override val container = container<MainState, MainSideEffect>(
         initialState = MainState(),
         savedStateHandle = savedStateHandle,
-        onCreate = { getCurrentState() }
+        onCreate = { getInitialStateAndProfiles() }
     )
+
+    private fun getInitialStateAndProfiles() = intent {
+        reduce {
+            state.copy(isLoading = true)
+        }
+        val device = usbRepository.getAttachedDeviceOrNull()
+        val usbDongle = if (state.usbPermissionGranted) {
+            if (device != null) {
+                val connection = usbRepository.openDeviceOrNull(device)
+                if (connection != null) {
+                    when (device.toUsbDongleOrNull()) {
+                        is FiioKa5 -> {
+                            fiioKa5UsbCommunicationRepository.getCurrentState(connection)
+                        }
+                        is MoondropDawn44 -> {
+                            moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
+                        }
+                        else -> null
+                    }
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+        val profiles = profileRepository.getProfiles(usbDongle)
+        reduce {
+            state.copy(
+                usbDongle = usbDongle,
+                profiles = ProfilesList(profiles),
+                isLoading = false
+            )
+        }
+        if (device != null && !state.usbPermissionGranted) {
+            postSideEffect(MainSideEffect.RequestPermissions)
+        } else if (usbDongle?.isUsbServiceSupported() == true) {
+            postSideEffect(MainSideEffect.NotificationService.Stop)
+            postSideEffect(MainSideEffect.NotificationService.Start)
+        }
+    }
 
     fun getCurrentState() = intent {
         if (state.isLoading) {
@@ -147,9 +197,11 @@ class MainViewModel @Inject constructor(
         } else {
             null
         }
+        val profiles = profileRepository.getProfiles(usbDongle)
         reduce {
             state.copy(
                 usbDongle = usbDongle,
+                profiles = ProfilesList(profiles),
                 isLoading = false
             )
         }
@@ -175,5 +227,119 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = false)
         }
+    }
+
+    fun upsertProfile(
+        profileName: String?,
+        usbDongle: UsbDongle
+    ) = intent {
+        if (state.isLoading || profileName.isNullOrEmpty()) {
+            postSideEffect(MainSideEffect.Profile.Export.Failure)
+            return@intent
+        }
+        val profile = when (usbDongle) {
+            is FiioKa5 -> {
+                FiioKa5Profile(
+                    name = profileName,
+                    channelBalance = usbDongle.channelBalance,
+                    dacMode = usbDongle.dacMode,
+                    displayBrightness = usbDongle.displayBrightness,
+                    displayInvertEnabled = usbDongle.displayInvertEnabled,
+                    displayTimeout = usbDongle.displayTimeout,
+                    filter = usbDongle.filter,
+                    firmwareVersion = usbDongle.firmwareVersion,
+                    gain = usbDongle.gain,
+                    hardwareMuteEnabled = usbDongle.hardwareMuteEnabled,
+                    hidMode = usbDongle.hidMode,
+                    sampleRate = usbDongle.sampleRate,
+                    spdifOutEnabled = usbDongle.spdifOutEnabled,
+                    volumeLevel = usbDongle.volumeLevel,
+                    volumeMode = usbDongle.volumeMode
+                )
+            }
+            is MoondropDawn44 -> {
+                MoondropDawn44Profile(
+                    name = profileName,
+                    filter = usbDongle.filter,
+                    gain = usbDongle.gain,
+                    indicatorState = usbDongle.indicatorState
+                )
+            }
+            else -> {
+                return@intent
+            }
+        }
+        reduce {
+            state.copy(isLoading = true)
+        }
+        val success = profileRepository.upsertProfile(profile)
+        val profiles = state.profiles.items.toMutableList().apply {
+            add(profile)
+        }
+        reduce {
+            state.copy(
+                profiles = if (success) ProfilesList(profiles) else state.profiles,
+                isLoading = false
+            )
+        }
+        postSideEffect(
+            if (success) {
+                MainSideEffect.Profile.Export.Success
+            } else {
+                MainSideEffect.Profile.Export.Failure
+            }
+        )
+    }
+
+    fun deleteProfile(profile: Profile) = intent {
+        if (state.isLoading) {
+            postSideEffect(MainSideEffect.Profile.Delete.Failure)
+            return@intent
+        }
+        reduce {
+            state.copy(isLoading = true)
+        }
+        val success = profileRepository.deleteProfile(profile)
+        val profiles = state.profiles.items.toMutableList().apply {
+            remove(profile)
+        }
+        if (success) {
+            profileRepository.removeProfileShortcut(profile)
+        }
+        reduce {
+            state.copy(
+                profiles = if (success) ProfilesList(profiles) else state.profiles,
+                isLoading = false
+            )
+        }
+        postSideEffect(
+            if (success) {
+                MainSideEffect.Profile.Delete.Success
+            } else {
+                MainSideEffect.Profile.Delete.Failure
+            }
+        )
+    }
+
+    fun addProfileShortcut(profile: Profile) = intent {
+        val success = profileRepository.addProfileShortcut(profile)
+        postSideEffect(
+            if (success) {
+                MainSideEffect.Shortcut.Add.Success
+            } else {
+                MainSideEffect.Shortcut.Add.Failure
+            }
+        )
+    }
+
+    fun removeProfileShortcut(profile: Profile) = intent {
+        val success = profileRepository.removeProfileShortcut(profile)
+        postSideEffect(
+            if (success) {
+                MainSideEffect.Shortcut.Delete.Success
+            } else {
+                MainSideEffect.Shortcut.Delete.Failure
+            }
+        )
     }
 }

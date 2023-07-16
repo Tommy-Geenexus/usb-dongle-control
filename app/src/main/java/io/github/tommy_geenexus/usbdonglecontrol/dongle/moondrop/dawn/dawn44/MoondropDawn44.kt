@@ -33,8 +33,16 @@ data class MoondropDawn44(
     val filter: Filter = Filter.default(),
     val gain: Gain = Gain.default(),
     val indicatorState: IndicatorState = IndicatorState.default()
-) : MoondropUsbDongle(modelName = "Nano audio 1"),
+) : MoondropUsbDongle(
+    modelName = "Nano audio 1",
+    productId = PRODUCT_ID
+),
     MoondropDawn44UsbCommand {
+
+    companion object {
+
+        const val PRODUCT_ID = 61543L
+    }
 
     @IgnoredOnParcel
     override val setFilter = byteArrayOf(-64, -91, 1)

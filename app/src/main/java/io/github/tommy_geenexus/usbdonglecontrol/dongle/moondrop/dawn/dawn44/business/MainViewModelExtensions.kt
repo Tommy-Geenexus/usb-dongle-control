@@ -24,9 +24,66 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
+import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainSideEffect
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainViewModel
 import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
+
+fun MainViewModel.applyMoondropDawn44Profile(
+    moondropDawn44: MoondropDawn44,
+    moondropDawn44Profile: MoondropDawn44Profile
+) = intent {
+    reduce {
+        state.copy(isLoading = true)
+    }
+    val device = usbRepository.getAttachedDeviceOrNull()
+    val success = if (device != null) {
+        val connection = usbRepository.openDeviceOrNull(device)
+        if (connection != null) {
+            moondropDawn44UsbCommunicationRepository.setFilter(
+                connection = connection,
+                filter = moondropDawn44Profile.filter
+            )
+            moondropDawn44UsbCommunicationRepository.setGain(
+                connection = connection,
+                gain = moondropDawn44Profile.gain
+            )
+            moondropDawn44UsbCommunicationRepository.setIndicatorState(
+                connection = connection,
+                indicatorState = moondropDawn44Profile.indicatorState
+            )
+            moondropDawn44UsbCommunicationRepository.closeConnection(connection)
+            true
+        } else {
+            false
+        }
+    } else {
+        false
+    }
+    reduce {
+        state.copy(
+            usbDongle = if (success) {
+                moondropDawn44.copy(
+                    filter = moondropDawn44Profile.filter,
+                    gain = moondropDawn44Profile.gain,
+                    indicatorState = moondropDawn44Profile.indicatorState
+                )
+            } else {
+                moondropDawn44
+            },
+            isLoading = false
+        )
+    }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.Profile.Apply.Success
+        } else {
+            MainSideEffect.Profile.Apply.Failure
+        }
+    )
+}
 
 fun MainViewModel.setFilter(
     moondropDawn44: MoondropDawn44,
@@ -39,7 +96,9 @@ fun MainViewModel.setFilter(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            moondropDawn44UsbCommunicationRepository.setFilter(connection, filter)
+            moondropDawn44UsbCommunicationRepository
+                .setFilter(connection, filter)
+                .also { moondropDawn44UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -67,7 +126,9 @@ fun MainViewModel.setGain(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            moondropDawn44UsbCommunicationRepository.setGain(connection, gain)
+            moondropDawn44UsbCommunicationRepository
+                .setGain(connection, gain)
+                .also { moondropDawn44UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -93,10 +154,12 @@ fun MainViewModel.setIndicatorState(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            moondropDawn44UsbCommunicationRepository.setIndicatorState(
-                connection = connection,
-                indicatorState = indicatorState
-            )
+            moondropDawn44UsbCommunicationRepository
+                .setIndicatorState(
+                    connection = connection,
+                    indicatorState = indicatorState
+                )
+                .also { moondropDawn44UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }

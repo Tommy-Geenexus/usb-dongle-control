@@ -26,9 +26,114 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.HidMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
+import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainSideEffect
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainViewModel
 import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
+
+fun MainViewModel.applyFiioKa5Profile(
+    fiioKa5: FiioKa5,
+    fiioKa5Profile: FiioKa5Profile
+) = intent {
+    reduce {
+        state.copy(isLoading = true)
+    }
+    val device = usbRepository.getAttachedDeviceOrNull()
+    val success = if (device != null) {
+        val connection = usbRepository.openDeviceOrNull(device)
+        if (connection != null) {
+            fiioKa5UsbCommunicationRepository.setChannelBalance(
+                connection = connection,
+                channelBalance = fiioKa5Profile.channelBalance
+            )
+            fiioKa5UsbCommunicationRepository.setDacMode(
+                connection = connection,
+                dacMode = fiioKa5Profile.dacMode
+            )
+            fiioKa5UsbCommunicationRepository.setDisplayBrightness(
+                connection = connection,
+                displayBrightness = fiioKa5Profile.displayBrightness
+            )
+            fiioKa5UsbCommunicationRepository.setDisplayInvertEnabled(
+                connection = connection,
+                displayInvertEnabled = fiioKa5Profile.displayInvertEnabled
+            )
+            fiioKa5UsbCommunicationRepository.setDisplayTimeout(
+                connection = connection,
+                displayTimeout = fiioKa5Profile.displayTimeout
+            )
+            fiioKa5UsbCommunicationRepository.setFilter(
+                connection = connection,
+                filter = fiioKa5Profile.filter
+            )
+            fiioKa5UsbCommunicationRepository.setGain(
+                connection = connection,
+                gain = fiioKa5Profile.gain
+            )
+            fiioKa5UsbCommunicationRepository.setHardwareMuteEnabled(
+                connection = connection,
+                hardwareMuteEnabled = fiioKa5Profile.hardwareMuteEnabled
+            )
+            fiioKa5UsbCommunicationRepository.setHidMode(
+                connection = connection,
+                hidMode = fiioKa5Profile.hidMode
+            )
+            fiioKa5UsbCommunicationRepository.setSpdifOutEnabled(
+                connection = connection,
+                spdifOutEnabled = fiioKa5Profile.spdifOutEnabled
+            )
+            fiioKa5UsbCommunicationRepository.setVolumeLevel(
+                connection = connection,
+                volumeMode = fiioKa5Profile.volumeMode,
+                volumeLevel = fiioKa5Profile.volumeLevel
+            )
+            fiioKa5UsbCommunicationRepository.setVolumeMode(
+                connection = connection,
+                volumeMode = fiioKa5Profile.volumeMode
+            )
+            fiioKa5UsbCommunicationRepository.closeConnection(connection)
+            true
+        } else {
+            false
+        }
+    } else {
+        false
+    }
+    reduce {
+        state.copy(
+            usbDongle = if (success) {
+                fiioKa5.copy(
+                    channelBalance = fiioKa5Profile.channelBalance,
+                    dacMode = fiioKa5Profile.dacMode,
+                    displayBrightness = fiioKa5.displayBrightness,
+                    displayInvertEnabled = fiioKa5.displayInvertEnabled,
+                    displayTimeout = fiioKa5.displayTimeout,
+                    filter = fiioKa5.filter,
+                    firmwareVersion = fiioKa5.firmwareVersion,
+                    gain = fiioKa5Profile.gain,
+                    hardwareMuteEnabled = fiioKa5Profile.hardwareMuteEnabled,
+                    hidMode = fiioKa5Profile.hidMode,
+                    sampleRate = fiioKa5Profile.sampleRate,
+                    spdifOutEnabled = fiioKa5Profile.spdifOutEnabled,
+                    volumeLevel = fiioKa5Profile.volumeLevel,
+                    volumeMode = fiioKa5Profile.volumeMode
+                )
+            } else {
+                fiioKa5
+            },
+            isLoading = false
+        )
+    }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.Profile.Apply.Success
+        } else {
+            MainSideEffect.Profile.Apply.Failure
+        }
+    )
+}
 
 fun MainViewModel.setFilter(
     fiioKa5: FiioKa5,
@@ -41,7 +146,9 @@ fun MainViewModel.setFilter(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setFilter(connection, filter)
+            fiioKa5UsbCommunicationRepository
+                .setFilter(connection, filter)
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -67,7 +174,9 @@ fun MainViewModel.setGain(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setGain(connection, gain)
+            fiioKa5UsbCommunicationRepository
+                .setGain(connection, gain)
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -93,11 +202,13 @@ fun MainViewModel.setVolumeLevel(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setVolumeLevel(
-                connection = connection,
-                volumeMode = fiioKa5.volumeMode,
-                volumeLevel = volumeLevel
-            )
+            fiioKa5UsbCommunicationRepository
+                .setVolumeLevel(
+                    connection = connection,
+                    volumeMode = fiioKa5.volumeMode,
+                    volumeLevel = volumeLevel
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -125,10 +236,12 @@ fun MainViewModel.setChannelBalance(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setChannelBalance(
-                connection = connection,
-                channelBalance = channelBalance
-            )
+            fiioKa5UsbCommunicationRepository
+                .setChannelBalance(
+                    connection = connection,
+                    channelBalance = channelBalance
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -156,10 +269,12 @@ fun MainViewModel.setDacMode(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setDacMode(
-                connection = connection,
-                dacMode = dacMode
-            )
+            fiioKa5UsbCommunicationRepository
+                .setDacMode(
+                    connection = connection,
+                    dacMode = dacMode
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -187,10 +302,12 @@ fun MainViewModel.setHardwareMute(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setHardwareMuteEnabled(
-                connection = connection,
-                hardwareMuteEnabled = hardwareMuteEnabled
-            )
+            fiioKa5UsbCommunicationRepository
+                .setHardwareMuteEnabled(
+                    connection = connection,
+                    hardwareMuteEnabled = hardwareMuteEnabled
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -222,10 +339,12 @@ fun MainViewModel.setSpdifOut(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setSpdifOutEnabled(
-                connection = connection,
-                spdifOutEnabled = spdifOutEnabled
-            )
+            fiioKa5UsbCommunicationRepository
+                .setSpdifOutEnabled(
+                    connection = connection,
+                    spdifOutEnabled = spdifOutEnabled
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -253,10 +372,12 @@ fun MainViewModel.setDisplayTimeout(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setDisplayTimeout(
-                connection = connection,
-                displayTimeout = displayTimeout
-            )
+            fiioKa5UsbCommunicationRepository
+                .setDisplayTimeout(
+                    connection = connection,
+                    displayTimeout = displayTimeout
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -284,10 +405,12 @@ fun MainViewModel.setHidMode(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setHidMode(
-                connection = connection,
-                hidMode = hidMode
-            )
+            fiioKa5UsbCommunicationRepository
+                .setHidMode(
+                    connection = connection,
+                    hidMode = hidMode
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -315,10 +438,12 @@ fun MainViewModel.setDisplayBrightness(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setDisplayBrightness(
-                connection = connection,
-                displayBrightness = displayBrightness
-            )
+            fiioKa5UsbCommunicationRepository
+                .setDisplayBrightness(
+                    connection = connection,
+                    displayBrightness = displayBrightness
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -350,10 +475,12 @@ fun MainViewModel.setDisplayInvert(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setDisplayInvertEnabled(
-                connection = connection,
-                displayInvertEnabled = displayInvertEnabled
-            )
+            fiioKa5UsbCommunicationRepository
+                .setDisplayInvertEnabled(
+                    connection = connection,
+                    displayInvertEnabled = displayInvertEnabled
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }
@@ -385,10 +512,12 @@ fun MainViewModel.setVolumeMode(
     val success = if (device != null) {
         val connection = usbRepository.openDeviceOrNull(device)
         if (connection != null) {
-            fiioKa5UsbCommunicationRepository.setVolumeMode(
-                connection = connection,
-                volumeMode = volumeMode
-            )
+            fiioKa5UsbCommunicationRepository
+                .setVolumeMode(
+                    connection = connection,
+                    volumeMode = volumeMode
+                )
+                .also { fiioKa5UsbCommunicationRepository.closeConnection(connection) }
         } else {
             false
         }

@@ -20,6 +20,7 @@ lifecycle = "2.5.1"
 material = "1.9.0"
 navigation_compose = "2.6.0"
 orbit = "6.0.0"
+room = "2.5.1"
 spotless = "6.19.0"
 timber = "5.0.1"
 versions = "0.47.0"
@@ -50,6 +51,9 @@ material-icons-extended = { module = "androidx.compose.material:material-icons-e
 navigation_compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation_compose" }
 orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbit" }
 orbit-vm = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbit" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [bundles]
@@ -73,11 +77,14 @@ implementation = [
     "navigation_compose",
     "orbit-compose",
     "orbit-vm",
+    "room-ktx",
+    "room-runtime",
     "timber"
 ]
 kapt = [
     "dagger-hilt-android-compiler",
-    "dagger-hilt-compiler"
+    "dagger-hilt-compiler",
+    "room-compiler"
 ]
 lint-checks = [
     "compose-lint-checks"

@@ -25,6 +25,34 @@ import kotlinx.parcelize.Parcelize
 
 sealed class MainSideEffect : Parcelable {
 
+    sealed class Profile : MainSideEffect() {
+
+        sealed class Apply : Profile() {
+
+            @Parcelize
+            object Success : Delete()
+
+            @Parcelize
+            object Failure : Delete()
+        }
+
+        sealed class Delete : Profile() {
+            @Parcelize
+            object Success : Delete()
+
+            @Parcelize
+            object Failure : Delete()
+        }
+
+        sealed class Export : Profile() {
+            @Parcelize
+            object Success : Export()
+
+            @Parcelize
+            object Failure : Export()
+        }
+    }
+
     sealed class NotificationService : MainSideEffect() {
 
         @Parcelize
@@ -36,4 +64,25 @@ sealed class MainSideEffect : Parcelable {
 
     @Parcelize
     object RequestPermissions : MainSideEffect()
+
+    sealed class Shortcut : MainSideEffect() {
+
+        sealed class Add : Shortcut() {
+
+            @Parcelize
+            object Success : Add()
+
+            @Parcelize
+            object Failure : Add()
+        }
+
+        sealed class Delete : Shortcut() {
+
+            @Parcelize
+            object Success : Delete()
+
+            @Parcelize
+            object Failure : Delete()
+        }
+    }
 }

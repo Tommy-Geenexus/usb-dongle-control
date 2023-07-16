@@ -28,7 +28,9 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 @Immutable
 abstract class UsbDongle(
     val manufacturerName: String,
-    open val modelName: String
+    open val modelName: String,
+    val vendorId: Long,
+    open val productId: Long
 ) : UsbCommand,
     Parcelable
 

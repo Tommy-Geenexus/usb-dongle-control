@@ -112,6 +112,14 @@ class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransf
         }
     }
 
+    override suspend fun closeConnection(connection: UsbDeviceConnection) {
+        return withContext(Dispatchers.IO) {
+            coroutineContext.suspendRunCatching {
+                connection.close()
+            }
+        }
+    }
+
     suspend fun setFilter(
         connection: UsbDeviceConnection,
         filter: Filter

@@ -46,8 +46,16 @@ data class FiioKa5(
     val spdifOutEnabled: Boolean = false,
     val volumeLevel: Int = FiioKa5Defaults.VOLUME_LEVEL,
     val volumeMode: VolumeMode = VolumeMode.default()
-) : FiioUsbDongle(modelName = "KA5"),
+) : FiioUsbDongle(
+    modelName = "KA5",
+    productId = PRODUCT_ID
+),
     FiioKa5UsbCommand {
+
+    companion object {
+
+        const val PRODUCT_ID = 85L
+    }
 
     @IgnoredOnParcel
     override val setFilter = byteArrayOf(-57, -91, 1)

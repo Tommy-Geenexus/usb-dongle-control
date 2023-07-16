@@ -18,22 +18,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
+import androidx.room.TypeConverter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
 
-abstract class MoondropUsbDongle(
-    override val modelName: String,
-    override val productId: Long
-) : UsbDongle(
-    manufacturerName = "MOONDROP",
-    modelName = modelName,
-    vendorId = VENDOR_ID,
-    productId = productId
-) {
+class MoondropDawn44Converters {
 
-    companion object {
-
-        const val VENDOR_ID = 12230L
+    @TypeConverter
+    fun fromIndicatorStateId(id: Byte?): IndicatorState {
+        return IndicatorState.findById(id ?: IndicatorState.default().id)
+            ?: IndicatorState.default()
     }
+
+    @TypeConverter
+    fun toIndicatorStateId(indicatorState: IndicatorState) = indicatorState.id
 }

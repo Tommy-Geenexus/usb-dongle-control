@@ -18,22 +18,25 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
+import androidx.room.Upsert
 
-abstract class MoondropUsbDongle(
-    override val modelName: String,
-    override val productId: Long
-) : UsbDongle(
-    manufacturerName = "MOONDROP",
-    modelName = modelName,
-    vendorId = VENDOR_ID,
-    productId = productId
-) {
+@Dao
+interface FiioKa5ProfileDao {
 
-    companion object {
+    @Query("SELECT * FROM FiioKa5Profile")
+    suspend fun getProfiles(): List<FiioKa5Profile>
 
-        const val VENDOR_ID = 12230L
-    }
+    @Query("SELECT COUNT(*) FROM FiioKa5Profile")
+    suspend fun getProfileCount(): Int
+
+    @Upsert
+    suspend fun upsert(vararg profiles: FiioKa5Profile)
+
+    @Delete
+    suspend fun delete(profile: FiioKa5Profile)
 }

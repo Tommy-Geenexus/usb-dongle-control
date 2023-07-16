@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name" translatable="false">USBDongleControl</string>
 
+    <string name="apply">Apply</string>
+
     <string name="attach_device">Attach device</string>
 
     <string name="channel_balance">Channel balance</string>
@@ -10,6 +12,8 @@
     <string name="dac_mode">Amplifier work mode</string>
     <string name="dac_mode_ab">Class AB</string>
     <string name="dac_mode_h">Class H</string>
+
+    <string name="delete">Delete</string>
 
     <string name="disabled">Disabled</string>
     <string name="disabled_tmp">Temporarily disabled</string>
@@ -21,6 +25,8 @@
     <string name="display_timeout_delay">Delay: %1$.0fs</string>
 
     <string name="enabled">Enabled</string>
+
+    <string name="export">Export</string>
 
     <string name="filter">Filter</string>
     <string name="filter_fast_roll_off_low_latency">Fast roll-off, low-latency</string>
@@ -49,13 +55,31 @@
 
     <string name="low">Low</string>
 
+    <string name="profile_apply_fail">Profile not applied</string>
+    <string name="profile_apply_success">Profile applied</string>
+    <string name="profile_delete_fail">Profile not deleted</string>
+    <string name="profile_delete_success">Profile deleted</string>
+    <string name="profile_export">Export profile</string>
+    <string name="profile_export_fail">Profile not exported</string>
+    <string name="profile_export_success">Profile exported</string>
+    <string name="profile_name">Profile name</string>
+
+    <string name="profiles">Profiles</string>
+
     <string name="refresh">Refresh</string>
 
     <string name="right">right</string>
 
     <string name="sample_rate">Sample rate: %s</string>
 
+    <string name="shortcut_add_fail">Shortcut not added</string>
+    <string name="shortcut_add_success">Shortcut added</string>
+    <string name="shortcut_delete_fail">Shortcut not deleted</string>
+    <string name="shortcut_delete_success">Shortcut deleted</string>
+
     <string name="spdif_out">S/PDIF output</string>
+
+    <string name="state">State</string>
 
     <string name="volume">Volume</string>
     <string name="volume_down">Volume down</string>
