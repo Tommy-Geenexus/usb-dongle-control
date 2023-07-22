@@ -86,7 +86,11 @@ class MainViewModel @Inject constructor(
         } else {
             null
         }
-        val profiles = profileRepository.getProfiles(usbDongle)
+        val profiles = if (usbDongle != null) {
+            profileRepository.getProfiles(usbDongle)
+        } else {
+            emptyList()
+        }
         reduce {
             state.copy(
                 usbDongle = usbDongle,
@@ -197,7 +201,11 @@ class MainViewModel @Inject constructor(
         } else {
             null
         }
-        val profiles = profileRepository.getProfiles(usbDongle)
+        val profiles = if (usbDongle != null) {
+            profileRepository.getProfiles(usbDongle)
+        } else {
+            emptyList()
+        }
         reduce {
             state.copy(
                 usbDongle = usbDongle,
@@ -272,18 +280,15 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(isLoading = true)
         }
-        val success = profileRepository.upsertProfile(profile)
-        val profiles = state.profiles.items.toMutableList().apply {
-            add(profile)
-        }
+        val result = profileRepository.upsertProfile(profile)
         reduce {
             state.copy(
-                profiles = if (success) ProfilesList(profiles) else state.profiles,
+                profiles = ProfilesList(result.getOrDefault(state.profiles.items)),
                 isLoading = false
             )
         }
         postSideEffect(
-            if (success) {
+            if (result.isSuccess) {
                 MainSideEffect.Profile.Export.Success
             } else {
                 MainSideEffect.Profile.Export.Failure

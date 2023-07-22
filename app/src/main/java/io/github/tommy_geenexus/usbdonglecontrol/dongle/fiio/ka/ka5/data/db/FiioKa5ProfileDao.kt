@@ -23,20 +23,27 @@ package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 
 @Dao
 interface FiioKa5ProfileDao {
 
-    @Query("SELECT * FROM FiioKa5Profile")
+    @Query("SELECT * FROM FiioKa5Profile ORDER BY name ASC")
     suspend fun getProfiles(): List<FiioKa5Profile>
 
     @Query("SELECT COUNT(*) FROM FiioKa5Profile")
     suspend fun getProfileCount(): Int
 
     @Upsert
-    suspend fun upsert(vararg profiles: FiioKa5Profile)
+    suspend fun upsert(profile: FiioKa5Profile)
 
     @Delete
     suspend fun delete(profile: FiioKa5Profile)
+
+    @Transaction
+    suspend fun upsertAndGetProfiles(profile: FiioKa5Profile): List<FiioKa5Profile> {
+        upsert(profile)
+        return getProfiles()
+    }
 }

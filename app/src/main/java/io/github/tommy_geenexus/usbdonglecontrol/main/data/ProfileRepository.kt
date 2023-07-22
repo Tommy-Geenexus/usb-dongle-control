@@ -75,30 +75,28 @@ class ProfileRepository @Inject constructor(
         }
     }
 
-    suspend fun upsertProfile(profile: Profile): Boolean {
+    suspend fun upsertProfile(profile: Profile): Result<List<Profile>> {
         return withContext(Dispatchers.IO) {
             coroutineContext.suspendRunCatching {
                 if (profile is FiioKa5Profile) {
                     if (fiioKa5ProfileDao.getProfileCount() < PROFILES_MAX) {
-                        fiioKa5ProfileDao.upsert(profile)
-                        true
+                        Result.success(fiioKa5ProfileDao.upsertAndGetProfiles(profile))
                     } else {
-                        false
+                        error("Profile limit reached")
                     }
                 } else if (profile is MoondropDawn44Profile) {
                     if (moondropDawn44ProfileDao.getProfileCount() < PROFILES_MAX) {
-                        moondropDawn44ProfileDao.upsert(profile)
-                        true
+                        Result.success(moondropDawn44ProfileDao.upsertAndGetProfiles(profile))
                     } else {
-                        false
+                        error("Profile limit reached")
                     }
                 } else {
-                    false
+                    error("Invalid profile")
                 }
             }
         }.getOrElse { exception ->
             Timber.e(exception)
-            false
+            Result.failure(exception)
         }
     }
 

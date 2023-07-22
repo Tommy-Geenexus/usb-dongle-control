@@ -23,20 +23,27 @@ package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.da
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 
 @Dao
 interface MoondropDawn44ProfileDao {
 
-    @Query("SELECT * FROM MoondropDawn44Profile")
+    @Query("SELECT * FROM MoondropDawn44Profile ORDER BY name ASC")
     suspend fun getProfiles(): List<MoondropDawn44Profile>
 
     @Query("SELECT COUNT(*) FROM MoondropDawn44Profile")
     suspend fun getProfileCount(): Int
 
     @Upsert
-    suspend fun upsert(vararg profiles: MoondropDawn44Profile)
+    suspend fun upsert(profile: MoondropDawn44Profile)
 
     @Delete
     suspend fun delete(profile: MoondropDawn44Profile)
+
+    @Transaction
+    suspend fun upsertAndGetProfiles(profile: MoondropDawn44Profile): List<MoondropDawn44Profile> {
+        upsert(profile)
+        return getProfiles()
+    }
 }
