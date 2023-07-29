@@ -31,22 +31,22 @@ sealed class IndicatorState(val id: Byte) : Parcelable {
 
         fun default() = Enabled
 
-        fun findById(id: Byte): IndicatorState? {
+        fun findByIdOrDefault(id: Byte): IndicatorState {
             return when (id) {
                 Enabled.id -> Enabled
                 DisabledTemp.id -> DisabledTemp
                 Disabled.id -> Disabled
-                else -> null
+                else -> default()
             }
         }
     }
 
     @Parcelize
-    object Enabled : IndicatorState(id = 0)
+    data object Enabled : IndicatorState(id = 0)
 
     @Parcelize
-    object DisabledTemp : IndicatorState(id = 1)
+    data object DisabledTemp : IndicatorState(id = 1)
 
     @Parcelize
-    object Disabled : IndicatorState(id = 2)
+    data object Disabled : IndicatorState(id = 2)
 }

@@ -25,6 +25,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.SideEffect
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
@@ -58,6 +59,7 @@ class UsbDongleControlActivity : ComponentActivity() {
                     )
                 }
                 NavGraph(
+                    windowSizeClass = calculateWindowSizeClass(activity = this),
                     systemUiController = systemUiController,
                     navController = rememberNavController()
                 )

@@ -30,7 +30,11 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class MainState(
     val usbDongle: UsbDongle? = null,
-    val isLoading: Boolean = false,
-    val usbPermissionGranted: Boolean = false,
-    val profiles: ProfilesList = ProfilesList()
+    val profiles: ProfilesList = ProfilesList(),
+    val isDeviceAttached: Boolean = false,
+    val isUsbPermissionGranted: Boolean = false,
+    val loadingTasks: UInt = 0.toUInt()
 ) : Parcelable
+
+fun MainState.plusLoadingTask() = minOf(loadingTasks.inc(), UInt.MAX_VALUE)
+fun MainState.minusLoadingTask() = maxOf(loadingTasks.dec(), 0.toUInt())

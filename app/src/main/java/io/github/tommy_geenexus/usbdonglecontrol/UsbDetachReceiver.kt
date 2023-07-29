@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import androidx.core.content.IntentCompat
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
 
 class UsbDetachReceiver : BroadcastReceiver() {
@@ -34,7 +35,11 @@ class UsbDetachReceiver : BroadcastReceiver() {
         intent: Intent?
     ) {
         if (context != null && intent?.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
-            val device = intent.getParcelableExtra2<UsbDevice>(UsbManager.EXTRA_DEVICE)
+            val device = IntentCompat.getParcelableExtra(
+                intent,
+                UsbManager.EXTRA_DEVICE,
+                UsbDevice::class.java
+            )
             if (device.toUsbDongleOrNull() != null) {
                 context.stopService(Intent(context, UsbService::class.java))
             }

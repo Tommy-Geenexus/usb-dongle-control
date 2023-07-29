@@ -30,41 +30,31 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeM
 class FiioKa5Converters {
 
     @TypeConverter
-    fun fromDacModeId(id: Byte?): DacMode {
-        return DacMode.findById(id ?: DacMode.default().id) ?: DacMode.default()
-    }
+    fun fromDacModeId(id: Byte) = DacMode.findByIdOrDefault(id)
 
     @TypeConverter
     fun toDacModeId(dacMode: DacMode) = dacMode.id
 
     @TypeConverter
-    fun fromFilterId(id: Byte?): Filter {
-        return Filter.findById(id ?: Filter.default().id) ?: Filter.default()
-    }
+    fun fromFilterId(id: Byte) = Filter.findByIdOrDefault(id)
 
     @TypeConverter
     fun toFilterId(filter: Filter) = filter.id
 
     @TypeConverter
-    fun fromGainId(id: Byte?): Gain {
-        return Gain.findById(id ?: Gain.default().id) ?: Gain.default()
-    }
+    fun fromGainId(id: Byte) = Gain.findByIdOrDefault(id)
 
     @TypeConverter
     fun toGainId(gain: Gain) = gain.id
 
     @TypeConverter
-    fun fromHidModeId(id: Byte?): HidMode {
-        return HidMode.findById(id ?: HidMode.default().id) ?: HidMode.default()
-    }
+    fun fromHidModeId(id: Byte) = HidMode.findByIdOrDefault(id)
 
     @TypeConverter
     fun toHidModeId(hidMode: HidMode) = hidMode.id
 
     @TypeConverter
-    fun fromVolumeModeId(id: Byte?): VolumeMode {
-        return VolumeMode.findById(id ?: VolumeMode.default().id) ?: VolumeMode.default()
-    }
+    fun fromVolumeModeId(id: Byte) = VolumeMode.findByIdOrDefault(id)
 
     @TypeConverter
     fun toVolumeModeId(volumeMode: VolumeMode) = volumeMode.id

@@ -26,10 +26,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.dat
 class MoondropDawn44Converters {
 
     @TypeConverter
-    fun fromIndicatorStateId(id: Byte?): IndicatorState {
-        return IndicatorState.findById(id ?: IndicatorState.default().id)
-            ?: IndicatorState.default()
-    }
+    fun fromIndicatorStateId(id: Byte) = IndicatorState.findByIdOrDefault(id)
 
     @TypeConverter
     fun toIndicatorStateId(indicatorState: IndicatorState) = indicatorState.id

@@ -18,16 +18,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle
+package io.github.tommy_geenexus.usbdonglecontrol.di
 
-import android.hardware.usb.UsbDeviceConnection
-import kotlinx.coroutines.sync.Mutex
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import javax.inject.Qualifier
 
-interface UsbTransfer {
+@Module
+@InstallIn(SingletonComponent::class)
+object CoroutineModule {
 
-    suspend fun getCurrentState(connection: UsbDeviceConnection): UsbDongle?
+    @DispatcherIo
+    @Provides
+    fun provideDispatcherIo(): CoroutineDispatcher = Dispatchers.IO
 
-    suspend fun closeConnection(connection: UsbDeviceConnection)
-
-    val mutex: Mutex
+    @DispatcherMainImmediate
+    @Provides
+    fun provideDispatcherMainImmediate(): CoroutineDispatcher = Dispatchers.Main.immediate
 }
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class DispatcherIo
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class DispatcherMainImmediate

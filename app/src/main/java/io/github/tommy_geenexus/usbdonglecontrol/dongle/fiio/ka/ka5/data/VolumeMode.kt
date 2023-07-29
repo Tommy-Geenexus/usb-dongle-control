@@ -35,18 +35,18 @@ sealed class VolumeMode(
 
         fun default() = S120
 
-        fun findById(id: Byte): VolumeMode? {
+        fun findByIdOrDefault(id: Byte): VolumeMode {
             return when (id) {
                 S120.id -> S120
                 S60.id -> S60
-                else -> null
+                else -> default()
             }
         }
     }
 
     @Parcelize
-    object S120 : VolumeMode(id = 0, steps = FiioKa5Defaults.VOLUME_LEVEL_A_MAX)
+    data object S120 : VolumeMode(id = 0, steps = FiioKa5Defaults.VOLUME_LEVEL_A_MAX)
 
     @Parcelize
-    object S60 : VolumeMode(id = 1, steps = FiioKa5Defaults.VOLUME_LEVEL_B_MAX)
+    data object S60 : VolumeMode(id = 1, steps = FiioKa5Defaults.VOLUME_LEVEL_B_MAX)
 }

@@ -31,18 +31,18 @@ sealed class HidMode(val id: Byte) : Parcelable {
 
         fun default() = A
 
-        fun findById(id: Byte): HidMode? {
+        fun findByIdOrDefault(id: Byte): HidMode {
             return when (id) {
                 A.id -> A
                 B.id -> B
-                else -> null
+                else -> default()
             }
         }
     }
 
     @Parcelize
-    object A : HidMode(id = 0)
+    data object A : HidMode(id = 0)
 
     @Parcelize
-    object B : HidMode(id = 1)
+    data object B : HidMode(id = 1)
 }

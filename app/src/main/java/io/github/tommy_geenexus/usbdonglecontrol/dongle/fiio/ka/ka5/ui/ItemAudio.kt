@@ -22,25 +22,26 @@ package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPadding
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 @Composable
 fun ItemAudio(
@@ -59,19 +60,16 @@ fun ItemAudio(
     } else {
         FiioKa5Defaults.VOLUME_LEVEL_MIN.toFloat()..FiioKa5Defaults.VOLUME_LEVEL_B_MAX.toFloat()
     },
-    onChannelBalanceSelected: (Float) -> Unit = {},
-    onVolumeLevelSelected: (Float) -> Unit = {},
+    onChannelBalanceChanged: (Int) -> Unit = {},
+    onChannelBalanceSelected: (Int) -> Unit = {},
+    onVolumeLevelChanged: (Int) -> Unit = {},
+    onVolumeLevelSelected: (Int) -> Unit = {},
     onVolumeModeSelected: (VolumeMode) -> Unit = {}
 ) {
-    OutlinedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = 8.dp)
-    ) {
-        Column {
+    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(all = cardPadding)) {
             Text(
                 text = stringResource(id = R.string.channel_balance),
-                modifier = Modifier.padding(all = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -94,20 +92,20 @@ fun ItemAudio(
                         ""
                     )
                 },
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                ),
+                modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
+            var pendingChannelBalance = remember { channelBalance }
             Slider(
                 value = channelBalance,
-                onValueChange = onChannelBalanceSelected,
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp
-                ),
+                onValueChange = { value ->
+                    pendingChannelBalance = value
+                    onChannelBalanceChanged(value.roundToInt())
+                },
+                onValueChangeFinished = {
+                    onChannelBalanceSelected(pendingChannelBalance.roundToInt())
+                },
+                modifier = Modifier.padding(vertical = cardPadding),
                 valueRange = channelBalanceRange,
                 steps = channelBalanceStepSize,
                 colors = SliderDefaults.colors(
@@ -119,31 +117,30 @@ fun ItemAudio(
             )
             Text(
                 text = stringResource(id = R.string.volume),
-                modifier = Modifier.padding(all = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
                 text = stringResource(id = R.string.volume_level, volumeLevelInPercent),
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                ),
+                modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
+            var pendingVolumeLevel = remember { volumeLevel }
             Slider(
                 value = volumeLevel,
-                onValueChange = onVolumeLevelSelected,
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp
-                ),
+                onValueChange = { value ->
+                    pendingVolumeLevel = value
+                    onVolumeLevelChanged(value.roundToInt())
+                },
+                onValueChangeFinished = {
+                    onVolumeLevelSelected(pendingVolumeLevel.roundToInt())
+                },
+                modifier = Modifier.padding(top = cardPadding),
                 valueRange = volumeRange,
                 steps = volumeStepSize
             )
             Text(
                 text = stringResource(id = R.string.volume_steps),
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(vertical = cardPadding),
                 style = MaterialTheme.typography.titleMedium
             )
             val volumeSteps = listOf(
@@ -155,10 +152,7 @@ fun ItemAudio(
                     RadioButton(
                         selected = index.toByte() == volumeMode.id,
                         onClick = {
-                            val newMode = VolumeMode.findById(index.toByte())
-                            if (newMode != null) {
-                                onVolumeModeSelected(newMode)
-                            }
+                            onVolumeModeSelected(VolumeMode.findByIdOrDefault(id = index.toByte()))
                         }
                     )
                     Text(
@@ -167,7 +161,6 @@ fun ItemAudio(
                     )
                 }
             }
-            Spacer(modifier = Modifier.padding(bottom = 16.dp))
         }
     }
 }

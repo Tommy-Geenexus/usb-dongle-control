@@ -25,19 +25,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPadding
 import kotlin.math.roundToInt
 
 @Composable
@@ -52,19 +53,16 @@ fun ItemDisplay(
     displayTimeoutRange: ClosedFloatingPointRange<Float> =
         FiioKa5Defaults.DISPLAY_TIMEOUT_MIN.toFloat()..FiioKa5Defaults.DISPLAY_TIMEOUT_MAX.toFloat(),
     displayInvertEnabled: Boolean = false,
-    onDisplayBrightnessSelected: (Float) -> Unit = {},
-    onDisplayTimeoutSelected: (Float) -> Unit = {},
+    onDisplayBrightnessChanged: (Int) -> Unit = {},
+    onDisplayBrightnessSelected: (Int) -> Unit = {},
+    onDisplayTimeoutChanged: (Int) -> Unit = {},
+    onDisplayTimeoutSelected: (Int) -> Unit = {},
     onDisplayInvertChange: (Boolean) -> Unit = {}
 ) {
-    OutlinedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = 8.dp)
-    ) {
-        Column {
+    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(all = cardPadding)) {
             Text(
                 text = stringResource(id = R.string.display_brightness),
-                modifier = Modifier.padding(all = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -75,66 +73,59 @@ fun ItemDisplay(
                             displayBrightnessStepSize
                         ).toDouble().roundToInt()}%"
                 ),
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                ),
+                modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
+            var pendingDisplayBrightness = remember { displayBrightness }
             Slider(
                 value = displayBrightness,
-                onValueChange = onDisplayBrightnessSelected,
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp
-                ),
+                onValueChange = { value ->
+                    pendingDisplayBrightness = value
+                    onDisplayBrightnessChanged(value.roundToInt())
+                },
+                onValueChangeFinished = {
+                    onDisplayBrightnessSelected(pendingDisplayBrightness.roundToInt())
+                },
+                modifier = Modifier.padding(top = cardPadding),
                 valueRange = displayBrightnessRange,
                 steps = displayBrightnessStepSize
             )
             Text(
                 text = stringResource(id = R.string.display_timeout),
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
                 text = stringResource(id = R.string.display_timeout_delay, displayTimeout),
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                ),
+                modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
+            var pendingDisplayTimeout = remember { displayTimeout }
             Slider(
                 value = displayTimeout,
-                onValueChange = onDisplayTimeoutSelected,
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp
-                ),
+                onValueChange = { value ->
+                    pendingDisplayTimeout = value
+                    onDisplayTimeoutChanged(value.roundToInt())
+                },
+                onValueChangeFinished = {
+                    onDisplayTimeoutSelected(pendingDisplayTimeout.roundToInt())
+                },
+                modifier = Modifier.padding(top = cardPadding),
                 valueRange = displayTimeoutRange,
                 steps = displayTimeoutStepSize
             )
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = 16.dp,
-                        bottom = 16.dp
-                    ),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(id = R.string.display_invert),
-                    modifier = Modifier.padding(start = 16.dp),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Switch(
                     checked = displayInvertEnabled,
-                    onCheckedChange = onDisplayInvertChange,
-                    modifier = Modifier.padding(end = 16.dp)
+                    onCheckedChange = onDisplayInvertChange
                 )
             }
         }

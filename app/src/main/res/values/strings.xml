@@ -6,6 +6,8 @@
 
     <string name="attach_device">Attach device</string>
 
+    <string name="cable">Cable</string>
+
     <string name="channel_balance">Channel balance</string>
     <string name="channel_balance_offset">Offset: %1$.1f dB %2$s</string>
 
@@ -55,6 +57,8 @@
 
     <string name="low">Low</string>
 
+    <string name="more">More</string>
+
     <string name="profile_apply_fail">Profile not applied</string>
     <string name="profile_apply_success">Profile applied</string>
     <string name="profile_delete_fail">Profile not deleted</string>
@@ -72,14 +76,20 @@
 
     <string name="sample_rate">Sample rate: %s</string>
 
+    <string name="shortcut_add">Add shortcut</string>
     <string name="shortcut_add_fail">Shortcut not added</string>
     <string name="shortcut_add_success">Shortcut added</string>
+    <string name="shortcut_delete">Delete shortcut</string>
     <string name="shortcut_delete_fail">Shortcut not deleted</string>
     <string name="shortcut_delete_success">Shortcut deleted</string>
 
     <string name="spdif_out">S/PDIF output</string>
 
     <string name="state">State</string>
+    <string name="state_reset">Reset state</string>
+
+    <string name="usb_comm_failure">State not updated</string>
+    <string name="usb_comm_success">State updated</string>
 
     <string name="volume">Volume</string>
     <string name="volume_down">Volume down</string>

@@ -20,7 +20,10 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui
 
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,16 +35,22 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.HidMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.ItemFilter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.ItemGain
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPaddingBetween
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardSizeMinDp
 
 @Composable
 fun FiioKa5Items(
     modifier: Modifier = Modifier,
     fiioKa5: FiioKa5 = FiioKa5(),
-    onChannelBalanceSelected: (Float) -> Unit = {},
-    onVolumeLevelSelected: (Float) -> Unit = {},
+    onChannelBalanceChanged: (Int) -> Unit = {},
+    onChannelBalanceSelected: (Int) -> Unit = {},
+    onVolumeLevelChanged: (Int) -> Unit = {},
+    onVolumeLevelSelected: (Int) -> Unit = {},
     onVolumeModeSelected: (VolumeMode) -> Unit = {},
-    onDisplayBrightnessSelected: (Float) -> Unit = {},
-    onDisplayTimeoutSelected: (Float) -> Unit = {},
+    onDisplayBrightnessChanged: (Int) -> Unit = {},
+    onDisplayBrightnessSelected: (Int) -> Unit = {},
+    onDisplayTimeoutChanged: (Int) -> Unit = {},
+    onDisplayTimeoutSelected: (Int) -> Unit = {},
     onDisplayInvertChange: (Boolean) -> Unit = {},
     onGainSelected: (Gain) -> Unit = {},
     onFilterSelected: (Filter) -> Unit = {},
@@ -50,7 +59,13 @@ fun FiioKa5Items(
     onDacModeSelected: (DacMode) -> Unit = {},
     onHidModeSelected: (HidMode) -> Unit = {}
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
+        modifier = modifier,
+        contentPadding = PaddingValues(all = cardPaddingBetween),
+        verticalItemSpacing = cardPaddingBetween,
+        horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
+    ) {
         item {
             ItemInfo(
                 firmwareVersion = fiioKa5.firmwareVersion,
@@ -63,7 +78,9 @@ fun FiioKa5Items(
                 volumeLevel = fiioKa5.volumeLevel.toFloat(),
                 volumeLevelInPercent = fiioKa5.currentVolumeLevelInPercent(),
                 volumeMode = fiioKa5.volumeMode,
+                onChannelBalanceChanged = onChannelBalanceChanged,
                 onChannelBalanceSelected = onChannelBalanceSelected,
+                onVolumeLevelChanged = onVolumeLevelChanged,
                 onVolumeLevelSelected = onVolumeLevelSelected,
                 onVolumeModeSelected = onVolumeModeSelected
             )
@@ -73,7 +90,9 @@ fun FiioKa5Items(
                 displayBrightness = fiioKa5.displayBrightness.toFloat(),
                 displayTimeout = fiioKa5.displayTimeout.toFloat(),
                 displayInvertEnabled = fiioKa5.displayInvertEnabled,
+                onDisplayBrightnessChanged = onDisplayBrightnessChanged,
                 onDisplayBrightnessSelected = onDisplayBrightnessSelected,
+                onDisplayTimeoutChanged = onDisplayTimeoutChanged,
                 onDisplayTimeoutSelected = onDisplayTimeoutSelected,
                 onDisplayInvertChange = onDisplayInvertChange
             )

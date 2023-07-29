@@ -28,8 +28,9 @@ import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
+import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherIo
 import io.github.tommy_geenexus.usbdonglecontrol.suspendRunCatching
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -37,11 +38,12 @@ import javax.inject.Singleton
 
 @Singleton
 class UsbRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) {
 
     suspend fun getAttachedDeviceOrNull(): UsbDevice? {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
             manager.deviceList?.values?.find { device ->
                 device.toUsbDongleOrNull() != null
@@ -50,14 +52,14 @@ class UsbRepository @Inject constructor(
     }
 
     suspend fun openDeviceOrNull(device: UsbDevice): UsbDeviceConnection? {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
             manager.openDevice(device)
         }
     }
 
     suspend fun hasUsbPermission(device: UsbDevice): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
                 manager.hasPermission(device)
@@ -69,7 +71,7 @@ class UsbRepository @Inject constructor(
     }
 
     suspend fun requestUsbPermission(device: UsbDevice): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
                 if (!hasUsbPermission(device)) {

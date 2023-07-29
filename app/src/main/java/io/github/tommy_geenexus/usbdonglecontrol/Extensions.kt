@@ -20,31 +20,12 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol
 
-import android.content.Intent
-import android.os.Build
-import android.os.Parcelable
 import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.max
-import kotlin.math.min
-
-fun Int.clamp(
-    min: Int,
-    max: Int
-) = max(min, min(this, max))
 
 suspend fun <T> CoroutineContext.suspendRunCatching(block: suspend () -> T): Result<T> = try {
     Result.success(block())
 } catch (exception: Exception) {
     ensureActive()
     Result.failure(exception)
-}
-
-@Suppress("DEPRECATION")
-inline fun <reified T : Parcelable> Intent.getParcelableExtra2(extra: String): T? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getParcelableExtra(extra, T::class.java)
-    } else {
-        getParcelableExtra(extra)
-    }
 }

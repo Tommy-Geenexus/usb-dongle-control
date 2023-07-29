@@ -59,26 +59,27 @@ class MainViewModel @Inject constructor(
         onCreate = { getInitialStateAndProfiles() }
     )
 
-    private fun getInitialStateAndProfiles() = intent {
+    fun getInitialStateAndProfiles() = intent {
         reduce {
-            state.copy(isLoading = true)
+            state.copy(loadingTasks = state.plusLoadingTask())
         }
         val device = usbRepository.getAttachedDeviceOrNull()
-        val usbDongle = if (state.usbPermissionGranted) {
-            if (device != null) {
-                val connection = usbRepository.openDeviceOrNull(device)
-                if (connection != null) {
-                    when (device.toUsbDongleOrNull()) {
-                        is FiioKa5 -> {
-                            fiioKa5UsbCommunicationRepository.getCurrentState(connection)
-                        }
-                        is MoondropDawn44 -> {
-                            moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
-                        }
-                        else -> null
+        val isUsbPermissionGranted = if (device != null) {
+            usbRepository.hasUsbPermission(device)
+        } else {
+            false
+        }
+        val usbDongle = if (device != null && isUsbPermissionGranted) {
+            val connection = usbRepository.openDeviceOrNull(device)
+            if (connection != null) {
+                when (device.toUsbDongleOrNull()) {
+                    is FiioKa5 -> {
+                        fiioKa5UsbCommunicationRepository.getCurrentState(connection)
                     }
-                } else {
-                    null
+                    is MoondropDawn44 -> {
+                        moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
+                    }
+                    else -> null
                 }
             } else {
                 null
@@ -95,40 +96,40 @@ class MainViewModel @Inject constructor(
             state.copy(
                 usbDongle = usbDongle,
                 profiles = ProfilesList(profiles),
-                isLoading = false
+                isDeviceAttached = device != null,
+                isUsbPermissionGranted = isUsbPermissionGranted,
+                loadingTasks = state.minusLoadingTask()
             )
         }
-        if (device != null && !state.usbPermissionGranted) {
+        if (device != null && !isUsbPermissionGranted) {
             postSideEffect(MainSideEffect.RequestPermissions)
         } else if (usbDongle?.isUsbServiceSupported() == true) {
-            postSideEffect(MainSideEffect.NotificationService.Stop)
-            postSideEffect(MainSideEffect.NotificationService.Start)
+            postSideEffect(MainSideEffect.Service.Stop)
+            postSideEffect(MainSideEffect.Service.Start)
         }
     }
 
     fun getCurrentState() = intent {
-        if (state.isLoading) {
-            return@intent
-        }
         reduce {
-            state.copy(isLoading = true)
+            state.copy(loadingTasks = state.plusLoadingTask())
         }
         val device = usbRepository.getAttachedDeviceOrNull()
-        val usbDongle = if (state.usbPermissionGranted) {
-            if (device != null) {
-                val connection = usbRepository.openDeviceOrNull(device)
-                if (connection != null) {
-                    when (device.toUsbDongleOrNull()) {
-                        is FiioKa5 -> {
-                            fiioKa5UsbCommunicationRepository.getCurrentState(connection)
-                        }
-                        is MoondropDawn44 -> {
-                            moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
-                        }
-                        else -> null
+        val isUsbPermissionGranted = if (device != null) {
+            usbRepository.hasUsbPermission(device)
+        } else {
+            false
+        }
+        val usbDongle = if (device != null && isUsbPermissionGranted) {
+            val connection = usbRepository.openDeviceOrNull(device)
+            if (connection != null) {
+                when (device.toUsbDongleOrNull()) {
+                    is FiioKa5 -> {
+                        fiioKa5UsbCommunicationRepository.getCurrentState(connection)
                     }
-                } else {
-                    null
+                    is MoondropDawn44 -> {
+                        moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
+                    }
+                    else -> null
                 }
             } else {
                 null
@@ -139,101 +140,75 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(
                 usbDongle = usbDongle,
-                isLoading = false
+                isDeviceAttached = device != null,
+                isUsbPermissionGranted = isUsbPermissionGranted,
+                loadingTasks = state.minusLoadingTask()
             )
         }
-        if (device != null && !state.usbPermissionGranted) {
+        if (device != null && !isUsbPermissionGranted) {
             postSideEffect(MainSideEffect.RequestPermissions)
         } else if (usbDongle?.isUsbServiceSupported() == true) {
-            postSideEffect(MainSideEffect.NotificationService.Stop)
-            postSideEffect(MainSideEffect.NotificationService.Start)
+            postSideEffect(MainSideEffect.Service.Stop)
+            postSideEffect(MainSideEffect.Service.Start)
         }
     }
 
     fun handleAttachedDevicesChanged() = intent {
         reduce {
-            state.copy(isLoading = true)
-        }
-        val usbDongle = usbRepository.getAttachedDeviceOrNull()?.toUsbDongleOrNull()
-        reduce {
-            state.copy(
-                usbDongle = usbDongle,
-                isLoading = false,
-                usbPermissionGranted = false
-            )
-        }
-        postSideEffect(
-            if (usbDongle != null) {
-                MainSideEffect.RequestPermissions
-            } else {
-                MainSideEffect.NotificationService.Stop
-            }
-        )
-    }
-
-    fun handleUsbPermissionGranted() = intent {
-        reduce {
-            state.copy(
-                isLoading = true,
-                usbPermissionGranted = true
-            )
+            state.copy(loadingTasks = state.plusLoadingTask())
         }
         val device = usbRepository.getAttachedDeviceOrNull()
-        val usbDongle = if (state.usbPermissionGranted) {
-            if (device != null) {
-                val connection = usbRepository.openDeviceOrNull(device)
-                if (connection != null) {
-                    when (device.toUsbDongleOrNull()) {
-                        is FiioKa5 -> {
-                            fiioKa5UsbCommunicationRepository.getCurrentState(connection)
-                        }
-                        is MoondropDawn44 -> {
-                            moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
-                        }
-                        else -> null
-                    }
-                } else {
-                    null
-                }
-            } else {
-                null
-            }
+        val isUsbPermissionGranted = if (device != null) {
+            usbRepository.hasUsbPermission(device)
         } else {
-            null
+            false
         }
-        val profiles = if (usbDongle != null) {
-            profileRepository.getProfiles(usbDongle)
-        } else {
-            emptyList()
-        }
+        val usbDongle = device?.toUsbDongleOrNull()
         reduce {
             state.copy(
                 usbDongle = usbDongle,
-                profiles = ProfilesList(profiles),
-                isLoading = false
+                loadingTasks = state.minusLoadingTask(),
+                isDeviceAttached = device != null,
+                isUsbPermissionGranted = isUsbPermissionGranted
             )
         }
-        if (usbDongle?.isUsbServiceSupported() == true) {
-            postSideEffect(MainSideEffect.NotificationService.Start)
+        if (isUsbPermissionGranted) {
+            getInitialStateAndProfiles()
+        } else {
+            postSideEffect(
+                if (usbDongle != null) {
+                    MainSideEffect.RequestPermissions
+                } else {
+                    MainSideEffect.Service.Stop
+                }
+            )
         }
     }
 
     fun requestUsbPermission() = intent {
         reduce {
-            state.copy(isLoading = true)
+            state.copy(loadingTasks = state.plusLoadingTask())
         }
         val device = usbRepository.getAttachedDeviceOrNull()
-        if (device != null) {
+        val isUsbPermissionGranted = if (device != null) {
             val permissionRequested = usbRepository.requestUsbPermission(device)
             if (!permissionRequested) {
-                if (usbRepository.hasUsbPermission(device)) {
-                    handleUsbPermissionGranted()
-                    return@intent
-                }
+                usbRepository.hasUsbPermission(device)
+            } else {
+                false
             }
+        } else {
+            false
         }
         reduce {
-            state.copy(isLoading = false)
+            state.copy(
+                loadingTasks = state.minusLoadingTask(),
+                isDeviceAttached = device != null,
+                isUsbPermissionGranted = isUsbPermissionGranted
+            )
+        }
+        if (isUsbPermissionGranted) {
+            getInitialStateAndProfiles()
         }
     }
 
@@ -241,7 +216,7 @@ class MainViewModel @Inject constructor(
         profileName: String?,
         usbDongle: UsbDongle
     ) = intent {
-        if (state.isLoading || profileName.isNullOrEmpty()) {
+        if (profileName.isNullOrEmpty()) {
             postSideEffect(MainSideEffect.Profile.Export.Failure)
             return@intent
         }
@@ -278,13 +253,13 @@ class MainViewModel @Inject constructor(
             }
         }
         reduce {
-            state.copy(isLoading = true)
+            state.copy(loadingTasks = state.plusLoadingTask())
         }
         val result = profileRepository.upsertProfile(profile)
         reduce {
             state.copy(
                 profiles = ProfilesList(result.getOrDefault(state.profiles.items)),
-                isLoading = false
+                loadingTasks = state.minusLoadingTask()
             )
         }
         postSideEffect(
@@ -297,12 +272,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun deleteProfile(profile: Profile) = intent {
-        if (state.isLoading) {
-            postSideEffect(MainSideEffect.Profile.Delete.Failure)
-            return@intent
-        }
         reduce {
-            state.copy(isLoading = true)
+            state.copy(loadingTasks = state.plusLoadingTask())
         }
         val success = profileRepository.deleteProfile(profile)
         val profiles = state.profiles.items.toMutableList().apply {
@@ -314,7 +285,7 @@ class MainViewModel @Inject constructor(
         reduce {
             state.copy(
                 profiles = if (success) ProfilesList(profiles) else state.profiles,
-                isLoading = false
+                loadingTasks = state.minusLoadingTask()
             )
         }
         postSideEffect(

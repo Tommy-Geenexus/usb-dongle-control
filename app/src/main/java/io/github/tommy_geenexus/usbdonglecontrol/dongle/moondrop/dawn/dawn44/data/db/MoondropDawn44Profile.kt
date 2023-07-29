@@ -43,10 +43,10 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class MoondropDawn44Profile(
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
-    override val name: String,
-    val filter: Filter,
-    val gain: Gain,
-    val indicatorState: IndicatorState
+    override val name: String = "Default",
+    val filter: Filter = Filter.default(),
+    val gain: Gain = Gain.default(),
+    val indicatorState: IndicatorState = IndicatorState.default()
 ) : Profile(id, name) {
 
     companion object {
@@ -54,11 +54,11 @@ data class MoondropDawn44Profile(
         fun fromPersistableBundle(bundle: PersistableBundle) = MoondropDawn44Profile(
             id = bundle.getLong(KEY_ID),
             name = bundle.getString(KEY_NAME).orEmpty(),
-            filter = Filter.findById(bundle.getInt(KEY_FILTER).toByte()) ?: Filter.default(),
-            gain = Gain.findById(bundle.getInt(KEY_GAIN).toByte()) ?: Gain.default(),
-            indicatorState = IndicatorState
-                .findById(bundle.getInt(KEY_INDICATOR_STATE).toByte())
-                ?: IndicatorState.default()
+            filter = Filter.findByIdOrDefault(bundle.getInt(KEY_FILTER).toByte()),
+            gain = Gain.findByIdOrDefault(bundle.getInt(KEY_GAIN).toByte()),
+            indicatorState = IndicatorState.findByIdOrDefault(
+                bundle.getInt(KEY_INDICATOR_STATE).toByte()
+            )
         )
     }
 

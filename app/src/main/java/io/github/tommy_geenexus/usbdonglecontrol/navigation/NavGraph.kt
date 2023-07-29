@@ -20,6 +20,7 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.navigation
 
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +32,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.main.ui.MainScreen
 
 @Composable
 fun NavGraph(
+    windowSizeClass: WindowSizeClass,
     systemUiController: SystemUiController,
     navController: NavHostController,
     modifier: Modifier = Modifier,
@@ -42,6 +44,7 @@ fun NavGraph(
     ) {
         composable(route = NavDestinations.ROUTE_MAIN) {
             MainScreen(
+                windowSizeClass = windowSizeClass,
                 systemUiController = systemUiController,
                 viewModel = hiltViewModel(),
                 modifier = modifier

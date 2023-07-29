@@ -25,11 +25,11 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import androidx.core.content.IntentCompat
 
 class UsbReceiver(
-    val onPermissionGranted: () -> Unit,
-    val onDeviceAttached: () -> Unit,
-    val onDeviceDetached: () -> Unit
+    val onPermissionGrantResult: (Boolean) -> Unit,
+    val onAttachedDevicesChanged: () -> Unit
 ) : BroadcastReceiver() {
 
     override fun onReceive(
@@ -37,16 +37,20 @@ class UsbReceiver(
         intent: Intent?
     ) {
         if (intent?.action == INTENT_ACTION_USB_PERMISSION) {
-            val device = intent.getParcelableExtra2<UsbDevice>(UsbManager.EXTRA_DEVICE)
-            if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) &&
-                device != null
-            ) {
-                onPermissionGranted()
+            val device = IntentCompat.getParcelableExtra(
+                intent,
+                UsbManager.EXTRA_DEVICE,
+                UsbDevice::class.java
+            )
+            if (device != null) {
+                onPermissionGrantResult(
+                    intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
+                )
             }
         } else if (intent?.action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
-            onDeviceAttached()
+            onAttachedDevicesChanged()
         } else if (intent?.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
-            onDeviceDetached()
+            onAttachedDevicesChanged()
         }
     }
 }

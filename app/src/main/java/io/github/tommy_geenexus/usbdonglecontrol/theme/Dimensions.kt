@@ -18,43 +18,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
+package io.github.tommy_geenexus.usbdonglecontrol.theme
 
-import android.os.Parcelable
-import androidx.compose.runtime.Immutable
-import kotlinx.parcelize.Parcelize
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.ui.unit.dp
 
-@Immutable
-sealed class Filter(val id: Byte) : Parcelable {
-
-    companion object {
-
-        fun default() = FastRollOffLowLatency
-
-        fun findByIdOrDefault(id: Byte): Filter {
-            return when (id) {
-                FastRollOffLowLatency.id -> FastRollOffLowLatency
-                FastRollOffPhaseCompensated.id -> FastRollOffPhaseCompensated
-                SlowRollOffLowLatency.id -> SlowRollOffLowLatency
-                SlowRollOffPhaseCompensated.id -> SlowRollOffPhaseCompensated
-                NonOversampling.id -> NonOversampling
-                else -> default()
-            }
-        }
-    }
-
-    @Parcelize
-    data object FastRollOffLowLatency : Filter(id = 0)
-
-    @Parcelize
-    data object FastRollOffPhaseCompensated : Filter(id = 1)
-
-    @Parcelize
-    data object SlowRollOffLowLatency : Filter(id = 2)
-
-    @Parcelize
-    data object SlowRollOffPhaseCompensated : Filter(id = 3)
-
-    @Parcelize
-    data object NonOversampling : Filter(id = 4)
+fun WindowSizeClass.getHorizontalPadding() = if (widthSizeClass == WindowWidthSizeClass.Compact) {
+    8.dp
+} else {
+    16.dp
 }
+
+val iconSize = 48.dp
+
+val cardPadding = 16.dp
+val cardPaddingBetween = 8.dp
+
+val cardSizeMinDp = 512.dp

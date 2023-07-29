@@ -28,6 +28,7 @@ import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_SHORTCUT_PROFILE
 import io.github.tommy_geenexus.usbdonglecontrol.R
+import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherIo
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
@@ -36,7 +37,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.Moo
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44ProfileDao
 import io.github.tommy_geenexus.usbdonglecontrol.suspendRunCatching
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -45,6 +46,7 @@ import javax.inject.Singleton
 @Singleton
 class ProfileRepository @Inject constructor(
     @ApplicationContext private val context: Context,
+    @DispatcherIo private val dispatcherIo: CoroutineDispatcher,
     private val fiioKa5ProfileDao: FiioKa5ProfileDao,
     private val moondropDawn44ProfileDao: MoondropDawn44ProfileDao
 ) {
@@ -55,7 +57,7 @@ class ProfileRepository @Inject constructor(
     }
 
     suspend fun getProfiles(usbDongle: UsbDongle?): List<Profile> {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 when (usbDongle) {
                     is FiioKa5 -> {
@@ -76,7 +78,7 @@ class ProfileRepository @Inject constructor(
     }
 
     suspend fun upsertProfile(profile: Profile): Result<List<Profile>> {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 if (profile is FiioKa5Profile) {
                     if (fiioKa5ProfileDao.getProfileCount() < PROFILES_MAX) {
@@ -101,7 +103,7 @@ class ProfileRepository @Inject constructor(
     }
 
     suspend fun deleteProfile(profile: Profile): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 when (profile) {
                     is FiioKa5Profile -> {
@@ -123,8 +125,10 @@ class ProfileRepository @Inject constructor(
         }
     }
 
-    suspend fun addProfileShortcut(profile: Profile): Boolean {
-        return withContext(Dispatchers.IO) {
+    suspend fun addProfileShortcut(
+        profile: Profile
+    ): Boolean {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val intent = context
                     .packageManager
@@ -134,10 +138,11 @@ class ProfileRepository @Inject constructor(
                         flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                     }
                     ?: return@suspendRunCatching false
+                val icon = IconCompat.createWithResource(context, R.drawable.ic_shortcut_profile)
                 val shortcut = ShortcutInfoCompat.Builder(context, profile.id.toString())
                     .setShortLabel(profile.name)
                     .setLongLabel(profile.name)
-                    .setIcon(IconCompat.createWithResource(context, R.drawable.ic_shortcut_profile))
+                    .setIcon(icon)
                     .setIntent(intent)
                     .build()
                 ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
@@ -149,7 +154,7 @@ class ProfileRepository @Inject constructor(
     }
 
     suspend fun removeProfileShortcut(profile: Profile): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             val shortcut = listOf(profile.id.toString())
             coroutineContext.suspendRunCatching {
                 ShortcutManagerCompat.removeDynamicShortcuts(context, shortcut)

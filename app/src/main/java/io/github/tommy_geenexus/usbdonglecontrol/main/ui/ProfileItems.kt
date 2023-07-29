@@ -20,86 +20,86 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.main.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SwitchAccessShortcut
 import androidx.compose.material.icons.outlined.SwitchAccessShortcutAdd
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommy_geenexus.usbdonglecontrol.R
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
 import io.github.tommy_geenexus.usbdonglecontrol.main.data.Profile
 import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfilesList
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPadding
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPaddingBetween
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardSizeMinDp
 
 @Composable
 fun ProfileItems(
     modifier: Modifier = Modifier,
-    state: LazyListState = rememberLazyListState(),
+    state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     profiles: ProfilesList = ProfilesList(),
     onProfileShortcutAdd: (Profile) -> Unit = {},
     onProfileShortcutRemove: (Profile) -> Unit = {},
     onProfileDelete: (Profile) -> Unit = {},
     onProfileApply: (Profile) -> Unit = {}
 ) {
-    LazyColumn(
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
         modifier = modifier,
-        state = state
+        state = state,
+        contentPadding = PaddingValues(all = cardPaddingBetween),
+        verticalItemSpacing = cardPaddingBetween,
+        horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
     ) {
         items(items = profiles.items) { profile ->
-            OutlinedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = 8.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.padding(all = cardPadding),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Column(
                         modifier = Modifier
-                            .padding(all = 16.dp)
                             .weight(weight = 1f)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.Start
                     ) {
-                        FilledTonalIconButton(
-                            onClick = {
-                                onProfileShortcutRemove(profile)
-                            }
-                        ) {
+                        FilledTonalIconButton(onClick = { onProfileShortcutRemove(profile) }) {
                             Icon(
                                 imageVector = Icons.Outlined.SwitchAccessShortcut,
-                                contentDescription = null
+                                contentDescription = stringResource(id = R.string.shortcut_add)
                             )
                         }
-                        FilledTonalIconButton(
-                            onClick = {
-                                onProfileShortcutAdd(profile)
-                            }
-                        ) {
+                        FilledTonalIconButton(onClick = { onProfileShortcutAdd(profile) }) {
                             Icon(
                                 imageVector = Icons.Outlined.SwitchAccessShortcutAdd,
-                                contentDescription = null
+                                contentDescription = stringResource(id = R.string.shortcut_delete)
                             )
                         }
                     }
                     Column(
                         modifier = Modifier
-                            .padding(all = 16.dp)
                             .weight(weight = 2f)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -113,7 +113,6 @@ fun ProfileItems(
                     }
                     Column(
                         modifier = Modifier
-                            .padding(all = 16.dp)
                             .weight(weight = 2f)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.End
@@ -126,19 +125,27 @@ fun ProfileItems(
                         ) {
                             Text(
                                 text = stringResource(id = R.string.delete),
-                                color = MaterialTheme.colorScheme.onErrorContainer
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
                             )
                         }
-                        Button(
-                            onClick = {
-                                onProfileApply(profile)
-                            }
-                        ) {
-                            Text(text = stringResource(id = R.string.apply))
+                        Button(onClick = { onProfileApply(profile) }) {
+                            Text(
+                                text = stringResource(id = R.string.apply),
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
+                            )
                         }
                     }
                 }
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ProfileItemsPreview() {
+    ProfileItems(profiles = ProfilesList(listOf(FiioKa5Profile())))
 }

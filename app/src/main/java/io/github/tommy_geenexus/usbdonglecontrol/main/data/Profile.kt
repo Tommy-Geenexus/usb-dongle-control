@@ -20,8 +20,12 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.main.data
 
+import android.content.Intent
 import android.os.Parcelable
 import android.os.PersistableBundle
+import androidx.core.content.IntentCompat
+import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_SHORTCUT_PROFILE
+import io.github.tommy_geenexus.usbdonglecontrol.INTENT_EXTRA_CONSUMED
 import io.github.tommy_geenexus.usbdonglecontrol.KEY_PRODUCT_ID
 import io.github.tommy_geenexus.usbdonglecontrol.KEY_VENDOR_ID
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.FiioUsbDongle
@@ -64,4 +68,21 @@ abstract class Profile(
     }
 
     abstract fun toPersistableBundle(): PersistableBundle
+}
+
+fun Intent.consumeProfileShortcut(): Profile? {
+    if (hasExtra(INTENT_EXTRA_CONSUMED)) {
+        return null
+    }
+    val bundle = IntentCompat.getParcelableExtra(
+        this,
+        INTENT_ACTION_SHORTCUT_PROFILE,
+        PersistableBundle::class.java
+    )
+    return if (bundle != null) {
+        putExtra(INTENT_EXTRA_CONSUMED, true)
+        Profile.fromPersistableBundle(bundle)
+    } else {
+        null
+    }
 }

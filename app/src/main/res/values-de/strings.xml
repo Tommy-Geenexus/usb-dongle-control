@@ -4,6 +4,8 @@
 
     <string name="attach_device">Gerät anschließen</string>
 
+    <string name="cable">Kabel</string>
+
     <string name="channel_balance">Kanal-Balance</string>
     <string name="channel_balance_offset">Offset: %1$.1f dB %2$s</string>
 
@@ -53,6 +55,8 @@
 
     <string name="low">Niedrig</string>
 
+    <string name="more">Mehr</string>
+
     <string name="profile_apply_fail">Profil nicht angewendet</string>
     <string name="profile_apply_success">Profil angewendet</string>
     <string name="profile_delete_fail">Profil nicht gelöscht</string>
@@ -70,14 +74,20 @@
 
     <string name="sample_rate">Abtastrate: %s</string>
 
+    <string name="shortcut_add">Shortcut hinzufügen</string>
     <string name="shortcut_add_fail">Shortcut nicht hinzugefügt</string>
     <string name="shortcut_add_success">Shortcut hinzugefügt</string>
+    <string name="shortcut_delete">Shortcut löschen</string>
     <string name="shortcut_delete_fail">Shortcut nicht gelöscht</string>
     <string name="shortcut_delete_success">Shortcut gelöscht</string>
 
     <string name="spdif_out">S/PDIF-Ausgang</string>
 
     <string name="state">Zustand</string>
+    <string name="state_reset">Zustand zurücksetzen</string>
+
+    <string name="usb_comm_failure">Zustand nicht aktualisiert</string>
+    <string name="usb_comm_success">Zustand aktualisiert</string>
 
     <string name="volume">Lautstärke</string>
     <string name="volume_down">Lautst. verringern</string>

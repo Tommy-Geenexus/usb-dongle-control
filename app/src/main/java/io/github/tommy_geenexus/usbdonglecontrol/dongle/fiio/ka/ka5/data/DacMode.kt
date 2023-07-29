@@ -31,18 +31,18 @@ sealed class DacMode(val id: Byte) : Parcelable {
 
         fun default() = ClassAB
 
-        fun findById(id: Byte): DacMode? {
+        fun findByIdOrDefault(id: Byte): DacMode {
             return when (id) {
                 ClassAB.id -> ClassAB
                 ClassH.id -> ClassH
-                else -> null
+                else -> default()
             }
         }
     }
 
     @Parcelize
-    object ClassAB : DacMode(id = 0)
+    data object ClassAB : DacMode(id = 0)
 
     @Parcelize
-    object ClassH : DacMode(id = 1)
+    data object ClassH : DacMode(id = 1)
 }

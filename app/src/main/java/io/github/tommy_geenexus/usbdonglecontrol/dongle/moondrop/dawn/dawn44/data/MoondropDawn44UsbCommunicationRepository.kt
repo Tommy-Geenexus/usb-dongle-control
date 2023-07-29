@@ -21,20 +21,25 @@
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data
 
 import android.hardware.usb.UsbDeviceConnection
+import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherIo
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbTransfer
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
 import io.github.tommy_geenexus.usbdonglecontrol.suspendRunCatching
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransfer {
+class MoondropDawn44UsbCommunicationRepository @Inject constructor(
+    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+) : UsbTransfer {
 
     private companion object {
 
@@ -56,49 +61,54 @@ class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransf
         const val REQUEST_RESULT_INDEX_INDICATOR_STATE = 5
     }
 
+    override val mutex = Mutex()
+
     override suspend fun getCurrentState(
         connection: UsbDeviceConnection
     ): MoondropDawn44? {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 val moondropDawn44 = MoondropDawn44()
                 moondropDawn44.getAny.copyInto(data)
-                var result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
-                }
-                delay(DELAY_MS)
-                result = connection.controlTransfer(
-                    REQUEST_TYPE_READ,
-                    REQUEST_ID_READ,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_READ failed")
+                mutex.withLock {
+                    var result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_MS)
+                    result = connection.controlTransfer(
+                        REQUEST_TYPE_READ,
+                        REQUEST_ID_READ,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_READ failed")
+                    }
+                    delay(DELAY_MS)
                 }
                 connection.close()
-                val filter = Filter
-                    .findById(data[REQUEST_RESULT_INDEX_FILTER])
-                    ?: Filter.default()
-                val gain = Gain
-                    .findById(data[REQUEST_RESULT_INDEX_GAIN])
-                    ?: Gain.default()
-                val indicatorState = IndicatorState
-                    .findById(data[REQUEST_RESULT_INDEX_INDICATOR_STATE])
-                    ?: IndicatorState.default()
+                val filter = Filter.findByIdOrDefault(
+                    id = data[REQUEST_RESULT_INDEX_FILTER]
+                )
+                val gain = Gain.findByIdOrDefault(
+                    id = data[REQUEST_RESULT_INDEX_GAIN]
+                )
+                val indicatorState = IndicatorState.findByIdOrDefault(
+                    id = data[REQUEST_RESULT_INDEX_INDICATOR_STATE]
+                )
                 moondropDawn44.copy(
                     filter = filter,
                     gain = gain,
@@ -113,7 +123,7 @@ class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransf
     }
 
     override suspend fun closeConnection(connection: UsbDeviceConnection) {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 connection.close()
             }
@@ -124,28 +134,29 @@ class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransf
         connection: UsbDeviceConnection,
         filter: Filter
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 MoondropDawn44().setFilter.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_MS)
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -155,28 +166,29 @@ class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransf
         connection: UsbDeviceConnection,
         gain: Gain
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 MoondropDawn44().setGain.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_MS)
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }
@@ -186,28 +198,29 @@ class MoondropDawn44UsbCommunicationRepository @Inject constructor() : UsbTransf
         connection: UsbDeviceConnection,
         indicatorState: IndicatorState
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 MoondropDawn44().setIndicatorState.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = indicatorState.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_MS)
                 }
-                connection.close()
                 true
             }.getOrElse { exception ->
                 Timber.e(exception)
-                connection.close()
                 false
             }
         }

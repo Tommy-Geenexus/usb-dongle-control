@@ -30,59 +30,68 @@ sealed class MainSideEffect : Parcelable {
         sealed class Apply : Profile() {
 
             @Parcelize
-            object Success : Delete()
+            data object Success : Delete()
 
             @Parcelize
-            object Failure : Delete()
+            data object Failure : Delete()
         }
 
         sealed class Delete : Profile() {
             @Parcelize
-            object Success : Delete()
+            data object Success : Delete()
 
             @Parcelize
-            object Failure : Delete()
+            data object Failure : Delete()
         }
 
         sealed class Export : Profile() {
             @Parcelize
-            object Success : Export()
+            data object Success : Export()
 
             @Parcelize
-            object Failure : Export()
+            data object Failure : Export()
         }
     }
 
-    sealed class NotificationService : MainSideEffect() {
-
-        @Parcelize
-        object Start : NotificationService()
-
-        @Parcelize
-        object Stop : NotificationService()
-    }
-
     @Parcelize
-    object RequestPermissions : MainSideEffect()
+    data object RequestPermissions : MainSideEffect()
+
+    sealed class Service : MainSideEffect() {
+
+        @Parcelize
+        data object Start : Service()
+
+        @Parcelize
+        data object Stop : Service()
+    }
 
     sealed class Shortcut : MainSideEffect() {
 
         sealed class Add : Shortcut() {
 
             @Parcelize
-            object Success : Add()
+            data object Success : Add()
 
             @Parcelize
-            object Failure : Add()
+            data object Failure : Add()
         }
 
         sealed class Delete : Shortcut() {
 
             @Parcelize
-            object Success : Delete()
+            data object Success : Delete()
 
             @Parcelize
-            object Failure : Delete()
+            data object Failure : Delete()
         }
+    }
+
+    sealed class UsbCommunication : MainSideEffect() {
+
+        @Parcelize
+        data object Success : UsbCommunication()
+
+        @Parcelize
+        data object Failure : UsbCommunication()
     }
 }

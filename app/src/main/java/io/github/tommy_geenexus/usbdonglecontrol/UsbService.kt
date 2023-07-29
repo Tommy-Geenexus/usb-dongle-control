@@ -27,7 +27,10 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import androidx.core.content.IntentCompat
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherIo
+import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherMainImmediate
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
@@ -35,6 +38,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defau
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.productName
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -62,13 +66,21 @@ class UsbService : Service() {
     @Inject
     lateinit var fiioKa5UsbCommunicationRepository: FiioKa5UsbCommunicationRepository
 
+    @DispatcherIo
+    @Inject
+    lateinit var dispatcherIo: CoroutineDispatcher
+
+    @DispatcherMainImmediate
+    @Inject
+    lateinit var dispatcherMainImmediate: CoroutineDispatcher
+
     private lateinit var coroutineScope: CoroutineScope
 
     override fun onBind(intent: Intent?) = null
 
     override fun onCreate() {
         super.onCreate()
-        coroutineScope = CoroutineScope(Dispatchers.IO)
+        coroutineScope = CoroutineScope(dispatcherIo)
         coroutineScope.launch {
             val device = usbRepository.getAttachedDeviceOrNull()
             if (device != null) {
@@ -76,7 +88,7 @@ class UsbService : Service() {
                 if (connection != null) {
                     val usbDongle = fiioKa5UsbCommunicationRepository.getCurrentState(connection)
                     if (usbDongle is FiioKa5) {
-                        withContext(Dispatchers.Main.immediate) {
+                        withContext(dispatcherMainImmediate) {
                             coroutineContext.suspendRunCatching {
                                 val nm = getSystemService(Context.NOTIFICATION_SERVICE)
                                     as NotificationManager
@@ -115,12 +127,15 @@ class UsbService : Service() {
                     val device = usbRepository.getAttachedDeviceOrNull()
                     if (device != null) {
                         val connection = usbRepository.openDeviceOrNull(device)
-                        val usbDongle =
-                            intent.getParcelableExtra2<UsbDongle>(INTENT_EXTRA_USB_DONGLE)
+                        val usbDongle = IntentCompat.getParcelableExtra(
+                            intent,
+                            INTENT_EXTRA_USB_DONGLE,
+                            UsbDongle::class.java
+                        )
                         if (connection != null && usbDongle is FiioKa5) {
-                            val volumeLevel = (usbDongle.volumeLevel + 1).clamp(
-                                min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
-                                max = if (usbDongle.volumeMode == VolumeMode.S120) {
+                            val volumeLevel = (usbDongle.volumeLevel + 1).coerceIn(
+                                minimumValue = FiioKa5Defaults.VOLUME_LEVEL_MIN,
+                                maximumValue = if (usbDongle.volumeMode == VolumeMode.S120) {
                                     FiioKa5Defaults.VOLUME_LEVEL_A_MAX
                                 } else {
                                     FiioKa5Defaults.VOLUME_LEVEL_B_MAX
@@ -149,12 +164,15 @@ class UsbService : Service() {
                     val device = usbRepository.getAttachedDeviceOrNull()
                     if (device != null) {
                         val connection = usbRepository.openDeviceOrNull(device)
-                        val usbDongle =
-                            intent.getParcelableExtra2<UsbDongle>(INTENT_EXTRA_USB_DONGLE)
+                        val usbDongle = IntentCompat.getParcelableExtra(
+                            intent,
+                            INTENT_EXTRA_USB_DONGLE,
+                            UsbDongle::class.java
+                        )
                         if (connection != null && usbDongle is FiioKa5) {
-                            val volumeLevel = (usbDongle.volumeLevel - 1).clamp(
-                                min = FiioKa5Defaults.VOLUME_LEVEL_MIN,
-                                max = if (usbDongle.volumeMode == VolumeMode.S120) {
+                            val volumeLevel = (usbDongle.volumeLevel - 1).coerceIn(
+                                minimumValue = FiioKa5Defaults.VOLUME_LEVEL_MIN,
+                                maximumValue = if (usbDongle.volumeMode == VolumeMode.S120) {
                                     FiioKa5Defaults.VOLUME_LEVEL_A_MAX
                                 } else {
                                     FiioKa5Defaults.VOLUME_LEVEL_B_MAX
@@ -183,8 +201,11 @@ class UsbService : Service() {
                     val device = usbRepository.getAttachedDeviceOrNull()
                     if (device != null) {
                         val connection = usbRepository.openDeviceOrNull(device)
-                        val usbDongle =
-                            intent.getParcelableExtra2<UsbDongle>(INTENT_EXTRA_USB_DONGLE)
+                        val usbDongle = IntentCompat.getParcelableExtra(
+                            intent,
+                            INTENT_EXTRA_USB_DONGLE,
+                            UsbDongle::class.java
+                        )
                         if (connection != null && usbDongle is FiioKa5) {
                             val displayInvertEnabled = !usbDongle.displayInvertEnabled
                             val success = fiioKa5UsbCommunicationRepository.setDisplayInvertEnabled(

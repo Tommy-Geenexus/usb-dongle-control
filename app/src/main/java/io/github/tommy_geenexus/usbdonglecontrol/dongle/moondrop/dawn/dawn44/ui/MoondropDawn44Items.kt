@@ -20,7 +20,10 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui
 
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +31,8 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPaddingBetween
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardSizeMinDp
 
 @Composable
 fun MoondropDawn44Items(
@@ -37,7 +42,13 @@ fun MoondropDawn44Items(
     onGainSelected: (Gain) -> Unit = {},
     onIndicatorStateSelected: (IndicatorState) -> Unit = {}
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
+        modifier = modifier,
+        contentPadding = PaddingValues(all = cardPaddingBetween),
+        verticalItemSpacing = cardPaddingBetween,
+        horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
+    ) {
         item {
             ItemFilter(
                 filter = moondropDawn44.filter,

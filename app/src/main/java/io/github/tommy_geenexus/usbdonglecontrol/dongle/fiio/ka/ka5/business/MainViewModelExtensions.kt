@@ -29,16 +29,19 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeM
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainSideEffect
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainViewModel
+import io.github.tommy_geenexus.usbdonglecontrol.main.business.minusLoadingTask
+import io.github.tommy_geenexus.usbdonglecontrol.main.business.plusLoadingTask
+import org.orbitmvi.orbit.syntax.simple.blockingIntent
 import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 
 fun MainViewModel.applyFiioKa5Profile(
     fiioKa5: FiioKa5,
-    fiioKa5Profile: FiioKa5Profile
+    fiioKa5Profile: FiioKa5Profile = FiioKa5Profile()
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -123,7 +126,7 @@ fun MainViewModel.applyFiioKa5Profile(
             } else {
                 fiioKa5
             },
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
     postSideEffect(
@@ -140,7 +143,7 @@ fun MainViewModel.setFilter(
     filter: Filter
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -158,9 +161,16 @@ fun MainViewModel.setFilter(
     reduce {
         state.copy(
             usbDongle = fiioKa5.copy(filter = if (success) filter else fiioKa5.filter),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setGain(
@@ -168,7 +178,7 @@ fun MainViewModel.setGain(
     gain: Gain
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -186,8 +196,24 @@ fun MainViewModel.setGain(
     reduce {
         state.copy(
             usbDongle = fiioKa5.copy(gain = if (success) gain else fiioKa5.gain),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
+    }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
+}
+
+fun MainViewModel.updateVolumeLevel(
+    fiioKa5: FiioKa5,
+    volumeLevel: Int
+) = blockingIntent {
+    reduce {
+        state.copy(usbDongle = fiioKa5.copy(volumeLevel = volumeLevel))
     }
 }
 
@@ -196,7 +222,7 @@ fun MainViewModel.setVolumeLevel(
     volumeLevel: Int
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -220,8 +246,24 @@ fun MainViewModel.setVolumeLevel(
             usbDongle = fiioKa5.copy(
                 volumeLevel = if (success) volumeLevel else fiioKa5.volumeLevel
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
+    }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
+}
+
+fun MainViewModel.updateChannelBalance(
+    fiioKa5: FiioKa5,
+    channelBalance: Int
+) = blockingIntent {
+    reduce {
+        state.copy(usbDongle = fiioKa5.copy(channelBalance = channelBalance))
     }
 }
 
@@ -230,7 +272,7 @@ fun MainViewModel.setChannelBalance(
     channelBalance: Int
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -253,9 +295,16 @@ fun MainViewModel.setChannelBalance(
             usbDongle = fiioKa5.copy(
                 channelBalance = if (success) channelBalance else fiioKa5.channelBalance
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setDacMode(
@@ -263,7 +312,7 @@ fun MainViewModel.setDacMode(
     dacMode: DacMode
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -286,9 +335,16 @@ fun MainViewModel.setDacMode(
             usbDongle = fiioKa5.copy(
                 dacMode = if (success) dacMode else fiioKa5.dacMode
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setHardwareMute(
@@ -296,7 +352,7 @@ fun MainViewModel.setHardwareMute(
     hardwareMuteEnabled: Boolean
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -323,9 +379,16 @@ fun MainViewModel.setHardwareMute(
                     fiioKa5.hardwareMuteEnabled
                 }
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setSpdifOut(
@@ -333,7 +396,7 @@ fun MainViewModel.setSpdifOut(
     spdifOutEnabled: Boolean
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -356,7 +419,25 @@ fun MainViewModel.setSpdifOut(
             usbDongle = fiioKa5.copy(
                 spdifOutEnabled = if (success) spdifOutEnabled else fiioKa5.spdifOutEnabled
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
+        )
+    }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
+}
+
+fun MainViewModel.updateDisplayTimeout(
+    fiioKa5: FiioKa5,
+    displayTimeout: Int
+) = blockingIntent {
+    reduce {
+        state.copy(
+            usbDongle = fiioKa5.copy(displayTimeout = displayTimeout)
         )
     }
 }
@@ -366,7 +447,7 @@ fun MainViewModel.setDisplayTimeout(
     displayTimeout: Int
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -389,9 +470,16 @@ fun MainViewModel.setDisplayTimeout(
             usbDongle = fiioKa5.copy(
                 displayTimeout = if (success) displayTimeout else fiioKa5.displayTimeout
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setHidMode(
@@ -399,7 +487,7 @@ fun MainViewModel.setHidMode(
     hidMode: HidMode
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -422,8 +510,24 @@ fun MainViewModel.setHidMode(
             usbDongle = fiioKa5.copy(
                 hidMode = if (success) hidMode else fiioKa5.hidMode
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
+    }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
+}
+
+fun MainViewModel.updateDisplayBrightness(
+    fiioKa5: FiioKa5,
+    displayBrightness: Int
+) = blockingIntent {
+    reduce {
+        state.copy(usbDongle = fiioKa5.copy(displayBrightness = displayBrightness))
     }
 }
 
@@ -432,7 +536,7 @@ fun MainViewModel.setDisplayBrightness(
     displayBrightness: Int
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -459,9 +563,16 @@ fun MainViewModel.setDisplayBrightness(
                     fiioKa5.displayBrightness
                 }
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setDisplayInvert(
@@ -469,7 +580,7 @@ fun MainViewModel.setDisplayInvert(
     displayInvertEnabled: Boolean
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -496,9 +607,16 @@ fun MainViewModel.setDisplayInvert(
                     fiioKa5.displayInvertEnabled
                 }
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setVolumeMode(
@@ -506,7 +624,7 @@ fun MainViewModel.setVolumeMode(
     volumeMode: VolumeMode
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -529,7 +647,14 @@ fun MainViewModel.setVolumeMode(
             usbDongle = fiioKa5.copy(
                 volumeMode = if (success) volumeMode else fiioKa5.volumeMode
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }

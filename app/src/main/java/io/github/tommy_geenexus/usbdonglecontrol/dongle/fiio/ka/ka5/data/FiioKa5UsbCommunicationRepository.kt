@@ -21,13 +21,15 @@
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
 import android.hardware.usb.UsbDeviceConnection
-import io.github.tommy_geenexus.usbdonglecontrol.clamp
+import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherIo
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbTransfer
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import io.github.tommy_geenexus.usbdonglecontrol.suspendRunCatching
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -35,7 +37,9 @@ import javax.inject.Singleton
 import kotlin.math.abs
 
 @Singleton
-class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
+class FiioKa5UsbCommunicationRepository @Inject constructor(
+    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+) : UsbTransfer {
 
     private companion object {
 
@@ -71,6 +75,8 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         const val REQUEST_RESULT_INDEX_HID_MODE = 6
         const val REQUEST_RESULT_INDEX_DISPLAY_INVERT = 6
     }
+
+    override val mutex = Mutex()
 
     private val volume120m = listOf(
         0,
@@ -156,7 +162,7 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
     private fun Byte.toMaskedInt() = toInt() and MASK
 
     override suspend fun getCurrentState(connection: UsbDeviceConnection): FiioKa5? {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 val fiioKa5 = FiioKa5()
@@ -184,38 +190,41 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                 commands.forEach { command ->
                     data.fill(0)
                     command.copyInto(data)
-                    var result = connection.controlTransfer(
-                        REQUEST_TYPE_WRITE,
-                        REQUEST_ID_WRITE,
-                        USB_ENDPOINT,
-                        REQUEST_INDEX,
-                        data,
-                        REQUEST_PAYLOAD_SIZE,
-                        TIMEOUT_MS
-                    )
-                    if (result != REQUEST_PAYLOAD_SIZE) {
-                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
-                    }
-                    delay(DELAY_READ)
-                    result = connection.controlTransfer(
-                        REQUEST_TYPE_READ,
-                        REQUEST_ID_READ,
-                        USB_ENDPOINT,
-                        REQUEST_INDEX,
-                        data,
-                        REQUEST_PAYLOAD_SIZE,
-                        TIMEOUT_MS
-                    )
-                    if (result != REQUEST_PAYLOAD_SIZE) {
-                        error("USB control transfer $REQUEST_TYPE_READ failed")
+                    mutex.withLock {
+                        var result = connection.controlTransfer(
+                            REQUEST_TYPE_WRITE,
+                            REQUEST_ID_WRITE,
+                            USB_ENDPOINT,
+                            REQUEST_INDEX,
+                            data,
+                            REQUEST_PAYLOAD_SIZE,
+                            TIMEOUT_MS
+                        )
+                        if (result != REQUEST_PAYLOAD_SIZE) {
+                            error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                        }
+                        delay(DELAY_READ)
+                        result = connection.controlTransfer(
+                            REQUEST_TYPE_READ,
+                            REQUEST_ID_READ,
+                            USB_ENDPOINT,
+                            REQUEST_INDEX,
+                            data,
+                            REQUEST_PAYLOAD_SIZE,
+                            TIMEOUT_MS
+                        )
+                        if (result != REQUEST_PAYLOAD_SIZE) {
+                            error("USB control transfer $REQUEST_TYPE_READ failed")
+                        }
+                        delay(DELAY_WRITE)
                     }
                     if (command.contentEquals(fiioKa5.getVersion)) {
-                        hidMode = HidMode
-                            .findById(data[REQUEST_RESULT_INDEX_HID_MODE].toMaskedByte())
-                            ?: HidMode.default()
-                        volumeMode = VolumeMode
-                            .findById(data[REQUEST_RESULT_INDEX_VOLUME_MODE].toMaskedByte())
-                            ?: VolumeMode.default()
+                        hidMode = HidMode.findByIdOrDefault(
+                            id = data[REQUEST_RESULT_INDEX_HID_MODE].toMaskedByte()
+                        )
+                        volumeMode = VolumeMode.findByIdOrDefault(
+                            id = data[REQUEST_RESULT_INDEX_VOLUME_MODE].toMaskedByte()
+                        )
                         val rawFirmwareVersion = data[REQUEST_RESULT_INDEX_VERSION].toMaskedByte()
                         firmwareVersion = if (rawFirmwareVersion >= 100) {
                             StringBuilder(rawFirmwareVersion.toString())
@@ -266,15 +275,15 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                             FiioKa5Defaults.CHANNEL_BALANCE
                         }
                     } else if (command.contentEquals(fiioKa5.getFilter)) {
-                        dacMode = DacMode
-                            .findById(data[REQUEST_RESULT_INDEX_DAC_MODE].toMaskedByte())
-                            ?: DacMode.default()
-                        gain = Gain
-                            .findById(data[REQUEST_RESULT_INDEX_GAIN].toMaskedByte())
-                            ?: Gain.default()
-                        filter = Filter
-                            .findById(data[REQUEST_RESULT_INDEX_FILTER].toMaskedByte())
-                            ?: Filter.default()
+                        dacMode = DacMode.findByIdOrDefault(
+                            id = data[REQUEST_RESULT_INDEX_DAC_MODE].toMaskedByte()
+                        )
+                        gain = Gain.findByIdOrDefault(
+                            id = data[REQUEST_RESULT_INDEX_GAIN].toMaskedByte()
+                        )
+                        filter = Filter.findByIdOrDefault(
+                            id = data[REQUEST_RESULT_INDEX_FILTER].toMaskedByte()
+                        )
                         hardwareMuteEnabled = data[REQUEST_RESULT_INDEX_HW_MUTE].toMaskedInt() == 1
                     } else if (command.contentEquals(fiioKa5.getOtherState)) {
                         spdifOutEnabled = data[REQUEST_RESULT_INDEX_SPDIF_OUT].toMaskedInt() == 1
@@ -291,7 +300,6 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                         displayInvertEnabled =
                             data[REQUEST_RESULT_INDEX_DISPLAY_INVERT].toMaskedInt() == 1
                     }
-                    delay(DELAY_WRITE)
                 }
                 connection.close()
                 fiioKa5.copy(
@@ -319,7 +327,7 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
     }
 
     override suspend fun closeConnection(connection: UsbDeviceConnection) {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 connection.close()
             }
@@ -330,22 +338,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         filter: Filter
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setFilter.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -359,22 +370,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         gain: Gain
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setGain.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -392,7 +406,7 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
             to = FiioKa5Defaults.VOLUME_LEVEL_A_MAX.toLong()
         ) volumeLevel: Int
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setVolumeLevel.copyInto(data)
@@ -411,17 +425,20 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                     ?.toInt()
                     ?.toByte()
                     ?: FiioKa5Defaults.VOLUME_LEVEL.toByte()
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -438,23 +455,23 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
             to = FiioKa5Defaults.CHANNEL_BALANCE_MAX.toLong()
         ) channelBalance: Int
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setChannelBalance.copyInto(data)
                 if (channelBalance < 0) {
                     data[REQUEST_PAYLOAD_INDEX_SET] = 0
                     data[REQUEST_PAYLOAD_INDEX_SET + 1] = abs(
-                        channelBalance.clamp(
-                            min = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
-                            max = FiioKa5Defaults.CHANNEL_BALANCE_MAX
+                        channelBalance.coerceIn(
+                            minimumValue = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
+                            maximumValue = FiioKa5Defaults.CHANNEL_BALANCE_MAX
                         )
                     ).toByte()
                 } else if (channelBalance > 0) {
                     data[REQUEST_PAYLOAD_INDEX_SET] = abs(
-                        channelBalance.clamp(
-                            min = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
-                            max = FiioKa5Defaults.CHANNEL_BALANCE_MAX
+                        channelBalance.coerceIn(
+                            minimumValue = FiioKa5Defaults.CHANNEL_BALANCE_MIN,
+                            maximumValue = FiioKa5Defaults.CHANNEL_BALANCE_MAX
                         )
                     ).toByte()
                     data[REQUEST_PAYLOAD_INDEX_SET + 1] = 0
@@ -462,17 +479,20 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                     data[REQUEST_PAYLOAD_INDEX_SET] = 0
                     data[REQUEST_PAYLOAD_INDEX_SET + 1] = 0
                 }
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -486,22 +506,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         dacMode: DacMode
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setDacMode.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = dacMode.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -515,22 +538,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         hardwareMuteEnabled: Boolean
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setHardwareMute.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = if (hardwareMuteEnabled) 1 else 0
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -544,22 +570,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         spdifOutEnabled: Boolean
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setSpdifOut.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = if (spdifOutEnabled) 1 else 0
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -576,25 +605,28 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
             to = FiioKa5Defaults.DISPLAY_BRIGHTNESS_MAX.toLong()
         ) displayTimeout: Int
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setDisplayTimeout.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = displayTimeout.clamp(
-                    min = FiioKa5Defaults.DISPLAY_TIMEOUT_MIN,
-                    max = FiioKa5Defaults.DISPLAY_TIMEOUT_MAX
+                data[REQUEST_PAYLOAD_INDEX_SET] = displayTimeout.coerceIn(
+                    minimumValue = FiioKa5Defaults.DISPLAY_TIMEOUT_MIN,
+                    maximumValue = FiioKa5Defaults.DISPLAY_TIMEOUT_MAX
                 ).toByte()
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -608,22 +640,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         hidMode: HidMode
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setHidMode.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = hidMode.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -640,7 +675,7 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
             to = FiioKa5Defaults.DISPLAY_BRIGHTNESS_MAX.toLong()
         ) displayBrightness: Int
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setDisplayBrightness.copyInto(data)
@@ -651,17 +686,20 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
                     ?.value
                     ?.toByte()
                     ?: FiioKa5Defaults.DISPLAY_BRIGHTNESS.toByte()
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -675,22 +713,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         displayInvertEnabled: Boolean
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setDisplayInvert.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = if (displayInvertEnabled) 1 else 0
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->
@@ -704,22 +745,25 @@ class FiioKa5UsbCommunicationRepository @Inject constructor() : UsbTransfer {
         connection: UsbDeviceConnection,
         volumeMode: VolumeMode
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
                 FiioKa5().setVolumeMode.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = volumeMode.id
-                val result = connection.controlTransfer(
-                    REQUEST_TYPE_WRITE,
-                    REQUEST_ID_WRITE,
-                    USB_ENDPOINT,
-                    REQUEST_INDEX,
-                    data,
-                    REQUEST_PAYLOAD_SIZE,
-                    TIMEOUT_MS
-                )
-                if (result != REQUEST_PAYLOAD_SIZE) {
-                    error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                mutex.withLock {
+                    val result = connection.controlTransfer(
+                        REQUEST_TYPE_WRITE,
+                        REQUEST_ID_WRITE,
+                        USB_ENDPOINT,
+                        REQUEST_INDEX,
+                        data,
+                        REQUEST_PAYLOAD_SIZE,
+                        TIMEOUT_MS
+                    )
+                    if (result != REQUEST_PAYLOAD_SIZE) {
+                        error("USB control transfer $REQUEST_TYPE_WRITE failed")
+                    }
+                    delay(DELAY_WRITE)
                 }
                 true
             }.getOrElse { exception ->

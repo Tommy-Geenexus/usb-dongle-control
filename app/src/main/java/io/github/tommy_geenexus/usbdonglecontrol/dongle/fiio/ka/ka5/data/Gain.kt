@@ -31,18 +31,18 @@ sealed class Gain(val id: Byte) : Parcelable {
 
         fun default() = High
 
-        fun findById(id: Byte): Gain? {
+        fun findByIdOrDefault(id: Byte): Gain {
             return when (id) {
                 Low.id -> Low
                 High.id -> High
-                else -> null
+                else -> default()
             }
         }
     }
 
     @Parcelize
-    object Low : Gain(id = 0)
+    data object Low : Gain(id = 0)
 
     @Parcelize
-    object High : Gain(id = 1)
+    data object High : Gain(id = 1)
 }

@@ -27,18 +27,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BuildCircle
 import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPadding
 
 @Composable
 fun ItemInfo(
@@ -46,32 +46,21 @@ fun ItemInfo(
     firmwareVersion: String = FiioKa5Defaults.FW_VERSION,
     sampleRate: String = FiioKa5Defaults.SAMPLE_RATE
 ) {
-    OutlinedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = 8.dp)
-    ) {
-        Column {
-            Row(
-                modifier = Modifier.padding(all = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(all = cardPadding)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Outlined.BuildCircle,
                     contentDescription = stringResource(id = R.string.fw_version)
                 )
                 Text(
                     text = stringResource(id = R.string.fw_version, firmwareVersion),
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(horizontal = cardPadding),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             Row(
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                ),
+                modifier = Modifier.padding(top = cardPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -80,7 +69,7 @@ fun ItemInfo(
                 )
                 Text(
                     text = stringResource(id = R.string.sample_rate, sampleRate),
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(horizontal = cardPadding),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

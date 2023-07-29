@@ -44,6 +44,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.KEY_VOLUME_LEVEL
 import io.github.tommy_geenexus.usbdonglecontrol.KEY_VOLUME_MODE
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.FiioUsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.DacMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
@@ -56,25 +57,22 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class FiioKa5Profile(
     @PrimaryKey(autoGenerate = true) override val id: Long = 0,
-    override val name: String,
-    val channelBalance: Int,
-    val dacMode: DacMode,
-    val displayBrightness: Int,
-    val displayInvertEnabled: Boolean,
-    val displayTimeout: Int,
-    val filter: Filter,
-    val firmwareVersion: String,
-    val gain: Gain,
-    val hardwareMuteEnabled: Boolean,
-    val hidMode: HidMode,
-    val sampleRate: String,
-    val spdifOutEnabled: Boolean,
-    val volumeLevel: Int,
-    val volumeMode: VolumeMode
-) : Profile(
-    id = id,
-    name = name
-) {
+    override val name: String = "Default",
+    val channelBalance: Int = FiioKa5Defaults.CHANNEL_BALANCE,
+    val dacMode: DacMode = DacMode.default(),
+    val displayBrightness: Int = FiioKa5Defaults.DISPLAY_BRIGHTNESS,
+    val displayInvertEnabled: Boolean = false,
+    val displayTimeout: Int = FiioKa5Defaults.DISPLAY_TIMEOUT,
+    val filter: Filter = Filter.default(),
+    val firmwareVersion: String = FiioKa5Defaults.FW_VERSION,
+    val gain: Gain = Gain.default(),
+    val hardwareMuteEnabled: Boolean = false,
+    val hidMode: HidMode = HidMode.default(),
+    val sampleRate: String = FiioKa5Defaults.SAMPLE_RATE,
+    val spdifOutEnabled: Boolean = false,
+    val volumeLevel: Int = FiioKa5Defaults.VOLUME_LEVEL,
+    val volumeMode: VolumeMode = VolumeMode.default()
+) : Profile(id, name) {
 
     companion object {
 
@@ -82,21 +80,19 @@ data class FiioKa5Profile(
             id = bundle.getLong(KEY_ID),
             name = bundle.getString(KEY_NAME).orEmpty(),
             channelBalance = bundle.getInt(KEY_CHANNEL_BALANCE),
-            dacMode = DacMode.findById(bundle.getInt(KEY_DAC_MODE).toByte()) ?: DacMode.default(),
+            dacMode = DacMode.findByIdOrDefault(bundle.getInt(KEY_DAC_MODE).toByte()),
             displayBrightness = bundle.getInt(KEY_DISPLAY_BRIGHTNESS),
             displayInvertEnabled = bundle.getBoolean(KEY_DISPLAY_INVERT_ENABLED),
             displayTimeout = bundle.getInt(KEY_DISPLAY_TIMEOUT),
-            filter = Filter.findById(bundle.getInt(KEY_FILTER).toByte()) ?: Filter.default(),
+            filter = Filter.findByIdOrDefault(bundle.getInt(KEY_FILTER).toByte()),
             firmwareVersion = bundle.getString(KEY_FW_VERSION).orEmpty(),
-            gain = Gain.findById(bundle.getInt(KEY_GAIN).toByte()) ?: Gain.default(),
+            gain = Gain.findByIdOrDefault(bundle.getInt(KEY_GAIN).toByte()),
             hardwareMuteEnabled = bundle.getBoolean(KEY_HW_MUTE_ENABLED),
-            hidMode = HidMode.findById(bundle.getInt(KEY_HID_MODE).toByte()) ?: HidMode.default(),
+            hidMode = HidMode.findByIdOrDefault(bundle.getInt(KEY_HID_MODE).toByte()),
             sampleRate = bundle.getString(KEY_SAMPLE_RATE).orEmpty(),
             spdifOutEnabled = bundle.getBoolean(KEY_SPDIF_OUT_ENABLED),
             volumeLevel = bundle.getInt(KEY_VOLUME_LEVEL),
-            volumeMode = VolumeMode
-                .findById(bundle.getInt(KEY_VOLUME_MODE).toByte())
-                ?: VolumeMode.default()
+            volumeMode = VolumeMode.findByIdOrDefault(bundle.getInt(KEY_VOLUME_MODE).toByte())
         )
     }
 

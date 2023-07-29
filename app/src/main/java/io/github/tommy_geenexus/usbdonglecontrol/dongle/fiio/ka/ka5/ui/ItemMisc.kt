@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -35,10 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.DacMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.HidMode
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPadding
 
 @Composable
 fun ItemMisc(
@@ -52,15 +52,11 @@ fun ItemMisc(
     onDacModeSelected: (DacMode) -> Unit = {},
     onHidModeSelected: (HidMode) -> Unit = {}
 ) {
-    OutlinedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = 8.dp)
-    ) {
-        Column {
+    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(all = cardPadding)) {
             Text(
                 text = stringResource(id = R.string.hid_mode),
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(bottom = cardPadding),
                 style = MaterialTheme.typography.titleMedium
             )
             val hidModes = listOf(
@@ -72,10 +68,7 @@ fun ItemMisc(
                     RadioButton(
                         selected = index.toByte() == hidMode.id,
                         onClick = {
-                            val newMode = HidMode.findById(index.toByte())
-                            if (newMode != null) {
-                                onHidModeSelected(newMode)
-                            }
+                            onHidModeSelected(HidMode.findByIdOrDefault(index.toByte()))
                         }
                     )
                     Text(
@@ -86,7 +79,7 @@ fun ItemMisc(
             }
             Text(
                 text = stringResource(id = R.string.dac_mode),
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(vertical = cardPadding),
                 style = MaterialTheme.typography.titleMedium
             )
             val dacModes = listOf(
@@ -98,10 +91,7 @@ fun ItemMisc(
                     RadioButton(
                         selected = index.toByte() == dacMode.id,
                         onClick = {
-                            val newMode = DacMode.findById(index.toByte())
-                            if (newMode != null) {
-                                onDacModeSelected(newMode)
-                            }
+                            onDacModeSelected(DacMode.findByIdOrDefault(index.toByte()))
                         }
                     )
                     Text(
@@ -113,40 +103,33 @@ fun ItemMisc(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(top = cardPadding),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(id = R.string.spdif_out),
-                    modifier = Modifier.padding(start = 16.dp),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Switch(
                     checked = spdifOutEnabled,
-                    onCheckedChange = onSpdifOutEnabledSelected,
-                    modifier = Modifier.padding(end = 16.dp)
+                    onCheckedChange = onSpdifOutEnabledSelected
                 )
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(
-                        top = 16.dp,
-                        bottom = 16.dp
-                    ),
+                    .padding(top = cardPadding),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(id = R.string.hw_mute),
-                    modifier = Modifier.padding(start = 16.dp),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Switch(
                     checked = hardwareMuteEnabled,
-                    onCheckedChange = onHardwareMuteEnabledSelected,
-                    modifier = Modifier.padding(end = 16.dp)
+                    onCheckedChange = onHardwareMuteEnabledSelected
                 )
             }
         }

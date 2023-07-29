@@ -27,16 +27,18 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.dat
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainSideEffect
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainViewModel
+import io.github.tommy_geenexus.usbdonglecontrol.main.business.minusLoadingTask
+import io.github.tommy_geenexus.usbdonglecontrol.main.business.plusLoadingTask
 import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 
 fun MainViewModel.applyMoondropDawn44Profile(
     moondropDawn44: MoondropDawn44,
-    moondropDawn44Profile: MoondropDawn44Profile
+    moondropDawn44Profile: MoondropDawn44Profile = MoondropDawn44Profile()
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -73,7 +75,7 @@ fun MainViewModel.applyMoondropDawn44Profile(
             } else {
                 moondropDawn44
             },
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
     postSideEffect(
@@ -90,7 +92,7 @@ fun MainViewModel.setFilter(
     filter: Filter
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -110,9 +112,16 @@ fun MainViewModel.setFilter(
             usbDongle = moondropDawn44.copy(
                 filter = if (success) filter else moondropDawn44.filter
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setGain(
@@ -120,7 +129,7 @@ fun MainViewModel.setGain(
     gain: Gain
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -138,9 +147,16 @@ fun MainViewModel.setGain(
     reduce {
         state.copy(
             usbDongle = moondropDawn44.copy(gain = if (success) gain else moondropDawn44.gain),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }
 
 fun MainViewModel.setIndicatorState(
@@ -148,7 +164,7 @@ fun MainViewModel.setIndicatorState(
     indicatorState: IndicatorState
 ) = intent {
     reduce {
-        state.copy(isLoading = true)
+        state.copy(loadingTasks = state.plusLoadingTask())
     }
     val device = usbRepository.getAttachedDeviceOrNull()
     val success = if (device != null) {
@@ -171,7 +187,14 @@ fun MainViewModel.setIndicatorState(
             usbDongle = moondropDawn44.copy(
                 indicatorState = if (success) indicatorState else moondropDawn44.indicatorState
             ),
-            isLoading = false
+            loadingTasks = state.minusLoadingTask()
         )
     }
+    postSideEffect(
+        if (success) {
+            MainSideEffect.UsbCommunication.Success
+        } else {
+            MainSideEffect.UsbCommunication.Failure
+        }
+    )
 }

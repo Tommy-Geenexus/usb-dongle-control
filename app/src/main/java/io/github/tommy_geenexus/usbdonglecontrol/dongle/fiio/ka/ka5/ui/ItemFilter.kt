@@ -22,11 +22,10 @@ package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,9 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
+import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPadding
 
 @Composable
 fun ItemFilter(
@@ -44,15 +43,11 @@ fun ItemFilter(
     filter: Filter = Filter.default(),
     onFilterSelected: (Filter) -> Unit = {}
 ) {
-    OutlinedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(all = 8.dp)
-    ) {
-        Column {
+    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(all = cardPadding)) {
             Text(
                 text = stringResource(id = R.string.filter),
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(bottom = cardPadding),
                 style = MaterialTheme.typography.titleMedium
             )
             val filters = listOf(
@@ -63,14 +58,14 @@ fun ItemFilter(
                 stringResource(id = R.string.filter_non_over_sampling)
             )
             filters.forEachIndexed { index, f ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     RadioButton(
                         selected = index.toByte() == filter.id,
                         onClick = {
-                            val newFilter = Filter.findById(index.toByte())
-                            if (newFilter != null) {
-                                onFilterSelected(newFilter)
-                            }
+                            onFilterSelected(Filter.findByIdOrDefault(index.toByte()))
                         }
                     )
                     Text(
@@ -79,7 +74,6 @@ fun ItemFilter(
                     )
                 }
             }
-            Spacer(modifier = Modifier.padding(bottom = 16.dp))
         }
     }
 }
