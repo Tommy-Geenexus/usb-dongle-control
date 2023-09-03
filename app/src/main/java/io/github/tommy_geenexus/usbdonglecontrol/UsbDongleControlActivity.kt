@@ -23,13 +23,9 @@ package io.github.tommy_geenexus.usbdonglecontrol
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.SideEffect
-import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.navigation.NavGraph
 import io.github.tommy_geenexus.usbdonglecontrol.theme.UsbDongleControlTheme
@@ -38,29 +34,16 @@ import io.github.tommy_geenexus.usbdonglecontrol.theme.UsbDongleControlTheme
 class UsbDongleControlActivity : ComponentActivity() {
 
     init {
-        addOnNewIntentListener { intent ->
-            setIntent(intent)
-        }
+        addOnNewIntentListener { intent -> setIntent(intent) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
         setContent {
             UsbDongleControlTheme {
-                val systemUiController = rememberSystemUiController()
-                val useDarkIcons = !isSystemInDarkTheme()
-                val surfaceColor = MaterialTheme.colorScheme.surface
-                SideEffect {
-                    systemUiController.setSystemBarsColor(
-                        color = surfaceColor,
-                        darkIcons = useDarkIcons,
-                        isNavigationBarContrastEnforced = false
-                    )
-                }
                 NavGraph(
                     windowSizeClass = calculateWindowSizeClass(activity = this),
-                    systemUiController = systemUiController,
                     navController = rememberNavController()
                 )
             }

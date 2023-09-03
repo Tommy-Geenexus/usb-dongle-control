@@ -86,6 +86,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -100,8 +101,6 @@ import androidx.core.content.ContextCompat
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.google.accompanist.systemuicontroller.SystemUiController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import io.github.tommy_geenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
 import io.github.tommy_geenexus.usbdonglecontrol.R
 import io.github.tommy_geenexus.usbdonglecontrol.UsbReceiver
@@ -155,7 +154,6 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun MainScreen(
     windowSizeClass: WindowSizeClass,
-    systemUiController: SystemUiController,
     viewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -335,19 +333,18 @@ fun MainScreen(
     val surfaceColor = MaterialTheme.colorScheme.surface
     val bottomAppBarColor =
         MaterialTheme.colorScheme.surfaceColorAtElevation(BottomAppBarDefaults.ContainerElevation)
+    val activity = LocalContext.current as Activity
     SideEffect {
-        systemUiController.setNavigationBarColor(
+        activity.window.navigationBarColor =
             if (state.usbDongle != null && state.isUsbPermissionGranted) {
-                bottomAppBarColor
+                bottomAppBarColor.toArgb()
             } else {
-                surfaceColor
+                surfaceColor.toArgb()
             }
-        )
     }
     MainScreen(
         modifier = modifier,
         windowSizeClass = windowSizeClass,
-        systemUiController = systemUiController,
         snackBarHostState = snackBarHostState,
         usbDongle = state.usbDongle,
         profiles = state.profiles,
@@ -458,11 +455,13 @@ fun MainScreen(
         },
         onVolumeLevelChanged = { dongle, volumeLevel ->
             if (dongle is FiioKa5) {
-                viewModel.updateVolumeLevel(dongle, volumeLevel) }
+                viewModel.updateVolumeLevel(dongle, volumeLevel)
+            }
         },
         onVolumeLevelSelected = { dongle, volumeLevel ->
             if (dongle is FiioKa5) {
-                viewModel.setVolumeLevel(dongle, volumeLevel) }
+                viewModel.setVolumeLevel(dongle, volumeLevel)
+            }
         },
         onVolumeModeSelected = { dongle, volumeMode ->
             if (dongle is FiioKa5) {
@@ -476,7 +475,6 @@ fun MainScreen(
 fun MainScreen(
     modifier: Modifier = Modifier,
     windowSizeClass: WindowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero),
-    systemUiController: SystemUiController = rememberSystemUiController(),
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -571,8 +569,9 @@ fun MainScreen(
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
                 label = "StatusBarColorAnimation"
             )
+            val activity = LocalContext.current as Activity
             LaunchedEffect(animatedColor) {
-                systemUiController.setStatusBarColor(animatedColor)
+                activity.window.statusBarColor = animatedColor.toArgb()
             }
             if (!isDeviceAttached) {
                 scrollBehavior.state.heightOffset = 0f
