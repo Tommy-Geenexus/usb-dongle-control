@@ -1,33 +1,32 @@
 [versions]
-accompanist = "0.30.1"
+accompanist = "0.32.0"
 activity-compose = "1.7.2"
-agp = "8.1.0"
+agp = "8.1.1"
 app-compat = "1.6.1"
 compose-bom = "2023.08.00"
 compose-compiler-report-generator = "1.1.0"
 compose-lint-checks = "1.2.0"
 core-ktx = "1.10.1"
 coroutines = "1.7.3"
-dagger-hilt = "2.47"
+dagger-hilt = "2.48"
 dagger-hilt-extensions = "1.0.0"
 dagger-hilt-navigation-compose = "1.0.0"
 dagger-hilt-vm-compiler = "1.0.0"
 detekt = "1.23.1"
-kotlin = "1.9.0"
-kotlinter = "3.15.0"
+kotlin = "1.9.10"
+kotlinter = "3.16.0"
 leakcanary = "2.12"
 lifecycle = "2.6.1"
 material = "1.9.0"
-navigation_compose = "2.7.0"
+navigation_compose = "2.7.1"
 orbit = "6.0.0"
-room = "2.6.0-alpha03"
-spotless = "6.20.0"
+room = "2.6.0-beta01"
+spotless = "6.21.0"
 timber = "5.0.1"
 versions = "0.47.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
-accompanist-system-ui-controller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 app-compat = { module = "androidx.appcompat:appcompat", version.ref = "app-compat" }
 compose-animation = { module = "androidx.compose.animation:animation" }
@@ -60,7 +59,6 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 [bundles]
 implementation = [
     "accompanist-permissions",
-    "accompanist-system-ui-controller",
     "activity-compose",
     "app-compat",
     "compose-animation",

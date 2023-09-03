@@ -23,13 +23,12 @@ package io.github.tommy_geenexus.usbdonglecontrol
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.navigation.NavGraph
 import io.github.tommy_geenexus.usbdonglecontrol.theme.UsbDongleControlTheme
@@ -38,9 +37,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.theme.UsbDongleControlTheme
 class UsbDongleControlActivity : ComponentActivity() {
 
     init {
-        addOnNewIntentListener { intent ->
-            setIntent(intent)
-        }
+        addOnNewIntentListener { intent -> setIntent(intent) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,19 +45,13 @@ class UsbDongleControlActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             UsbDongleControlTheme {
-                val systemUiController = rememberSystemUiController()
-                val useDarkIcons = !isSystemInDarkTheme()
-                val surfaceColor = MaterialTheme.colorScheme.surface
+                val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
                 SideEffect {
-                    systemUiController.setSystemBarsColor(
-                        color = surfaceColor,
-                        darkIcons = useDarkIcons,
-                        isNavigationBarContrastEnforced = false
-                    )
+                    window.statusBarColor = surfaceColor
+                    window.navigationBarColor = surfaceColor
                 }
                 NavGraph(
                     windowSizeClass = calculateWindowSizeClass(activity = this),
-                    systemUiController = systemUiController,
                     navController = rememberNavController()
                 )
             }

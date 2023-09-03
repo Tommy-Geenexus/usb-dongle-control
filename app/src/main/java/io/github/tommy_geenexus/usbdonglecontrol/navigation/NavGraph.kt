@@ -27,13 +27,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.google.accompanist.systemuicontroller.SystemUiController
 import io.github.tommy_geenexus.usbdonglecontrol.main.ui.MainScreen
 
 @Composable
 fun NavGraph(
     windowSizeClass: WindowSizeClass,
-    systemUiController: SystemUiController,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     startDestination: String = NavDestinations.ROUTE_MAIN
@@ -45,7 +43,6 @@ fun NavGraph(
         composable(route = NavDestinations.ROUTE_MAIN) {
             MainScreen(
                 windowSizeClass = windowSizeClass,
-                systemUiController = systemUiController,
                 viewModel = hiltViewModel(),
                 modifier = modifier
             )
