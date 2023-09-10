@@ -23,11 +23,8 @@ package io.github.tommy_geenexus.usbdonglecontrol
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
-import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.navigation.NavGraph
@@ -42,14 +39,9 @@ class UsbDongleControlActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
         setContent {
             UsbDongleControlTheme {
-                val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
-                SideEffect {
-                    window.statusBarColor = surfaceColor
-                    window.navigationBarColor = surfaceColor
-                }
                 NavGraph(
                     windowSizeClass = calculateWindowSizeClass(activity = this),
                     navController = rememberNavController()
