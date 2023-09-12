@@ -31,7 +31,10 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,7 +52,6 @@ fun ItemDisplay(
     displayBrightnessRange: ClosedFloatingPointRange<Float> =
         FiioKa5Defaults.DISPLAY_BRIGHTNESS_MIN.toFloat()..FiioKa5Defaults.DISPLAY_BRIGHTNESS_MAX.toFloat(),
     displayTimeout: Float = FiioKa5Defaults.DISPLAY_TIMEOUT.toFloat(),
-    displayTimeoutStepSize: Int = FiioKa5Defaults.DISPLAY_TIMEOUT_MAX,
     displayTimeoutRange: ClosedFloatingPointRange<Float> =
         FiioKa5Defaults.DISPLAY_TIMEOUT_MIN.toFloat()..FiioKa5Defaults.DISPLAY_TIMEOUT_MAX.toFloat(),
     displayInvertEnabled: Boolean = false,
@@ -76,7 +78,7 @@ fun ItemDisplay(
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
-            var pendingDisplayBrightness = remember { displayBrightness }
+            var pendingDisplayBrightness by remember { mutableFloatStateOf(displayBrightness) }
             Slider(
                 value = displayBrightness,
                 onValueChange = { value ->
@@ -100,7 +102,7 @@ fun ItemDisplay(
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
-            var pendingDisplayTimeout = remember { displayTimeout }
+            var pendingDisplayTimeout by remember { mutableFloatStateOf(displayTimeout) }
             Slider(
                 value = displayTimeout,
                 onValueChange = { value ->
@@ -111,8 +113,7 @@ fun ItemDisplay(
                     onDisplayTimeoutSelected(pendingDisplayTimeout.roundToInt())
                 },
                 modifier = Modifier.padding(top = cardPadding),
-                valueRange = displayTimeoutRange,
-                steps = displayTimeoutStepSize
+                valueRange = displayTimeoutRange
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -33,9 +33,9 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5ProfileDao
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44ProfileDao
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnProfile
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnProfileDao
 import io.github.tommy_geenexus.usbdonglecontrol.suspendRunCatching
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -48,7 +48,7 @@ class ProfileRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     @DispatcherIo private val dispatcherIo: CoroutineDispatcher,
     private val fiioKa5ProfileDao: FiioKa5ProfileDao,
-    private val moondropDawn44ProfileDao: MoondropDawn44ProfileDao
+    private val moondropDawnProfileDao: MoondropDawnProfileDao
 ) {
 
     private companion object {
@@ -64,7 +64,7 @@ class ProfileRepository @Inject constructor(
                         fiioKa5ProfileDao.getProfiles()
                     }
                     is MoondropDawn44 -> {
-                        moondropDawn44ProfileDao.getProfiles()
+                        moondropDawnProfileDao.getProfiles()
                     }
                     else -> {
                         emptyList()
@@ -86,9 +86,9 @@ class ProfileRepository @Inject constructor(
                     } else {
                         error("Profile limit reached")
                     }
-                } else if (profile is MoondropDawn44Profile) {
-                    if (moondropDawn44ProfileDao.getProfileCount() < PROFILES_MAX) {
-                        Result.success(moondropDawn44ProfileDao.upsertAndGetProfiles(profile))
+                } else if (profile is MoondropDawnProfile) {
+                    if (moondropDawnProfileDao.getProfileCount() < PROFILES_MAX) {
+                        Result.success(moondropDawnProfileDao.upsertAndGetProfiles(profile))
                     } else {
                         error("Profile limit reached")
                     }
@@ -110,8 +110,8 @@ class ProfileRepository @Inject constructor(
                         fiioKa5ProfileDao.delete(profile)
                         true
                     }
-                    is MoondropDawn44Profile -> {
-                        moondropDawn44ProfileDao.delete(profile)
+                    is MoondropDawnProfile -> {
+                        moondropDawnProfileDao.delete(profile)
                         true
                     }
                     else -> {
@@ -125,9 +125,7 @@ class ProfileRepository @Inject constructor(
         }
     }
 
-    suspend fun addProfileShortcut(
-        profile: Profile
-    ): Boolean {
+    suspend fun addProfileShortcut(profile: Profile): Boolean {
         return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val intent = context

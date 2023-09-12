@@ -18,32 +18,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Upsert
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.MoondropUsbCommand
 
-@Dao
-interface MoondropDawn44ProfileDao {
+interface MoondropDawnUsbCommand : MoondropUsbCommand {
 
-    @Query("SELECT * FROM MoondropDawn44Profile ORDER BY name ASC")
-    suspend fun getProfiles(): List<MoondropDawn44Profile>
-
-    @Query("SELECT COUNT(*) FROM MoondropDawn44Profile")
-    suspend fun getProfileCount(): Int
-
-    @Upsert
-    suspend fun upsert(profile: MoondropDawn44Profile)
-
-    @Delete
-    suspend fun delete(profile: MoondropDawn44Profile)
-
-    @Transaction
-    suspend fun upsertAndGetProfiles(profile: MoondropDawn44Profile): List<MoondropDawn44Profile> {
-        upsert(profile)
-        return getProfiles()
-    }
+    val getAny: ByteArray
+    val getVolumeLevel: ByteArray
+    val setFilter: ByteArray
+    val setGain: ByteArray
+    val setVolumeLevel: ByteArray
+    val setIndicatorState: ByteArray
 }

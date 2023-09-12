@@ -18,7 +18,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,18 +29,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawnDefaults
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.IndicatorState
 import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommy_geenexus.usbdonglecontrol.theme.cardSizeMinDp
 
 @Composable
-fun MoondropDawn44Items(
+fun MoondropDawnItems(
     modifier: Modifier = Modifier,
-    moondropDawn44: MoondropDawn44 = MoondropDawn44(),
+    moondropDawn: MoondropDawn44 = MoondropDawn44(),
     onFilterSelected: (Filter) -> Unit = {},
     onGainSelected: (Gain) -> Unit = {},
-    onIndicatorStateSelected: (IndicatorState) -> Unit = {}
+    onIndicatorStateSelected: (IndicatorState) -> Unit = {},
+    onVolumeLevelChanged: (Int) -> Unit = {},
+    onVolumeLevelSelected: (Int) -> Unit = {}
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
@@ -51,20 +54,32 @@ fun MoondropDawn44Items(
     ) {
         item {
             ItemFilter(
-                filter = moondropDawn44.filter,
+                filter = moondropDawn.filter,
                 onFilterSelected = onFilterSelected
             )
         }
         item {
             ItemGain(
-                gain = moondropDawn44.gain,
+                gain = moondropDawn.gain,
                 onGainSelected = onGainSelected
             )
         }
         item {
             ItemIndicatorState(
-                indicatorState = moondropDawn44.indicatorState,
+                indicatorState = moondropDawn.indicatorState,
                 onIndicatorStateSelected = onIndicatorStateSelected
+            )
+        }
+        item {
+            ItemAudio(
+                volumeLevel =
+                (MoondropDawnDefaults.VOLUME_LEVEL_MIN - moondropDawn.volumeLevel).toFloat(),
+                onVolumeLevelChanged = { volumeLevel ->
+                    onVolumeLevelChanged(MoondropDawnDefaults.VOLUME_LEVEL_MIN - volumeLevel)
+                },
+                onVolumeLevelSelected = { volumeLevel ->
+                    onVolumeLevelSelected(MoondropDawnDefaults.VOLUME_LEVEL_MIN - volumeLevel)
+                }
             )
         }
     }
@@ -73,5 +88,5 @@ fun MoondropDawn44Items(
 @Preview
 @Composable
 fun MoondropDawn44ItemsPreview() {
-    MoondropDawn44Items()
+    MoondropDawnItems()
 }

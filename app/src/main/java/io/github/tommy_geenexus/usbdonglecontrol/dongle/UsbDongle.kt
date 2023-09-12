@@ -23,22 +23,19 @@ package io.github.tommy_geenexus.usbdonglecontrol.dongle
 import android.hardware.usb.UsbDevice
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 
 @Immutable
 abstract class UsbDongle(
     val manufacturerName: String,
     open val modelName: String,
-    val vendorId: Long,
-    open val productId: Long
+    val vendorId: Int,
+    open val productId: Int
 ) : UsbCommand,
-    Parcelable
+    Parcelable {
 
-fun UsbDongle.productName() = "$manufacturerName $modelName"
-
-fun UsbDongle.isUsbServiceSupported() = this is FiioKa5
+    fun productName() = "$manufacturerName $modelName"
+}
 
 fun UsbDevice?.toUsbDongleOrNull() = supportedDongles.find { usbDongle ->
-    this?.manufacturerName == usbDongle.manufacturerName &&
-        this.productName?.endsWith(usbDongle.modelName) == true
+    this?.vendorId == usbDongle.vendorId && productId == usbDongle.productId
 }

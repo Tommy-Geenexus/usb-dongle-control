@@ -24,7 +24,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 
 abstract class FiioUsbDongle(
     override val modelName: String,
-    override val productId: Long
+    override val productId: Int
 ) : UsbDongle(
     manufacturerName = "FiiO",
     modelName = modelName,
@@ -34,6 +34,6 @@ abstract class FiioUsbDongle(
 
     companion object {
 
-        const val VENDOR_ID = 10610L
+        const val VENDOR_ID = 10610
     }
 }

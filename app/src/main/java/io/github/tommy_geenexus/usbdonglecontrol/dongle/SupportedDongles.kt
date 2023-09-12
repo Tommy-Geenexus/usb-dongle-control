@@ -21,9 +21,9 @@
 package io.github.tommy_geenexus.usbdonglecontrol.dongle
 
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawn44
 
-val supportedDongles = listOf(
+val supportedDongles = listOf<UsbDongle>(
     FiioKa5(),
     MoondropDawn44()
 )

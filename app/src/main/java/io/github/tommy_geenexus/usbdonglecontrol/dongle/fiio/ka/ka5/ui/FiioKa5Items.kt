@@ -33,8 +33,8 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.HidMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.ItemFilter
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.ItemGain
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.ui.ItemFilter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.ui.ItemGain
 import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommy_geenexus.usbdonglecontrol.theme.cardSizeMinDp
 
@@ -76,7 +76,7 @@ fun FiioKa5Items(
             ItemAudio(
                 channelBalance = fiioKa5.channelBalance.toFloat(),
                 volumeLevel = fiioKa5.volumeLevel.toFloat(),
-                volumeLevelInPercent = fiioKa5.currentVolumeLevelInPercent(),
+                volumeLevelInPercent = fiioKa5.displayVolumeLevel(),
                 volumeMode = fiioKa5.volumeMode,
                 onChannelBalanceChanged = onChannelBalanceChanged,
                 onChannelBalanceSelected = onChannelBalanceSelected,

@@ -31,7 +31,10 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,13 +51,12 @@ fun ItemAudio(
     modifier: Modifier = Modifier,
     channelBalance: Float = FiioKa5Defaults.CHANNEL_BALANCE.toFloat(),
     channelBalanceStepSize: Int =
-        FiioKa5Defaults.CHANNEL_BALANCE_MIN.absoluteValue + FiioKa5Defaults.CHANNEL_BALANCE_MAX,
+        FiioKa5Defaults.CHANNEL_BALANCE_MIN.absoluteValue + FiioKa5Defaults.CHANNEL_BALANCE_MAX + 1,
     channelBalanceRange: ClosedFloatingPointRange<Float> =
         FiioKa5Defaults.CHANNEL_BALANCE_MIN.toFloat()..FiioKa5Defaults.CHANNEL_BALANCE_MAX.toFloat(),
     volumeMode: VolumeMode = VolumeMode.default(),
     volumeLevel: Float = FiioKa5Defaults.VOLUME_LEVEL.toFloat(),
     volumeLevelInPercent: String = FiioKa5Defaults.VOLUME_LEVEL.toString(),
-    volumeStepSize: Int = volumeMode.steps,
     volumeRange: ClosedFloatingPointRange<Float> = if (volumeMode == VolumeMode.S120) {
         FiioKa5Defaults.VOLUME_LEVEL_MIN.toFloat()..FiioKa5Defaults.VOLUME_LEVEL_A_MAX.toFloat()
     } else {
@@ -95,7 +97,7 @@ fun ItemAudio(
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
-            var pendingChannelBalance = remember { channelBalance }
+            var pendingChannelBalance by remember { mutableFloatStateOf(channelBalance) }
             Slider(
                 value = channelBalance,
                 onValueChange = { value ->
@@ -124,7 +126,7 @@ fun ItemAudio(
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
-            var pendingVolumeLevel = remember { volumeLevel }
+            var pendingVolumeLevel by remember { mutableFloatStateOf(volumeLevel) }
             Slider(
                 value = volumeLevel,
                 onValueChange = { value ->
@@ -135,8 +137,7 @@ fun ItemAudio(
                     onVolumeLevelSelected(pendingVolumeLevel.roundToInt())
                 },
                 modifier = Modifier.padding(top = cardPadding),
-                valueRange = volumeRange,
-                steps = volumeStepSize
+                valueRange = volumeRange
             )
             Text(
                 text = stringResource(id = R.string.volume_steps),

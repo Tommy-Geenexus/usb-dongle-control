@@ -26,25 +26,25 @@ import androidx.room.TypeConverters
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Converters
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5ProfileDao
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Converters
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44ProfileDao
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnConverters
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnProfile
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnProfileDao
 
 @Database(
     entities = [
         FiioKa5Profile::class,
-        MoondropDawn44Profile::class
+        MoondropDawnProfile::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(
     FiioKa5Converters::class,
-    MoondropDawn44Converters::class
+    MoondropDawnConverters::class
 )
 abstract class ProfileDatabase : RoomDatabase() {
 
     abstract fun fiioKa5ProfileDao(): FiioKa5ProfileDao
 
-    abstract fun moondropDawn44ProfileDao(): MoondropDawn44ProfileDao
+    abstract fun moondropDawn44ProfileDao(): MoondropDawnProfileDao
 }

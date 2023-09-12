@@ -24,7 +24,7 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 
 abstract class MoondropUsbDongle(
     override val modelName: String,
-    override val productId: Long
+    override val productId: Int
 ) : UsbDongle(
     manufacturerName = "MOONDROP",
     modelName = modelName,
@@ -34,6 +34,6 @@ abstract class MoondropUsbDongle(
 
     companion object {
 
-        const val VENDOR_ID = 12230L
+        const val VENDOR_ID = 12230
     }
 }

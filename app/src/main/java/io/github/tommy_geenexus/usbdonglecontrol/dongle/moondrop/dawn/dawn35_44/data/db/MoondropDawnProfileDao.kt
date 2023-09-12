@@ -18,16 +18,32 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db
 
-import androidx.room.TypeConverter
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Upsert
 
-class MoondropDawn44Converters {
+@Dao
+interface MoondropDawnProfileDao {
 
-    @TypeConverter
-    fun fromIndicatorStateId(id: Byte) = IndicatorState.findByIdOrDefault(id)
+    @Query("SELECT * FROM MoondropDawnProfile ORDER BY name ASC")
+    suspend fun getProfiles(): List<MoondropDawnProfile>
 
-    @TypeConverter
-    fun toIndicatorStateId(indicatorState: IndicatorState) = indicatorState.id
+    @Query("SELECT COUNT(*) FROM MoondropDawnProfile")
+    suspend fun getProfileCount(): Int
+
+    @Upsert
+    suspend fun upsert(profile: MoondropDawnProfile)
+
+    @Delete
+    suspend fun delete(profile: MoondropDawnProfile)
+
+    @Transaction
+    suspend fun upsertAndGetProfiles(profile: MoondropDawnProfile): List<MoondropDawnProfile> {
+        upsert(profile)
+        return getProfiles()
+    }
 }

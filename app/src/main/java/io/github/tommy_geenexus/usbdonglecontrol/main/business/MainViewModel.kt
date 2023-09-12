@@ -25,13 +25,13 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbServiceDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.isUsbServiceSupported
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.MoondropDawn44UsbCommunicationRepository
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.MoondropDawnUsbCommunicationRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnProfile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
 import io.github.tommy_geenexus.usbdonglecontrol.main.data.Profile
 import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfileRepository
@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(
     val usbRepository: UsbRepository,
     private val profileRepository: ProfileRepository,
     val fiioKa5UsbCommunicationRepository: FiioKa5UsbCommunicationRepository,
-    val moondropDawn44UsbCommunicationRepository: MoondropDawn44UsbCommunicationRepository
+    val moondropDawnUsbCommunicationRepository: MoondropDawnUsbCommunicationRepository
 ) : ViewModel(),
     ContainerHost<MainState, MainSideEffect> {
 
@@ -77,7 +77,7 @@ class MainViewModel @Inject constructor(
                         fiioKa5UsbCommunicationRepository.getCurrentState(connection)
                     }
                     is MoondropDawn44 -> {
-                        moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
+                        moondropDawnUsbCommunicationRepository.getCurrentState(connection)
                     }
                     else -> null
                 }
@@ -103,7 +103,7 @@ class MainViewModel @Inject constructor(
         }
         if (device != null && !isUsbPermissionGranted) {
             postSideEffect(MainSideEffect.RequestPermissions)
-        } else if (usbDongle?.isUsbServiceSupported() == true) {
+        } else if (usbDongle is UsbServiceDongle) {
             postSideEffect(MainSideEffect.Service.Stop)
             postSideEffect(MainSideEffect.Service.Start)
         }
@@ -127,7 +127,7 @@ class MainViewModel @Inject constructor(
                         fiioKa5UsbCommunicationRepository.getCurrentState(connection)
                     }
                     is MoondropDawn44 -> {
-                        moondropDawn44UsbCommunicationRepository.getCurrentState(connection)
+                        moondropDawnUsbCommunicationRepository.getCurrentState(connection)
                     }
                     else -> null
                 }
@@ -147,7 +147,7 @@ class MainViewModel @Inject constructor(
         }
         if (device != null && !isUsbPermissionGranted) {
             postSideEffect(MainSideEffect.RequestPermissions)
-        } else if (usbDongle?.isUsbServiceSupported() == true) {
+        } else if (usbDongle is UsbServiceDongle) {
             postSideEffect(MainSideEffect.Service.Stop)
             postSideEffect(MainSideEffect.Service.Start)
         }
@@ -241,11 +241,13 @@ class MainViewModel @Inject constructor(
                 )
             }
             is MoondropDawn44 -> {
-                MoondropDawn44Profile(
+                MoondropDawnProfile(
                     name = profileName,
+                    productId = MoondropDawn44.PRODUCT_ID,
                     filter = usbDongle.filter,
                     gain = usbDongle.gain,
-                    indicatorState = usbDongle.indicatorState
+                    indicatorState = usbDongle.indicatorState,
+                    volumeLevel = usbDongle.volumeLevel
                 )
             }
             else -> {

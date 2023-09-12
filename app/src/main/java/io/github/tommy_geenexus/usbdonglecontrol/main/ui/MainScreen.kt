@@ -131,15 +131,16 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.HidMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.VolumeMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui.FiioKa5Items
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.business.applyMoondropDawn44Profile
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.business.setFilter
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.business.setGain
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.business.setIndicatorState
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui.MoondropDawn44Items
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.productName
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.business.applyMoondropDawnProfile
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.business.setFilter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.business.setGain
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.business.setIndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.business.setVolumeLevel
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.business.updateVolumeLevel
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.IndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnProfile
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.ui.MoondropDawnItems
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainSideEffect
 import io.github.tommy_geenexus.usbdonglecontrol.main.business.MainViewModel
 import io.github.tommy_geenexus.usbdonglecontrol.main.data.Profile
@@ -357,7 +358,7 @@ fun MainScreen(
             if (dongle is FiioKa5) {
                 viewModel.applyFiioKa5Profile(dongle)
             } else if (dongle is MoondropDawn44) {
-                viewModel.applyMoondropDawn44Profile(dongle)
+                viewModel.applyMoondropDawnProfile(dongle)
             }
         },
         onProfileShortcutAdd = { profile ->
@@ -373,7 +374,7 @@ fun MainScreen(
             if (dongle is FiioKa5) {
                 viewModel.applyFiioKa5Profile(dongle, profile as FiioKa5Profile)
             } else if (dongle is MoondropDawn44) {
-                viewModel.applyMoondropDawn44Profile(dongle, profile as MoondropDawn44Profile)
+                viewModel.applyMoondropDawnProfile(dongle, profile as MoondropDawnProfile)
             }
         },
         onProfileExport = { profileName, usbDongle ->
@@ -456,10 +457,14 @@ fun MainScreen(
         onVolumeLevelChanged = { dongle, volumeLevel ->
             if (dongle is FiioKa5) {
                 viewModel.updateVolumeLevel(dongle, volumeLevel)
+            } else if (dongle is MoondropDawn44) {
+                viewModel.updateVolumeLevel(dongle, volumeLevel)
             }
         },
         onVolumeLevelSelected = { dongle, volumeLevel ->
             if (dongle is FiioKa5) {
+                viewModel.setVolumeLevel(dongle, volumeLevel)
+            } else if (dongle is MoondropDawn44) {
                 viewModel.setVolumeLevel(dongle, volumeLevel)
             }
         },
@@ -646,11 +651,11 @@ fun MainScreen(
                             }
                         )
                     } else if (usbDongle is MoondropDawn44) {
-                        MoondropDawn44Items(
+                        MoondropDawnItems(
                             modifier = Modifier.padding(
                                 horizontal = windowSizeClass.getHorizontalPadding()
                             ),
-                            moondropDawn44 = usbDongle,
+                            moondropDawn = usbDongle,
                             onFilterSelected = { filter ->
                                 onFilterSelected(usbDongle, filter)
                             },
@@ -659,6 +664,12 @@ fun MainScreen(
                             },
                             onIndicatorStateSelected = { indicatorState ->
                                 onIndicatorStateSelected(usbDongle, indicatorState)
+                            },
+                            onVolumeLevelChanged = { volumeLevel ->
+                                onVolumeLevelChanged(usbDongle, volumeLevel)
+                            },
+                            onVolumeLevelSelected = { volumeLevel ->
+                                onVolumeLevelSelected(usbDongle, volumeLevel)
                             }
                         )
                     }

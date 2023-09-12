@@ -18,14 +18,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.MoondropUsbCommand
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
+import kotlinx.parcelize.Parcelize
 
-interface MoondropDawn44UsbCommand : MoondropUsbCommand {
+@Immutable
+sealed class IndicatorState(val id: Byte) : Parcelable {
 
-    val getAny: ByteArray
-    val setFilter: ByteArray
-    val setGain: ByteArray
-    val setIndicatorState: ByteArray
+    companion object {
+
+        fun default() = Enabled
+
+        fun findByIdOrDefault(id: Byte): IndicatorState {
+            return when (id) {
+                Enabled.id -> Enabled
+                DisabledTemp.id -> DisabledTemp
+                Disabled.id -> Disabled
+                else -> default()
+            }
+        }
+    }
+
+    @Parcelize
+    data object Enabled : IndicatorState(id = 0)
+
+    @Parcelize
+    data object DisabledTemp : IndicatorState(id = 1)
+
+    @Parcelize
+    data object Disabled : IndicatorState(id = 2)
 }

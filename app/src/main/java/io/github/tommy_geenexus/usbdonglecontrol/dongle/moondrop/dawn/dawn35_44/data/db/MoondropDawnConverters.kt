@@ -18,34 +18,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.di
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db
 
-import android.content.Context
-import androidx.room.Room
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfileDatabase
+import androidx.room.TypeConverter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.IndicatorState
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DbModule {
+class MoondropDawnConverters {
 
-    @Provides
-    fun provideAppDatabase(
-        @ApplicationContext context: Context
-    ) = Room
-        .databaseBuilder(context, ProfileDatabase::class.java, "app.db")
-        .fallbackToDestructiveMigration()
-        .build()
+    @TypeConverter
+    fun fromIndicatorStateId(id: Byte) = IndicatorState.findByIdOrDefault(id)
 
-    @Provides
-    fun provideFiioKa5ProfileDao(profileDatabase: ProfileDatabase) =
-        profileDatabase.fiioKa5ProfileDao()
-
-    @Provides
-    fun provideMoondropDawn44ProfileDao(profileDatabase: ProfileDatabase) =
-        profileDatabase.moondropDawn44ProfileDao()
+    @TypeConverter
+    fun toIndicatorStateId(indicatorState: IndicatorState) = indicatorState.id
 }

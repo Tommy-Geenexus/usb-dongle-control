@@ -43,8 +43,6 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
 
     private companion object {
 
-        const val MASK = 0xFF
-
         const val DELAY_READ = 50L
         const val DELAY_WRITE = 100L
         const val TIMEOUT_MS = 1000
@@ -157,10 +155,6 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
         39 to "Native512"
     )
 
-    private fun Byte.toMaskedByte() = (toInt() and MASK).toByte()
-
-    private fun Byte.toMaskedInt() = toInt() and MASK
-
     override suspend fun getCurrentState(connection: UsbDeviceConnection): FiioKa5? {
         return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
@@ -220,12 +214,12 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
                     }
                     if (command.contentEquals(fiioKa5.getVersion)) {
                         hidMode = HidMode.findByIdOrDefault(
-                            id = data[REQUEST_RESULT_INDEX_HID_MODE].toMaskedByte()
+                            id = data[REQUEST_RESULT_INDEX_HID_MODE]
                         )
                         volumeMode = VolumeMode.findByIdOrDefault(
-                            id = data[REQUEST_RESULT_INDEX_VOLUME_MODE].toMaskedByte()
+                            id = data[REQUEST_RESULT_INDEX_VOLUME_MODE]
                         )
-                        val rawFirmwareVersion = data[REQUEST_RESULT_INDEX_VERSION].toMaskedByte()
+                        val rawFirmwareVersion = data[REQUEST_RESULT_INDEX_VERSION]
                         firmwareVersion = if (rawFirmwareVersion >= 100) {
                             StringBuilder(rawFirmwareVersion.toString())
                                 .insert(2, ".")
@@ -243,7 +237,7 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
                                 .toString()
                         }
                     } else if (command.contentEquals(fiioKa5.getSampleRate)) {
-                        val rawSampleRate = data[REQUEST_RESULT_INDEX_SAMPLE_RATE].toMaskedInt()
+                        val rawSampleRate = data[REQUEST_RESULT_INDEX_SAMPLE_RATE].toInt()
                         sampleRate = sampleRates
                             .filter { (key, _) ->
                                 rawSampleRate == key
@@ -252,7 +246,7 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
                             .firstOrNull()
                             ?: FiioKa5Defaults.SAMPLE_RATE
                     } else if (command.contentEquals(fiioKa5.getVolumeLevel)) {
-                        val rawVolumeLevel = data[REQUEST_RESULT_INDEX_VOLUME_LEVEL].toMaskedInt()
+                        val rawVolumeLevel = data[REQUEST_RESULT_INDEX_VOLUME_LEVEL]
                         val volumeLevels = if (volumeMode == VolumeMode.S120) {
                             volume120
                         } else {
@@ -261,12 +255,12 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
                         volumeLevel = volumeLevels
                             .entries
                             .find { (_, value) ->
-                                value == rawVolumeLevel
+                                value == rawVolumeLevel.toInt()
                             }
                             ?.key
                             ?: FiioKa5Defaults.VOLUME_LEVEL
-                        val channelBalanceR = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_R].toMaskedInt()
-                        val channelBalanceL = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_L].toMaskedInt()
+                        val channelBalanceR = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_R].toInt()
+                        val channelBalanceL = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_L].toInt()
                         channelBalance = if (channelBalanceR > 0) {
                             channelBalanceR
                         } else if (channelBalanceL > 0) {
@@ -276,21 +270,21 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
                         }
                     } else if (command.contentEquals(fiioKa5.getFilter)) {
                         dacMode = DacMode.findByIdOrDefault(
-                            id = data[REQUEST_RESULT_INDEX_DAC_MODE].toMaskedByte()
+                            id = data[REQUEST_RESULT_INDEX_DAC_MODE]
                         )
                         gain = Gain.findByIdOrDefault(
-                            id = data[REQUEST_RESULT_INDEX_GAIN].toMaskedByte()
+                            id = data[REQUEST_RESULT_INDEX_GAIN]
                         )
                         filter = Filter.findByIdOrDefault(
-                            id = data[REQUEST_RESULT_INDEX_FILTER].toMaskedByte()
+                            id = data[REQUEST_RESULT_INDEX_FILTER]
                         )
-                        hardwareMuteEnabled = data[REQUEST_RESULT_INDEX_HW_MUTE].toMaskedInt() == 1
+                        hardwareMuteEnabled = data[REQUEST_RESULT_INDEX_HW_MUTE].toInt() == 1
                     } else if (command.contentEquals(fiioKa5.getOtherState)) {
-                        spdifOutEnabled = data[REQUEST_RESULT_INDEX_SPDIF_OUT].toMaskedInt() == 1
+                        spdifOutEnabled = data[REQUEST_RESULT_INDEX_SPDIF_OUT].toInt() == 1
                         displayTimeout =
-                            data[REQUEST_RESULT_INDEX_DISPLAY_TIMEOUT].toMaskedInt()
+                            data[REQUEST_RESULT_INDEX_DISPLAY_TIMEOUT].toInt()
                         val rawDisplayBrightness =
-                            data[REQUEST_RESULT_INDEX_DISPLAY_BRIGHTNESS].toMaskedInt()
+                            data[REQUEST_RESULT_INDEX_DISPLAY_BRIGHTNESS].toInt()
                         displayBrightness = this@FiioKa5UsbCommunicationRepository
                             .displayBrightness
                             .filter { (_, value) -> rawDisplayBrightness == value }
@@ -298,7 +292,7 @@ class FiioKa5UsbCommunicationRepository @Inject constructor(
                             .firstOrNull()
                             ?: FiioKa5Defaults.DISPLAY_BRIGHTNESS
                         displayInvertEnabled =
-                            data[REQUEST_RESULT_INDEX_DISPLAY_INVERT].toMaskedInt() == 1
+                            data[REQUEST_RESULT_INDEX_DISPLAY_INVERT].toInt() == 1
                     }
                 }
                 connection.close()

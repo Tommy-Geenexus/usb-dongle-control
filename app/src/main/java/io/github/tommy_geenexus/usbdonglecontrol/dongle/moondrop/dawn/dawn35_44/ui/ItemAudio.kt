@@ -18,65 +18,67 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.ui
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.ui
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommy_geenexus.usbdonglecontrol.R
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.IndicatorState
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawnDefaults
 import io.github.tommy_geenexus.usbdonglecontrol.theme.cardPadding
+import kotlin.math.roundToInt
 
 @Composable
-fun ItemIndicatorState(
+fun ItemAudio(
     modifier: Modifier = Modifier,
-    indicatorState: IndicatorState = IndicatorState.default(),
-    onIndicatorStateSelected: (IndicatorState) -> Unit = {}
+    volumeLevel: Float = MoondropDawnDefaults.VOLUME_LEVEL.toFloat(),
+    volumeRange: ClosedFloatingPointRange<Float> =
+        MoondropDawnDefaults.VOLUME_LEVEL_MAX.toFloat()..MoondropDawnDefaults.VOLUME_LEVEL_MIN.toFloat(),
+    onVolumeLevelChanged: (Int) -> Unit = {},
+    onVolumeLevelSelected: (Int) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
             Text(
-                text = stringResource(id = R.string.indicator),
-                modifier = Modifier.padding(bottom = cardPadding),
+                text = stringResource(id = R.string.volume),
                 style = MaterialTheme.typography.titleMedium
             )
-            val indicatorStates = listOf(
-                stringResource(id = R.string.enabled),
-                stringResource(id = R.string.disabled_tmp),
-                stringResource(id = R.string.disabled)
+            Text(
+                text = stringResource(id = R.string.volume_level, volumeLevel.roundToInt()),
+                modifier = Modifier.padding(top = cardPadding),
+                style = MaterialTheme.typography.bodyMedium
             )
-            indicatorStates.forEachIndexed { index, i ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = index.toByte() == indicatorState.id,
-                        onClick = {
-                            onIndicatorStateSelected(
-                                IndicatorState.findByIdOrDefault(index.toByte())
-                            )
-                        }
-                    )
-                    Text(
-                        text = i,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
+            var pendingVolumeLevel by remember { mutableFloatStateOf(volumeLevel) }
+            Slider(
+                value = volumeLevel,
+                onValueChange = { value ->
+                    pendingVolumeLevel = value
+                    onVolumeLevelChanged(value.roundToInt())
+                },
+                onValueChangeFinished = {
+                    onVolumeLevelSelected(pendingVolumeLevel.roundToInt())
+                },
+                modifier = Modifier.padding(top = cardPadding),
+                valueRange = volumeRange
+            )
         }
     }
 }
 
 @Preview
 @Composable
-fun ItemIndicatorStatePreview() {
-    ItemIndicatorState()
+fun ItemAudioPreview() {
+    ItemAudio()
 }

@@ -90,10 +90,10 @@
     <string name="usb_comm_success">Zustand aktualisiert</string>
 
     <string name="volume">Lautstärke</string>
-    <string name="volume_down">Lautst. verringern</string>
+    <string name="volume_down">Lautstärke verringern</string>
     <string name="volume_level">Lautstärke: %s</string>
     <string name="volume_steps">Lautstärke-Schritte</string>
     <string name="volume_steps_120">120</string>
     <string name="volume_steps_60">60</string>
-    <string name="volume_up">Lautst. erhöhen</string>
+    <string name="volume_up">Lautstärke erhöhen</string>
 </resources>

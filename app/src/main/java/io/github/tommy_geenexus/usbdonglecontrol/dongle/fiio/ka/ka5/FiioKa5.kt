@@ -20,6 +20,7 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5
 
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbServiceDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.FiioUsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.DacMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommand
@@ -50,11 +51,12 @@ data class FiioKa5(
     modelName = "KA5",
     productId = PRODUCT_ID
 ),
+    UsbServiceDongle,
     FiioKa5UsbCommand {
 
     companion object {
 
-        const val PRODUCT_ID = 85L
+        const val PRODUCT_ID = 85
     }
 
     @IgnoredOnParcel
@@ -108,5 +110,5 @@ data class FiioKa5(
     @IgnoredOnParcel
     override val getOtherState = byteArrayOf(-57, -91, -92)
 
-    fun currentVolumeLevelInPercent() = "${(volumeLevel * 100 / volumeMode.steps)}%"
+    override fun displayVolumeLevel() = "${(volumeLevel * 100 / volumeMode.steps)}%"
 }

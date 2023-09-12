@@ -32,8 +32,8 @@ import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.FiioUsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.MoondropUsbDongle
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.MoondropDawn44
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data.db.MoondropDawn44Profile
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.MoondropDawn44
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.db.MoondropDawnProfile
 
 abstract class Profile(
     open val id: Long,
@@ -43,8 +43,8 @@ abstract class Profile(
     companion object {
 
         fun fromPersistableBundle(bundle: PersistableBundle): Profile? {
-            val vendorId = bundle.getLong(KEY_VENDOR_ID)
-            val productId = bundle.getLong(KEY_PRODUCT_ID)
+            val vendorId = bundle.getInt(KEY_VENDOR_ID)
+            val productId = bundle.getInt(KEY_PRODUCT_ID)
             return when (vendorId) {
                 FiioUsbDongle.VENDOR_ID -> {
                     if (productId == FiioKa5.PRODUCT_ID) {
@@ -55,7 +55,7 @@ abstract class Profile(
                 }
                 MoondropUsbDongle.VENDOR_ID -> {
                     if (productId == MoondropDawn44.PRODUCT_ID) {
-                        MoondropDawn44Profile.fromPersistableBundle(bundle)
+                        MoondropDawnProfile.fromPersistableBundle(bundle)
                     } else {
                         null
                     }

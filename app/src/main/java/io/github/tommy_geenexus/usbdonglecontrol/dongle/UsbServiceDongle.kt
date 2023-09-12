@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2023, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,35 +18,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn44.data
+package io.github.tommy_geenexus.usbdonglecontrol.dongle
 
-import android.os.Parcelable
-import androidx.compose.runtime.Immutable
-import kotlinx.parcelize.Parcelize
+interface UsbServiceDongle {
 
-@Immutable
-sealed class IndicatorState(val id: Byte) : Parcelable {
-
-    companion object {
-
-        fun default() = Enabled
-
-        fun findByIdOrDefault(id: Byte): IndicatorState {
-            return when (id) {
-                Enabled.id -> Enabled
-                DisabledTemp.id -> DisabledTemp
-                Disabled.id -> Disabled
-                else -> default()
-            }
-        }
-    }
-
-    @Parcelize
-    data object Enabled : IndicatorState(id = 0)
-
-    @Parcelize
-    data object DisabledTemp : IndicatorState(id = 1)
-
-    @Parcelize
-    data object Disabled : IndicatorState(id = 2)
+    fun displayVolumeLevel(): String
 }

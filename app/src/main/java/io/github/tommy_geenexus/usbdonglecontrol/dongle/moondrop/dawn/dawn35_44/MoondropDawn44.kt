@@ -18,34 +18,30 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.di
+package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44
 
-import android.content.Context
-import androidx.room.Room
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import io.github.tommy_geenexus.usbdonglecontrol.main.data.ProfileDatabase
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data.IndicatorState
+import kotlinx.parcelize.Parcelize
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DbModule {
+@Parcelize
+data class MoondropDawn44(
+    override val filter: Filter = Filter.default(),
+    override val gain: Gain = Gain.default(),
+    override val indicatorState: IndicatorState = IndicatorState.default(),
+    override val volumeLevel: Int = MoondropDawnDefaults.VOLUME_LEVEL
+) : MoondropDawn(
+    modelName = "Dawn 4.4mm",
+    productId = PRODUCT_ID,
+    filter = filter,
+    gain = gain,
+    indicatorState = indicatorState,
+    volumeLevel = volumeLevel
+) {
 
-    @Provides
-    fun provideAppDatabase(
-        @ApplicationContext context: Context
-    ) = Room
-        .databaseBuilder(context, ProfileDatabase::class.java, "app.db")
-        .fallbackToDestructiveMigration()
-        .build()
+    companion object {
 
-    @Provides
-    fun provideFiioKa5ProfileDao(profileDatabase: ProfileDatabase) =
-        profileDatabase.fiioKa5ProfileDao()
-
-    @Provides
-    fun provideMoondropDawn44ProfileDao(profileDatabase: ProfileDatabase) =
-        profileDatabase.moondropDawn44ProfileDao()
+        const val PRODUCT_ID = 61543
+    }
 }
