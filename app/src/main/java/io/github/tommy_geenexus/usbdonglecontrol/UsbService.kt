@@ -27,12 +27,14 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Icon
 import androidx.core.content.IntentCompat
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherIo
 import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherMainImmediate
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbServiceDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
@@ -60,7 +62,13 @@ class UsbService : Service() {
         const val ID_NOTIFICATION_CHANNEL = TOP_LEVEL_PACKAGE_NAME + "NOTIFICATION_CHANNEL"
         const val INTENT_ACTION_VOLUME_UP = TOP_LEVEL_PACKAGE_NAME + "VOLUME_UP"
         const val INTENT_ACTION_VOLUME_DOWN = TOP_LEVEL_PACKAGE_NAME + "VOLUME_DOWN"
-        const val INTENT_EXTRA_USB_DONGLE = TOP_LEVEL_PACKAGE_NAME + "USB_DONGLE"
+        const val INTENT_ACTION_VOLUME_STEP_SIZE = TOP_LEVEL_PACKAGE_NAME + "VOLUME_STEP_SIZE"
+        const val INTENT_EXTRA_USB_DONGLE = TOP_LEVEL_PACKAGE_NAME + "EXTRA_USB_DONGLE"
+        const val INTENT_EXTRA_VOLUME_STEP_SIZE = TOP_LEVEL_PACKAGE_NAME + "EXTRA_VOLUME_STEP_SIZE"
+
+        const val VOLUME_STEP_SIZE_MIN = 1
+        const val VOLUME_STEP_SIZE_MAX = 4
+        const val VOLUME_STEP_SIZE_DEFAULT = VOLUME_STEP_SIZE_MIN
     }
 
     @Inject
@@ -102,8 +110,12 @@ class UsbService : Service() {
                     INTENT_EXTRA_USB_DONGLE,
                     UsbDongle::class.java
                 )
+                val volumeStepSize = intent.getIntExtra(
+                    INTENT_EXTRA_VOLUME_STEP_SIZE,
+                    VOLUME_STEP_SIZE_DEFAULT
+                )
                 if (usbDongle != null) {
-                    volumeUp(usbDongle)
+                    volumeUp(usbDongle, volumeStepSize)
                 }
             }
             INTENT_ACTION_VOLUME_DOWN -> {
@@ -112,8 +124,26 @@ class UsbService : Service() {
                     INTENT_EXTRA_USB_DONGLE,
                     UsbDongle::class.java
                 )
+                val volumeStepSize = intent.getIntExtra(
+                    INTENT_EXTRA_VOLUME_STEP_SIZE,
+                    VOLUME_STEP_SIZE_DEFAULT
+                )
                 if (usbDongle != null) {
-                    volumeDown(usbDongle)
+                    volumeDown(usbDongle, volumeStepSize)
+                }
+            }
+            INTENT_ACTION_VOLUME_STEP_SIZE -> {
+                val usbDongle = IntentCompat.getParcelableExtra(
+                    intent,
+                    INTENT_EXTRA_USB_DONGLE,
+                    UsbDongle::class.java
+                )
+                val volumeStepSize = intent.getIntExtra(
+                    INTENT_EXTRA_VOLUME_STEP_SIZE,
+                    VOLUME_STEP_SIZE_DEFAULT
+                )
+                if (usbDongle != null) {
+                    nextVolumeStepSize(usbDongle, volumeStepSize)
                 }
             }
         }
@@ -157,7 +187,8 @@ class UsbService : Service() {
                         ID_NOTIFICATION,
                         buildNotification(
                             usbDongle = updatedUsbDongle,
-                            volumePercent = updatedUsbDongle.displayVolumeLevel()
+                            volumePercent = updatedUsbDongle.displayVolumeLevel(),
+                            volumeStepSize = VOLUME_STEP_SIZE_DEFAULT
                         )
                     )
                 }
@@ -165,12 +196,15 @@ class UsbService : Service() {
         }
     }
 
-    private fun volumeUp(usbDongle: UsbDongle) {
+    private fun volumeUp(
+        usbDongle: UsbDongle,
+        volumeStepSize: Int
+    ) {
         coroutineScope.launch {
             val device = usbRepository.getAttachedDeviceOrNull() ?: return@launch
             val connection = usbRepository.openDeviceOrNull(device) ?: return@launch
             if (usbDongle is FiioKa5) {
-                val volumeLevel = usbDongle.volumeLevel.inc().coerceIn(
+                val volumeLevel = usbDongle.volumeLevel.plus(volumeStepSize).coerceIn(
                     minimumValue = FiioKa5Defaults.VOLUME_LEVEL_MIN,
                     maximumValue = if (usbDongle.volumeMode == VolumeMode.S120) {
                         FiioKa5Defaults.VOLUME_LEVEL_A_MAX
@@ -188,12 +222,13 @@ class UsbService : Service() {
                     updateNotification(
                         buildNotification(
                             usbDongle = updatedUsbDongle,
-                            volumePercent = updatedUsbDongle.displayVolumeLevel()
+                            volumePercent = updatedUsbDongle.displayVolumeLevel(),
+                            volumeStepSize = volumeStepSize
                         )
                     )
                 }
             } else if (usbDongle is MoondropDawn) {
-                val volumeLevel = usbDongle.volumeLevel.dec().coerceIn(
+                val volumeLevel = usbDongle.volumeLevel.minus(volumeStepSize).coerceIn(
                     minimumValue = MoondropDawnDefaults.VOLUME_LEVEL_MAX,
                     maximumValue = MoondropDawnDefaults.VOLUME_LEVEL_MIN
                 )
@@ -206,7 +241,8 @@ class UsbService : Service() {
                     updateNotification(
                         buildNotification(
                             usbDongle = updatedUsbDongle,
-                            volumePercent = updatedUsbDongle.displayVolumeLevel()
+                            volumePercent = updatedUsbDongle.displayVolumeLevel(),
+                            volumeStepSize = volumeStepSize
                         )
                     )
                 }
@@ -214,12 +250,15 @@ class UsbService : Service() {
         }
     }
 
-    private fun volumeDown(usbDongle: UsbDongle) {
+    private fun volumeDown(
+        usbDongle: UsbDongle,
+        volumeStepSize: Int
+    ) {
         coroutineScope.launch {
             val device = usbRepository.getAttachedDeviceOrNull() ?: return@launch
             val connection = usbRepository.openDeviceOrNull(device) ?: return@launch
             if (usbDongle is FiioKa5) {
-                val volumeLevel = usbDongle.volumeLevel.dec().coerceIn(
+                val volumeLevel = usbDongle.volumeLevel.minus(volumeStepSize).coerceIn(
                     minimumValue = FiioKa5Defaults.VOLUME_LEVEL_MIN,
                     maximumValue = if (usbDongle.volumeMode == VolumeMode.S120) {
                         FiioKa5Defaults.VOLUME_LEVEL_A_MAX
@@ -237,12 +276,13 @@ class UsbService : Service() {
                     updateNotification(
                         buildNotification(
                             usbDongle = updatedUsbDongle,
-                            volumePercent = updatedUsbDongle.displayVolumeLevel()
+                            volumePercent = updatedUsbDongle.displayVolumeLevel(),
+                            volumeStepSize = volumeStepSize
                         )
                     )
                 }
             } else if (usbDongle is MoondropDawn) {
-                val volumeLevel = usbDongle.volumeLevel.inc().coerceIn(
+                val volumeLevel = usbDongle.volumeLevel.plus(volumeStepSize).coerceIn(
                     minimumValue = MoondropDawnDefaults.VOLUME_LEVEL_MAX,
                     maximumValue = MoondropDawnDefaults.VOLUME_LEVEL_MIN
                 )
@@ -255,23 +295,49 @@ class UsbService : Service() {
                     updateNotification(
                         buildNotification(
                             usbDongle = updatedUsbDongle,
-                            volumePercent = updatedUsbDongle.displayVolumeLevel()
+                            volumePercent = updatedUsbDongle.displayVolumeLevel(),
+                            volumeStepSize = volumeStepSize
                         )
                     )
                 }
             }
+        }
+    }
+
+    private fun nextVolumeStepSize(
+        usbDongle: UsbDongle,
+        volumeStepSize: Int
+    ) {
+        var next = volumeStepSize.inc()
+        if (usbDongle is MoondropDawn) {
+            if (next == VOLUME_STEP_SIZE_MAX.dec()) {
+                next = volumeStepSize.inc()
+            }
+        }
+        if (next > VOLUME_STEP_SIZE_MAX) {
+            next = VOLUME_STEP_SIZE_MIN
+        }
+        coroutineScope.launch {
+            updateNotification(
+                buildNotification(
+                    usbDongle = usbDongle,
+                    volumePercent = (usbDongle as UsbServiceDongle).displayVolumeLevel(),
+                    volumeStepSize = next
+                )
+            )
         }
     }
 
     private fun buildNotification(
         usbDongle: UsbDongle,
-        volumePercent: String
+        volumePercent: String,
+        volumeStepSize: Int
     ): Notification {
         return Notification
             .Builder(applicationContext, ID_NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.ic_logo)
             .setContentTitle(usbDongle.productName())
-            .setContentText(getString(R.string.volume_level, volumePercent))
+            .setContentText(getString(R.string.volume_level_steps, volumePercent, volumeStepSize))
             .setContentIntent(
                 PendingIntent.getActivity(
                     applicationContext,
@@ -282,7 +348,7 @@ class UsbService : Service() {
             )
             .addAction(
                 Notification.Action.Builder(
-                    null,
+                    Icon.createWithResource(applicationContext, R.drawable.ic_volume_up),
                     getString(R.string.volume_up),
                     PendingIntent.getService(
                         applicationContext,
@@ -290,6 +356,7 @@ class UsbService : Service() {
                         Intent(applicationContext, UsbService::class.java).apply {
                             action = INTENT_ACTION_VOLUME_UP
                             putExtra(INTENT_EXTRA_USB_DONGLE, usbDongle)
+                            putExtra(INTENT_EXTRA_VOLUME_STEP_SIZE, volumeStepSize)
                         },
                         PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )
@@ -297,7 +364,7 @@ class UsbService : Service() {
             )
             .addAction(
                 Notification.Action.Builder(
-                    null,
+                    Icon.createWithResource(applicationContext, R.drawable.ic_volume_down),
                     getString(R.string.volume_down),
                     PendingIntent.getService(
                         applicationContext,
@@ -305,6 +372,23 @@ class UsbService : Service() {
                         Intent(applicationContext, UsbService::class.java).apply {
                             action = INTENT_ACTION_VOLUME_DOWN
                             putExtra(INTENT_EXTRA_USB_DONGLE, usbDongle)
+                            putExtra(INTENT_EXTRA_VOLUME_STEP_SIZE, volumeStepSize)
+                        },
+                        PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                ).build()
+            )
+            .addAction(
+                Notification.Action.Builder(
+                    Icon.createWithResource(applicationContext, R.drawable.ic_step),
+                    getString(R.string.volume_steps_up),
+                    PendingIntent.getService(
+                        applicationContext,
+                        REQUEST_CODE,
+                        Intent(applicationContext, UsbService::class.java).apply {
+                            action = INTENT_ACTION_VOLUME_STEP_SIZE
+                            putExtra(INTENT_EXTRA_USB_DONGLE, usbDongle)
+                            putExtra(INTENT_EXTRA_VOLUME_STEP_SIZE, volumeStepSize)
                         },
                         PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )

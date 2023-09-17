@@ -94,8 +94,10 @@
     <string name="volume">Volume</string>
     <string name="volume_down">Volume down</string>
     <string name="volume_level">Volume level: %s</string>
+    <string name="volume_level_steps">Volume level: %1$s, step size: %2$d</string>
     <string name="volume_steps">Volume steps</string>
     <string name="volume_steps_120">120</string>
     <string name="volume_steps_60">60</string>
+    <string name="volume_steps_up">Step size up</string>
     <string name="volume_up">Volume Up</string>
 </resources>
