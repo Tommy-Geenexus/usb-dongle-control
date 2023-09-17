@@ -20,7 +20,7 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbServiceDongle
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.HardwareVolumeControl
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.FiioUsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.DacMode
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommand
@@ -51,7 +51,7 @@ data class FiioKa5(
     modelName = "KA5",
     productId = PRODUCT_ID
 ),
-    UsbServiceDongle,
+    HardwareVolumeControl,
     FiioKa5UsbCommand {
 
     companion object {

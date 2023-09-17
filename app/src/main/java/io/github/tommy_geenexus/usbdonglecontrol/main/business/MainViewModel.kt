@@ -23,9 +23,9 @@ package io.github.tommy_geenexus.usbdonglecontrol.main.business
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.HardwareVolumeControl
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbServiceDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.db.FiioKa5Profile
@@ -103,7 +103,7 @@ class MainViewModel @Inject constructor(
         }
         if (device != null && !isUsbPermissionGranted) {
             postSideEffect(MainSideEffect.RequestPermissions)
-        } else if (usbDongle is UsbServiceDongle) {
+        } else if (usbDongle is HardwareVolumeControl) {
             postSideEffect(MainSideEffect.Service.Stop)
             postSideEffect(MainSideEffect.Service.Start)
         }
@@ -147,7 +147,7 @@ class MainViewModel @Inject constructor(
         }
         if (device != null && !isUsbPermissionGranted) {
             postSideEffect(MainSideEffect.RequestPermissions)
-        } else if (usbDongle is UsbServiceDongle) {
+        } else if (usbDongle is HardwareVolumeControl) {
             postSideEffect(MainSideEffect.Service.Stop)
             postSideEffect(MainSideEffect.Service.Start)
         }

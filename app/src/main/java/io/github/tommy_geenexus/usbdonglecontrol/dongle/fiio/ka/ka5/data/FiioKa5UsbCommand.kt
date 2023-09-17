@@ -20,9 +20,7 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.FiioUsbCommand
-
-interface FiioKa5UsbCommand : FiioUsbCommand {
+interface FiioKa5UsbCommand {
 
     val setFilter: ByteArray
 

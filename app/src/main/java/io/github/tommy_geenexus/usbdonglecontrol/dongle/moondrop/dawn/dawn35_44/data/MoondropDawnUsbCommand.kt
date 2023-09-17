@@ -20,9 +20,7 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44.data
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.MoondropUsbCommand
-
-interface MoondropDawnUsbCommand : MoondropUsbCommand {
+interface MoondropDawnUsbCommand {
 
     val getAny: ByteArray
     val getVolumeLevel: ByteArray

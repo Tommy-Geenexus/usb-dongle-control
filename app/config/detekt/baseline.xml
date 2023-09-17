@@ -28,7 +28,6 @@
     <ID>MagicNumber:MainScreen.kt$0.01f</ID>
     <ID>TooGenericExceptionCaught:Extensions.kt$exception: Exception</ID>
     <ID>TooManyFunctions:FiioKa5UsbCommunicationRepository.kt$FiioKa5UsbCommunicationRepository : UsbTransfer</ID>
-    <ID>TooManyFunctions:MainScreen.kt$io.github.tommy_geenexus.usbdonglecontrol.main.ui.MainScreen.kt</ID>
     <ID>TooManyFunctions:MainViewModelExtensions.kt$io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.business.MainViewModelExtensions.kt</ID>
     <ID>TopLevelPropertyNaming:Utils.kt$const val INTENT_ACTION_SHORTCUT_PROFILE = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_SHORTCUT_PROFILE"</ID>
     <ID>TopLevelPropertyNaming:Utils.kt$const val INTENT_ACTION_USB_PERMISSION = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_USB_PERMISSION"</ID>

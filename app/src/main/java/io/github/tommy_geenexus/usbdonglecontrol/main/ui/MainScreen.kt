@@ -94,7 +94,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -331,16 +330,18 @@ fun MainScreen(
         }
     }
     val state by viewModel.collectAsState()
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val bottomAppBarColor =
-        MaterialTheme.colorScheme.surfaceColorAtElevation(BottomAppBarDefaults.ContainerElevation)
+    val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+    val bottomAppBarColor = MaterialTheme
+        .colorScheme
+        .surfaceColorAtElevation(BottomAppBarDefaults.ContainerElevation)
+        .toArgb()
     val activity = LocalContext.current as Activity
     SideEffect {
-        activity.window.navigationBarColor =
+        activity.window?.navigationBarColor =
             if (state.usbDongle != null && state.isUsbPermissionGranted) {
-                bottomAppBarColor.toArgb()
+                bottomAppBarColor
             } else {
-                surfaceColor.toArgb()
+                surfaceColor
             }
     }
     MainScreen(
@@ -574,9 +575,11 @@ fun MainScreen(
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
                 label = "StatusBarColorAnimation"
             )
-            val activity = LocalContext.current as Activity
-            LaunchedEffect(animatedColor) {
-                activity.window.statusBarColor = animatedColor.toArgb()
+            val activity = LocalContext.current as? Activity
+            if (activity != null) {
+                LaunchedEffect(animatedColor) {
+                    activity.window?.statusBarColor = animatedColor.toArgb()
+                }
             }
             if (!isDeviceAttached) {
                 scrollBehavior.state.heightOffset = 0f
@@ -588,13 +591,21 @@ fun MainScreen(
                     onPermissionRequest = onPermissionRequest
                 )
             } else {
-                var state by rememberSaveable { mutableIntStateOf(0) }
+                var selectedTabIndex by rememberSaveable { mutableIntStateOf(MainTabs.State.index) }
                 MainTabRow(
-                    selectedTabIndex = state,
+                    selectedTabIndex = selectedTabIndex,
                     containerColor = animatedColor,
-                    onTabSelected = { index -> state = index }
+                    onTabSelected = { index ->
+                        val prev = selectedTabIndex
+                        selectedTabIndex = index
+                        if (prev == MainTabs.Profiles.index &&
+                            selectedTabIndex == MainTabs.State.index
+                        ) {
+                            onRefresh()
+                        }
+                    }
                 )
-                if (state == 0) {
+                if (selectedTabIndex == MainTabs.State.index) {
                     if (usbDongle is FiioKa5) {
                         FiioKa5Items(
                             modifier = Modifier.padding(
@@ -693,7 +704,7 @@ fun MainScreen(
                     LaunchedEffect(Unit) {
                         val profileShortcut = context.intent.consumeProfileShortcut()
                         if (profileShortcut != null) {
-                            state = 1
+                            selectedTabIndex = MainTabs.Profiles.index
                             val index = profiles.items.indexOf(profileShortcut)
                             profileListState.animateScrollToItem(if (index >= 0) index else 0)
                         }
@@ -750,22 +761,18 @@ fun MainTabRow(
     modifier: Modifier = Modifier,
     onTabSelected: (Int) -> Unit
 ) {
-    val titles = listOf(
-        stringResource(id = R.string.state),
-        stringResource(id = R.string.profiles)
-    )
     TabRow(
         selectedTabIndex = selectedTabIndex,
         modifier = modifier,
         containerColor = containerColor
     ) {
-        titles.forEachIndexed { index, title ->
+        listOf(MainTabs.State, MainTabs.Profiles).forEachIndexed { index, tab ->
             Tab(
                 selected = selectedTabIndex == index,
                 onClick = { onTabSelected(index) },
                 text = {
                     Text(
-                        text = title,
+                        text = stringResource(id = tab.titleRes),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -934,41 +941,5 @@ fun MainBottomAppBar(
                 )
             }
         }
-    )
-}
-
-@Preview(name = "No device")
-@Composable
-fun MainScreenPreview1() {
-    MainScreen()
-}
-
-@Preview(name = "FiiO KA5 no permission")
-@Composable
-fun MainScreenPreview2() {
-    MainScreen(
-        usbDongle = FiioKa5(),
-        isDeviceAttached = true
-    )
-}
-
-@Preview(name = "FiiO KA5 compact")
-@Composable
-fun MainScreenPreview3() {
-    MainScreen(
-        usbDongle = FiioKa5(),
-        isDeviceAttached = true,
-        isUsbPermissionGranted = true
-    )
-}
-
-@Preview(name = "FiiO KA5 expanded")
-@Composable
-fun MainScreenPreview4() {
-    MainScreen(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero.copy(width = 940.dp)),
-        usbDongle = FiioKa5(),
-        isDeviceAttached = true,
-        isUsbPermissionGranted = true
     )
 }

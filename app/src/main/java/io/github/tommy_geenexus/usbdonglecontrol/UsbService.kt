@@ -32,9 +32,9 @@ import androidx.core.content.IntentCompat
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherIo
 import io.github.tommy_geenexus.usbdonglecontrol.di.DispatcherMainImmediate
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.HardwareVolumeControl
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbRepository
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbServiceDongle
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5Defaults
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbCommunicationRepository
@@ -321,7 +321,7 @@ class UsbService : Service() {
             updateNotification(
                 buildNotification(
                     usbDongle = usbDongle,
-                    volumePercent = (usbDongle as UsbServiceDongle).displayVolumeLevel(),
+                    volumePercent = (usbDongle as HardwareVolumeControl).displayVolumeLevel(),
                     volumeStepSize = next
                 )
             )

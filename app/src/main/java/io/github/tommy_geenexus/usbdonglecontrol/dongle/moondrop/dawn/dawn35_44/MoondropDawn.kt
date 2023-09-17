@@ -20,7 +20,7 @@
 
 package io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn35_44
 
-import io.github.tommy_geenexus.usbdonglecontrol.dongle.UsbServiceDongle
+import io.github.tommy_geenexus.usbdonglecontrol.dongle.HardwareVolumeControl
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Filter
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.Gain
 import io.github.tommy_geenexus.usbdonglecontrol.dongle.moondrop.MoondropUsbDongle
@@ -35,7 +35,7 @@ abstract class MoondropDawn(
     open val indicatorState: IndicatorState,
     open val volumeLevel: Int
 ) : MoondropUsbDongle(modelName, productId),
-    UsbServiceDongle,
+    HardwareVolumeControl,
     MoondropDawnUsbCommand {
 
     override val setFilter = byteArrayOf(-64, -91, 1)

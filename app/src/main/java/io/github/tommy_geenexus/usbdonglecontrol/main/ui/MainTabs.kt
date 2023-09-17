@@ -18,9 +18,27 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommy_geenexus.usbdonglecontrol.dongle
+package io.github.tommy_geenexus.usbdonglecontrol.main.ui
 
-interface UsbServiceDongle {
+import android.os.Parcelable
+import androidx.annotation.StringRes
+import io.github.tommy_geenexus.usbdonglecontrol.R
+import kotlinx.parcelize.Parcelize
 
-    fun displayVolumeLevel(): String
+sealed class MainTabs(
+    @StringRes val titleRes: Int,
+    val index: Int
+) : Parcelable {
+
+    @Parcelize
+    data object State : MainTabs(
+        titleRes = R.string.state,
+        index = 0
+    )
+
+    @Parcelize
+    data object Profiles : MainTabs(
+        titleRes = R.string.profiles,
+        index = 1
+    )
 }
