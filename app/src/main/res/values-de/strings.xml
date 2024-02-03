@@ -7,7 +7,7 @@
     <string name="cable">Kabel</string>
 
     <string name="channel_balance">Kanal-Balance</string>
-    <string name="channel_balance_offset">Offset: %1$.1f dB %2$s</string>
+    <string name="channel_balance_offset">Offset: %1$s %2$s</string>
 
     <string name="dac_mode">Arbeitsmodus des Verstärkers</string>
     <string name="dac_mode_ab">Klasse AB</string>
@@ -57,6 +57,9 @@
 
     <string name="more">Mehr</string>
 
+    <string name="permission_request_fail">USB-Berechtigung nicht angefordert</string>
+    <string name="permission_request_success">USB-Berechtigung angefordert</string>
+
     <string name="profile_apply_fail">Profil nicht angewendet</string>
     <string name="profile_apply_success">Profil angewendet</string>
     <string name="profile_delete_fail">Profil nicht gelöscht</string>
@@ -84,7 +87,7 @@
     <string name="spdif_out">S/PDIF-Ausgang</string>
 
     <string name="state">Zustand</string>
-    <string name="state_reset">Zustand zurücksetzen</string>
+    <string name="state_reset">Werkszustand wiederherstellen</string>
 
     <string name="usb_comm_failure">Zustand nicht aktualisiert</string>
     <string name="usb_comm_success">Zustand aktualisiert</string>
