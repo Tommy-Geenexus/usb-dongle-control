@@ -23,12 +23,12 @@ package io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pr
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.tommygeenexus.usbdonglecontrol.di.DispatcherIo
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongleException
 import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.Filter
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.Gain
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn44
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawnPro
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.IndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.createFromPayload
@@ -98,17 +98,27 @@ class MoondropDawnUsbRepository @Inject constructor(
                 val volumeLevel = VolumeLevel.createFromPayload(
                     payload = data[REQUEST_RESULT_INDEX_GAIN_VOLUME_LEVEL].toInt()
                 )
-                if (usbDongle is MoondropDawn44) {
-                    Result.success(
-                        value = usbDongle.copy(
-                            filter = filter,
-                            gain = gain,
-                            indicatorState = indicatorState,
-                            volumeLevel = volumeLevel
+                when (usbDongle) {
+                    is MoondropDawn44 -> {
+                        Result.success(
+                            value = usbDongle.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
                         )
-                    )
-                } else {
-                    throw UnsupportedUsbDongleException()
+                    }
+                    is MoondropDawnPro -> {
+                        Result.success(
+                            value = usbDongle.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
+                        )
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -137,10 +147,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                 }
-                if (moondropDawn is MoondropDawn44) {
-                    Result.success(value = moondropDawn.copy(filter = filter))
-                } else {
-                    throw UnsupportedUsbDongleException()
+                when (moondropDawn) {
+                    is MoondropDawn44 -> {
+                        Result.success(value = moondropDawn.copy(filter = filter))
+                    }
+                    is MoondropDawnPro -> {
+                        Result.success(value = moondropDawn.copy(filter = filter))
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -169,10 +182,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                 }
-                if (moondropDawn is MoondropDawn44) {
-                    Result.success(value = moondropDawn.copy(gain = gain))
-                } else {
-                    throw UnsupportedUsbDongleException()
+                when (moondropDawn) {
+                    is MoondropDawn44 -> {
+                        Result.success(value = moondropDawn.copy(gain = gain))
+                    }
+                    is MoondropDawnPro -> {
+                        Result.success(value = moondropDawn.copy(gain = gain))
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -204,10 +220,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                 }
-                if (moondropDawn is MoondropDawn44) {
-                    Result.success(value = moondropDawn.copy(indicatorState = indicatorState))
-                } else {
-                    throw UnsupportedUsbDongleException()
+                when (moondropDawn) {
+                    is MoondropDawn44 -> {
+                        Result.success(value = moondropDawn.copy(indicatorState = indicatorState))
+                    }
+                    is MoondropDawnPro -> {
+                        Result.success(value = moondropDawn.copy(indicatorState = indicatorState))
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -239,10 +258,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                 }
-                if (moondropDawn is MoondropDawn44) {
-                    Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
-                } else {
-                    throw UnsupportedUsbDongleException()
+                when (moondropDawn) {
+                    is MoondropDawn44 -> {
+                        Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
+                    }
+                    is MoondropDawnPro -> {
+                        Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -304,17 +326,27 @@ class MoondropDawnUsbRepository @Inject constructor(
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                 }
-                if (moondropDawn is MoondropDawn44) {
-                    Result.success(
-                        value = moondropDawn.copy(
-                            filter = filter,
-                            gain = gain,
-                            indicatorState = indicatorState,
-                            volumeLevel = volumeLevel
+                when (moondropDawn) {
+                    is MoondropDawn44 -> {
+                        Result.success(
+                            value = moondropDawn.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
                         )
-                    )
-                } else {
-                    throw UnsupportedUsbDongleException()
+                    }
+                    is MoondropDawnPro -> {
+                        Result.success(
+                            value = moondropDawn.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
+                        )
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)

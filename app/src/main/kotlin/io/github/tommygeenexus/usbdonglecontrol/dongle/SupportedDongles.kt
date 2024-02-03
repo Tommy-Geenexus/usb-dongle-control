@@ -23,10 +23,12 @@ package io.github.tommygeenexus.usbdonglecontrol.dongle
 import android.hardware.usb.UsbDevice
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn44
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawnPro
 
 val supportedDongles = listOf<UsbDongle>(
     FiioKa5(),
-    MoondropDawn44()
+    MoondropDawn44(),
+    MoondropDawnPro()
 )
 
 fun UsbDevice?.toUsbDongleOrNull() = supportedDongles.find { usbDongle ->
