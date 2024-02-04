@@ -43,6 +43,7 @@ data class MoondropDawnPro(
 ) {
 
     companion object {
+
         const val PRODUCT_ID = 61546
     }
 }

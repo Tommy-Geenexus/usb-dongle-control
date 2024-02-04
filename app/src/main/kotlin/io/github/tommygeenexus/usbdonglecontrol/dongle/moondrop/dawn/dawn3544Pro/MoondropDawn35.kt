@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -28,13 +28,13 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class MoondropDawn44(
+data class MoondropDawn35(
     override val filter: Filter = Filter.default(),
     override val gain: Gain = Gain.default(),
     override val indicatorState: IndicatorState = IndicatorState.default(),
     override val volumeLevel: VolumeLevel = VolumeLevel.default()
 ) : MoondropDawn(
-    modelName = "Dawn 4.4mm",
+    modelName = "Dawn 3.5mm",
     productId = PRODUCT_ID,
     filter = filter,
     gain = gain,
@@ -44,6 +44,6 @@ data class MoondropDawn44(
 
     companion object {
 
-        const val PRODUCT_ID = 61543
+        const val PRODUCT_ID = 61544
     }
 }

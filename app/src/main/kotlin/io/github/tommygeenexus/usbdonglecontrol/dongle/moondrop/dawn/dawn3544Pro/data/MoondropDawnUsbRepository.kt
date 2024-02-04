@@ -27,6 +27,7 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.Filter
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.Gain
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn35
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn44
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawnPro
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.IndicatorState
@@ -99,6 +100,16 @@ class MoondropDawnUsbRepository @Inject constructor(
                     payload = data[REQUEST_RESULT_INDEX_GAIN_VOLUME_LEVEL].toInt()
                 )
                 when (usbDongle) {
+                    is MoondropDawn35 -> {
+                        Result.success(
+                            value = usbDongle.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
+                        )
+                    }
                     is MoondropDawn44 -> {
                         Result.success(
                             value = usbDongle.copy(
@@ -148,6 +159,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                     )
                 }
                 when (moondropDawn) {
+                    is MoondropDawn35 -> {
+                        Result.success(value = moondropDawn.copy(filter = filter))
+                    }
                     is MoondropDawn44 -> {
                         Result.success(value = moondropDawn.copy(filter = filter))
                     }
@@ -183,6 +197,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                     )
                 }
                 when (moondropDawn) {
+                    is MoondropDawn35 -> {
+                        Result.success(value = moondropDawn.copy(gain = gain))
+                    }
                     is MoondropDawn44 -> {
                         Result.success(value = moondropDawn.copy(gain = gain))
                     }
@@ -221,6 +238,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                     )
                 }
                 when (moondropDawn) {
+                    is MoondropDawn35 -> {
+                        Result.success(value = moondropDawn.copy(indicatorState = indicatorState))
+                    }
                     is MoondropDawn44 -> {
                         Result.success(value = moondropDawn.copy(indicatorState = indicatorState))
                     }
@@ -259,6 +279,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                     )
                 }
                 when (moondropDawn) {
+                    is MoondropDawn35 -> {
+                        Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
+                    }
                     is MoondropDawn44 -> {
                         Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
                     }
@@ -327,6 +350,16 @@ class MoondropDawnUsbRepository @Inject constructor(
                     )
                 }
                 when (moondropDawn) {
+                    is MoondropDawn35 -> {
+                        Result.success(
+                            value = moondropDawn.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
+                        )
+                    }
                     is MoondropDawn44 -> {
                         Result.success(
                             value = moondropDawn.copy(
