@@ -1,6 +1,8 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -28,8 +30,38 @@ android {
         versionName = "2.1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            val keyStorePassword = "KS_PASSWORD"
+            val keyStoreKeyAlias = "KS_KEY_ALIAS"
+            val properties = Properties().apply {
+                val file = File(projectDir.parent, "keystore.properties")
+                if (file.exists()) {
+                    load(FileInputStream(file))
+                }
+            }
+            val password = properties
+                .getOrDefault(keyStorePassword, null)
+                ?.toString()
+                ?: System.getenv(keyStorePassword)
+            val alias = properties
+                .getOrDefault(keyStoreKeyAlias, null)
+                ?.toString()
+                ?: System.getenv(keyStoreKeyAlias)
+            storeFile = File(projectDir.parent, "keystore.jks")
+            storePassword = password
+            keyAlias = alias
+            keyPassword = password
+            enableV1Signing = false
+            enableV2Signing = false
+            enableV3Signing = true
+            enableV4Signing = true
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -60,7 +92,9 @@ android {
 
 tasks.withType<DependencyUpdatesTask>().configureEach {
     fun isNonStable(version: String): Boolean {
-        val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+        val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { keyWord ->
+            version.uppercase().contains(keyWord)
+        }
         val regex = "^[0-9,.v-]+(-r)?$".toRegex()
         val isStable = stableKeyword || regex.matches(version)
         return isStable.not()

@@ -1,0 +1,76 @@
+# Required PAT repository permissions:
+# - Actions: RW
+# - Contents: RW
+# - Pull requests: RO
+# - Secrets: RO
+# - Workflows: RW
+name: Deploy
+on:
+  workflow_run:
+    workflows:
+      - Assemble
+    types:
+      - completed
+jobs:
+  setup_env:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      commit_subject: ${{ steps.output1.outputs.commit_subject }}
+      release_tag: ${{ steps.output2.outputs.release_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - id: output1
+        run: echo "commit_subject=$(git log -1 --format=%s)" >> $GITHUB_OUTPUT
+      - id: output2
+        run: echo "release_tag=$(git log -1 --format=%s | sed 's/.*Release //')" >> $GITHUB_OUTPUT
+  deploy:
+    needs: setup_env
+    env:
+      APK_NAME: 'app-release.apk'
+      APK_CONTENT_TYPE: 'application/vnd.android.package-archive'
+      COMMIT_SUBJECT: ${{ needs.setup_env.outputs.commit_subject }}
+      RELEASE_TAG: ${{ needs.setup_env.outputs.release_tag }}
+    if: ${{ startsWith(needs.setup_env.outputs.commit_subject, 'Release v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build changelog
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configurationJson: |
+            {
+              "template": "### Signing Certificate Checksum\n    E9:3B:0B:2E:AF:EE:95:0D:EF:8B:E0:48:98:D3:45:25:22:13:41:57:B0:35:ED:EC:7E:84:F4:2E:F5:F9:38:E6\n\n#{{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n#{{UNCATEGORIZED}}\n</details>"
+            }
+          commitMode: true
+          failOnError: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Download apk
+        id: download_apk
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.APK_NAME }}
+          github-token: ${{ secrets.GH_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Create tag
+        uses: rickstaa/action-create-tag@v1
+        id: tag_create
+        with:
+          tag: ${{ env.RELEASE_TAG }}
+          message: ${{ env.COMMIT_SUBJECT }}
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifactContentType: ${{ env.APK_CONTENT_TYPE }}
+          artifacts: ${{ format('{0}/{1}', steps.download_apk.outputs.download-path, env.APK_NAME) }}
+          body: ${{ steps.build_changelog.outputs.changelog }}
+          skipIfReleaseExists: true
+          tag: ${{ env.RELEASE_TAG }}
+          token: ${{ secrets.GH_TOKEN }}
