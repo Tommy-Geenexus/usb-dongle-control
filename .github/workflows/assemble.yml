@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,14 +15,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup JDK 17
         id: setup-java
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 17
+
       - name: Assemble release
         run: ./gradlew assembleRelease -DKS_PASSWORD=${{ env.KS_PASSWORD }} -DKS_KEY_ALIAS=${{ env.KS_KEY_ALIAS }}
+
       - name: Upload apk
         id: upload_apk
         uses: actions/upload-artifact@v4
