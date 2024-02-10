@@ -84,6 +84,12 @@ class ControlViewModel @Inject constructor(
         }
     )
 
+    fun synchronizeVolumeLevel(usbDongle: UsbDongle) = intent {
+        reduce {
+            state.copy(usbDongle = usbDongle)
+        }
+    }
+
     fun getCurrentStateForUsbDongle(usbDongle: UsbDongle) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
@@ -97,7 +103,7 @@ class ControlViewModel @Inject constructor(
         }
         if (result.isSuccess) {
             postSideEffect(ControlSideEffect.UsbCommunication.Rw.Success)
-            postSideEffect(ControlSideEffect.Profile.Get.All(usbDongle))
+            postSideEffect(ControlSideEffect.Profile.Get.All)
             if (usbDongle is HardwareVolumeControl) {
                 postSideEffect(ControlSideEffect.Service.Stop)
                 postSideEffect(ControlSideEffect.Service.Start)
@@ -123,13 +129,13 @@ class ControlViewModel @Inject constructor(
         }
     }
 
-    fun getProfiles(usbDongle: UsbDongle) = intent {
+    fun getProfiles() = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
         val result = profileRepository.getProfilesForUsbDongleWith(
-            vendorId = usbDongle.vendorId,
-            productId = usbDongle.productId
+            vendorId = state.usbDongle.vendorId,
+            productId = state.usbDongle.productId
         )
         reduce {
             state.copy(
@@ -146,33 +152,35 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setProfile(usbDongle: UsbDongle, profile: Profile) = intent {
+    fun setProfile(profile: Profile) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setProfileUseCase(usbDongle, profile)
+        val result = setProfileUseCase(state.usbDongle, profile)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
-        postSideEffect(
-            if (result.isSuccess) {
-                ControlSideEffect.Profile.Apply.Success
-            } else {
-                ControlSideEffect.Profile.Apply.Failure
+        if (result.isSuccess) {
+            postSideEffect(ControlSideEffect.Profile.Apply.Success)
+            if (state.usbDongle is HardwareVolumeControl) {
+                postSideEffect(ControlSideEffect.Service.Stop)
+                postSideEffect(ControlSideEffect.Service.Start)
             }
-        )
+        } else {
+            postSideEffect(ControlSideEffect.Profile.Apply.Failure)
+        }
     }
 
-    fun exportProfile(usbDongle: UsbDongle, profile: Profile) = intent {
+    fun exportProfile(profile: Profile) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
         val result = profileRepository.exportProfileAndGetProfilesForUsbDongleWith(
-            vendorId = usbDongle.vendorId,
-            productId = usbDongle.productId,
+            vendorId = state.usbDongle.vendorId,
+            productId = state.usbDongle.productId,
             profile = profile
         )
         reduce {
@@ -190,13 +198,13 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun deleteProfile(usbDongle: UsbDongle, profile: Profile) = intent {
+    fun deleteProfile(profile: Profile) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
         val result = profileRepository.deleteProfileAndGetProfilesForUsbDongleWith(
-            vendorId = usbDongle.vendorId,
-            productId = usbDongle.productId,
+            vendorId = state.usbDongle.vendorId,
+            productId = state.usbDongle.productId,
             profile = profile
         )
         if (result.isSuccess) {
@@ -239,14 +247,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setChannelBalance(usbDongle: UsbDongle, channelBalance: Int) = intent {
+    fun setChannelBalance(channelBalance: Int) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setChannelBalanceUseCase(usbDongle, channelBalance)
+        val result = setChannelBalanceUseCase(state.usbDongle, channelBalance)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -259,14 +267,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setDacFilter(usbDongle: UsbDongle, id: Byte) = intent {
+    fun setDacFilter(dacFilterId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setDacFilterUseCase(usbDongle, id)
+        val result = setDacFilterUseCase(state.usbDongle, dacFilterId)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -279,14 +287,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setDacMode(usbDongle: UsbDongle, id: Byte) = intent {
+    fun setDacMode(dacModeId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setDacModeUseCase(usbDongle, id)
+        val result = setDacModeUseCase(state.usbDongle, dacModeId)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -299,14 +307,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setDisplayBrightness(usbDongle: UsbDongle, displayBrightness: Int) = intent {
+    fun setDisplayBrightness(displayBrightness: Int) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setDisplayBrightnessUseCase(usbDongle, displayBrightness)
+        val result = setDisplayBrightnessUseCase(state.usbDongle, displayBrightness)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -319,14 +327,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setDisplayInvertEnabled(usbDongle: UsbDongle, isDisplayInvertEnabled: Boolean) = intent {
+    fun setDisplayInvertEnabled(isDisplayInvertEnabled: Boolean) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setDisplayInvertEnabledUseCase(usbDongle, isDisplayInvertEnabled)
+        val result = setDisplayInvertEnabledUseCase(state.usbDongle, isDisplayInvertEnabled)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -339,14 +347,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setDisplayTimeout(usbDongle: UsbDongle, displayTimeout: Int) = intent {
+    fun setDisplayTimeout(displayTimeout: Int) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setDisplayTimeoutUseCase(usbDongle, displayTimeout)
+        val result = setDisplayTimeoutUseCase(state.usbDongle, displayTimeout)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -359,14 +367,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setGain(usbDongle: UsbDongle, id: Byte) = intent {
+    fun setGain(gainId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setGainUseCase(usbDongle, id)
+        val result = setGainUseCase(state.usbDongle, gainId)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -379,14 +387,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setHardwareMuteEnabled(usbDongle: UsbDongle, isHardwareMuteEnabled: Boolean) = intent {
+    fun setHardwareMuteEnabled(isHardwareMuteEnabled: Boolean) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setHardwareMuteEnabledUseCase(usbDongle, isHardwareMuteEnabled)
+        val result = setHardwareMuteEnabledUseCase(state.usbDongle, isHardwareMuteEnabled)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -399,14 +407,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setHidMode(usbDongle: UsbDongle, id: Byte) = intent {
+    fun setHidMode(hidModeId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setHidModeUseCase(usbDongle, id)
+        val result = setHidModeUseCase(state.usbDongle, hidModeId)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -419,14 +427,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setIndicatorState(usbDongle: UsbDongle, id: Byte) = intent {
+    fun setIndicatorState(indicatorStateId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setIndicatorStateUseCase(usbDongle, id)
+        val result = setIndicatorStateUseCase(state.usbDongle, indicatorStateId)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -439,14 +447,14 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setSpdifOutEnabled(usbDongle: UsbDongle, isSpdifOutEnabled: Boolean) = intent {
+    fun setSpdifOutEnabled(isSpdifOutEnabled: Boolean) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setSpdifOutEnabledUseCase(usbDongle, isSpdifOutEnabled)
+        val result = setSpdifOutEnabledUseCase(state.usbDongle, isSpdifOutEnabled)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
@@ -459,20 +467,20 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setVolumeLevel(usbDongle: UsbDongle, volumeLevel: Int) = intent {
+    fun setVolumeLevel(volumeLevel: Int) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = setVolumeLevelUseCase(usbDongle, volumeLevel)
+        val result = setVolumeLevelUseCase(state.usbDongle, volumeLevel)
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
         if (result.isSuccess) {
             postSideEffect(ControlSideEffect.UsbCommunication.Rw.Success)
-            if (usbDongle is HardwareVolumeControl) {
+            if (state.usbDongle is HardwareVolumeControl) {
                 postSideEffect(ControlSideEffect.Service.Stop)
                 postSideEffect(ControlSideEffect.Service.Start)
             }
@@ -481,23 +489,23 @@ class ControlViewModel @Inject constructor(
         }
     }
 
-    fun setVolumeMode(usbDongle: UsbDongle, id: Byte) = intent {
+    fun setVolumeMode(volumeModeId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        var result = setVolumeModeUseCase(usbDongle, id)
+        var result = setVolumeModeUseCase(state.usbDongle, volumeModeId)
         if (result.isSuccess) {
-            result = getVolumeLevelUseCase(usbDongle)
+            result = getVolumeLevelUseCase(state.usbDongle)
         }
         reduce {
             state.copy(
-                usbDongle = result.getOrDefault(usbDongle),
+                usbDongle = result.getOrDefault(state.usbDongle),
                 loadingTasks = state.minusLoadingTask()
             )
         }
         if (result.isSuccess) {
             postSideEffect(ControlSideEffect.UsbCommunication.Rw.Success)
-            if (usbDongle is HardwareVolumeControl) {
+            if (state.usbDongle is HardwareVolumeControl) {
                 postSideEffect(ControlSideEffect.Service.Stop)
                 postSideEffect(ControlSideEffect.Service.Start)
             }

@@ -39,15 +39,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
 
 @Composable
 fun ControlBottomAppBar(
     windowSizeClass: WindowSizeClass,
-    usbDongle: UsbDongle,
     onRefresh: () -> Unit,
-    onReset: (UsbDongle) -> Unit,
-    onProfileExport: (UsbDongle, String) -> Unit,
+    onReset: () -> Unit,
+    onProfileExport: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     BottomAppBar(
@@ -55,7 +53,6 @@ fun ControlBottomAppBar(
             var showMore by rememberSaveable { mutableStateOf(false) }
             ControlDropdownMenu(
                 windowSizeClass = windowSizeClass,
-                usbDongle = usbDongle,
                 onShouldShowMore = { showMore },
                 onDismissRequest = { showMore = false },
                 onRefresh = onRefresh,

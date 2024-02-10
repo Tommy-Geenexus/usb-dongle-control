@@ -20,7 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol
 
-const val TOP_LEVEL_PACKAGE_NAME = "io.github.tommy_geenexus."
+const val TOP_LEVEL_PACKAGE_NAME = "io.github.tommygeenexus."
 
 const val INTENT_ACTION_USB_PERMISSION = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_USB_PERMISSION"
 const val INTENT_ACTION_SHORTCUT_PROFILE = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_SHORTCUT_PROFILE"

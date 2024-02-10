@@ -53,14 +53,13 @@ internal object UsbServiceNotification {
             if (channel != null) {
                 return channel
             }
-            channel =
-                NotificationChannel(
-                    ID_NOTIFICATION_CHANNEL,
-                    context.getString(R.string.app_name),
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply {
-                    setShowBadge(false)
-                }
+            channel = NotificationChannel(
+                ID_NOTIFICATION_CHANNEL,
+                context.getString(R.string.app_name),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                setShowBadge(false)
+            }
             nm.createNotificationChannel(channel)
             channel
         } catch (e: RemoteException) {
@@ -69,26 +68,24 @@ internal object UsbServiceNotification {
         }
     }
 
-    fun buildAndShow(
+    fun <D> buildAndShow(
         context: Context,
-        usbDongle: UsbDongle,
-        volumePercent: String,
+        usbDongle: D,
         volumeStepSize: Int
-    ) {
+    ) where D : UsbDongle, D : HardwareVolumeControl {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         try {
-            nm.notify(ID_NOTIFICATION, build(context, usbDongle, volumePercent, volumeStepSize))
+            nm.notify(ID_NOTIFICATION, build(context, usbDongle, volumeStepSize))
         } catch (e: RemoteException) {
             Timber.e(e)
         }
     }
 
-    fun build(
+    fun <D> build(
         context: Context,
-        usbDongle: UsbDongle,
-        volumePercent: String,
+        usbDongle: D,
         volumeStepSize: Int
-    ): Notification {
+    ): Notification where D : UsbDongle, D : HardwareVolumeControl {
         return Notification
             .Builder(context, ID_NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.ic_logo)
@@ -96,7 +93,7 @@ internal object UsbServiceNotification {
             .setContentText(
                 context.getString(
                     R.string.volume_level_steps,
-                    volumePercent,
+                    usbDongle.displayVolumeLevel,
                     volumeStepSize
                 )
             )
@@ -112,15 +109,15 @@ internal object UsbServiceNotification {
                 Notification.Action.Builder(
                     Icon.createWithResource(context, R.drawable.ic_volume_up),
                     context.getString(R.string.volume_up),
-                    PendingIntent.getService(
+                    PendingIntent.getBroadcast(
                         context,
                         REQUEST_CODE,
-                        Intent(context, UsbService::class.java).apply {
-                            action = INTENT_ACTION_VOLUME_UP
+                        Intent(INTENT_ACTION_VOLUME_UP).apply {
+                            setPackage(context.packageName)
                             putExtra(INTENT_EXTRA_USB_DONGLE, usbDongle)
                             putExtra(INTENT_EXTRA_VOLUME_STEP_SIZE, volumeStepSize)
                         },
-                        PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )
                 ).build()
             )
@@ -128,15 +125,15 @@ internal object UsbServiceNotification {
                 Notification.Action.Builder(
                     Icon.createWithResource(context, R.drawable.ic_volume_down),
                     context.getString(R.string.volume_down),
-                    PendingIntent.getService(
+                    PendingIntent.getBroadcast(
                         context,
                         REQUEST_CODE,
-                        Intent(context, UsbService::class.java).apply {
-                            action = INTENT_ACTION_VOLUME_DOWN
+                        Intent(INTENT_ACTION_VOLUME_DOWN).apply {
+                            setPackage(context.packageName)
                             putExtra(INTENT_EXTRA_USB_DONGLE, usbDongle)
                             putExtra(INTENT_EXTRA_VOLUME_STEP_SIZE, volumeStepSize)
                         },
-                        PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )
                 ).build()
             )
@@ -144,15 +141,15 @@ internal object UsbServiceNotification {
                 Notification.Action.Builder(
                     Icon.createWithResource(context, R.drawable.ic_step),
                     context.getString(R.string.volume_steps_up),
-                    PendingIntent.getService(
+                    PendingIntent.getBroadcast(
                         context,
                         REQUEST_CODE,
-                        Intent(context, UsbService::class.java).apply {
-                            action = INTENT_ACTION_VOLUME_STEP_SIZE
+                        Intent(INTENT_ACTION_VOLUME_STEP_SIZE).apply {
+                            setPackage(context.packageName)
                             putExtra(INTENT_EXTRA_USB_DONGLE, usbDongle)
                             putExtra(INTENT_EXTRA_VOLUME_STEP_SIZE, volumeStepSize)
                         },
-                        PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                     )
                 ).build()
             )
@@ -163,14 +160,17 @@ internal object UsbServiceNotification {
     }
 }
 
-internal fun UsbService.startForeground(
+internal fun <D> UsbService.startForeground(
     context: Context,
-    usbDongle: UsbDongle,
-    volumePercent: String,
+    usbDongle: D,
     volumeStepSize: Int
-) {
+) where D : UsbDongle, D : HardwareVolumeControl {
     startForeground(
         UsbServiceNotification.ID_NOTIFICATION,
-        UsbServiceNotification.build(context, usbDongle, volumePercent, volumeStepSize)
+        UsbServiceNotification.build(
+            context,
+            usbDongle,
+            volumeStepSize
+        )
     )
 }

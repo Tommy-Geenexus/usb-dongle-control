@@ -164,7 +164,7 @@ data class FiioKa5(
         filterId = Filter.default().id,
         firmwareVersion = FirmwareVersion.default().displayValue,
         gainId = Gain.default().id,
-        hidModeId = hidMode.id,
+        hidModeId = HidMode.default().id,
         isDisplayInvertEnabled = DisplayInvert.default().isEnabled,
         isHardwareMuteEnabled = HardwareMute.default().isEnabled,
         isSpdifOutEnabled = SpdifOut.default().isEnabled,

@@ -82,8 +82,10 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.ui.MoondropDawnItems
+import io.github.tommygeenexus.usbdonglecontrol.dongle.productName
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
 import io.github.tommygeenexus.usbdonglecontrol.volume.UsbService
+import io.github.tommygeenexus.usbdonglecontrol.volume.receiver.UsbServiceReceiver
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -103,6 +105,8 @@ fun ControlScreen(
     val profileDeleteSuccess = stringResource(id = R.string.profile_delete_success)
     val profileExportFail = stringResource(id = R.string.profile_export_fail)
     val profileExportSuccess = stringResource(id = R.string.profile_export_success)
+    val profileGetFail = stringResource(id = R.string.profile_get_fail)
+    val profileGetSuccess = stringResource(id = R.string.profile_get_success)
     val shortcutAddFail = stringResource(id = R.string.shortcut_add_fail)
     val shortcutAddSuccess = stringResource(id = R.string.shortcut_add_success)
     val shortcutDeleteFail = stringResource(id = R.string.shortcut_delete_fail)
@@ -166,11 +170,25 @@ fun ControlScreen(
                 }
             }
             is ControlSideEffect.Profile.Get.All -> {
-                viewModel.getProfiles(usbDongle = sideEffect.usbDongle)
+                viewModel.getProfiles()
             }
             ControlSideEffect.Profile.Get.Failure -> {
+                scope.launch {
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    snackBarHostState.showSnackbar(
+                        message = profileGetFail,
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
             ControlSideEffect.Profile.Get.Success -> {
+                scope.launch {
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    snackBarHostState.showSnackbar(
+                        message = profileGetSuccess,
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
             ControlSideEffect.Service.Start -> {
                 context.startService(Intent(context, UsbService::class.java))
@@ -251,14 +269,26 @@ fun ControlScreen(
                 }
             }
         )
+        val usbServiceReceiver = UsbServiceReceiver(
+            onVolumeLevelChanged = { usbDongle ->
+                viewModel.synchronizeVolumeLevel(usbDongle)
+            }
+        )
         ContextCompat.registerReceiver(
             context,
             usbReceiver,
             IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
+        ContextCompat.registerReceiver(
+            context,
+            usbServiceReceiver,
+            IntentFilter(UsbService.INTENT_ACTION_VOLUME_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         onDispose {
             context.unregisterReceiver(usbReceiver)
+            context.unregisterReceiver(usbServiceReceiver)
         }
     }
     val activity = LocalContext.current as Activity
@@ -274,12 +304,12 @@ fun ControlScreen(
         windowSizeClass = windowSizeClass,
         scrollBehavior = scrollBehavior,
         snackBarHostState = snackBarHostState,
-        usbDongle = state.usbDongle,
         profiles = state.profiles,
+        usbDongle = state.usbDongle,
         isLoading = state.loadingTasks > 0.toUInt(),
         onRefresh = { viewModel.getCurrentStateForUsbDongle(state.usbDongle) },
-        onReset = { usbDongle ->
-            viewModel.setProfile(usbDongle, usbDongle.defaultStateAsProfile())
+        onReset = {
+            viewModel.setProfile(state.usbDongle.defaultStateAsProfile())
         },
         onProfileShortcutAdd = { profile ->
             viewModel.addProfileShortcut(profile)
@@ -287,53 +317,53 @@ fun ControlScreen(
         onProfileShortcutRemove = { profile ->
             viewModel.removeProfileShortcut(profile)
         },
-        onProfileDelete = { usbDongle, profile ->
-            viewModel.deleteProfile(usbDongle, profile)
+        onProfileDelete = { profile ->
+            viewModel.deleteProfile(profile)
         },
-        onProfileApply = { usbDongle, profile ->
-            viewModel.setProfile(usbDongle, profile)
+        onProfileApply = { profile ->
+            viewModel.setProfile(profile)
         },
-        onProfileExport = { usbDongle, profileName ->
-            viewModel.exportProfile(usbDongle, usbDongle.currentStateAsProfile(profileName))
+        onProfileExport = { profileName ->
+            viewModel.exportProfile(state.usbDongle.currentStateAsProfile(profileName))
         },
-        onDisplayBrightnessSelected = { usbDongle, displayBrightness ->
-            viewModel.setDisplayBrightness(usbDongle, displayBrightness)
+        onChannelBalanceSelected = { channelBalance ->
+            viewModel.setChannelBalance(channelBalance)
         },
-        onChannelBalanceSelected = { usbDongle, channelBalance ->
-            viewModel.setChannelBalance(usbDongle, channelBalance)
+        onDacModeSelected = { dacModeId ->
+            viewModel.setDacMode(dacModeId)
         },
-        onDacModeSelected = { usbDongle, id ->
-            viewModel.setDacMode(usbDongle, id)
+        onDisplayBrightnessSelected = { displayBrightness ->
+            viewModel.setDisplayBrightness(displayBrightness)
         },
-        onDisplayTimeoutSelected = { usbDongle, displayTimeout ->
-            viewModel.setDisplayTimeout(usbDongle, displayTimeout)
+        onDisplayInvertChange = { isDisplayInvertEnabled ->
+            viewModel.setDisplayInvertEnabled(isDisplayInvertEnabled)
         },
-        onDisplayInvertChange = { usbDongle, isDisplayInvertEnabled ->
-            viewModel.setDisplayInvertEnabled(usbDongle, isDisplayInvertEnabled)
+        onDisplayTimeoutSelected = { displayTimeout ->
+            viewModel.setDisplayTimeout(displayTimeout)
         },
-        onFilterSelected = { usbDongle, id ->
-            viewModel.setDacFilter(usbDongle, id)
+        onFilterSelected = { filterId ->
+            viewModel.setDacFilter(filterId)
         },
-        onGainSelected = { usbDongle, id ->
-            viewModel.setGain(usbDongle, id)
+        onGainSelected = { gainId ->
+            viewModel.setGain(gainId)
         },
-        onHardwareMuteEnabledSelected = { usbDongle, isHardwareMuteEnabled ->
-            viewModel.setHardwareMuteEnabled(usbDongle, isHardwareMuteEnabled)
+        onHardwareMuteEnabledSelected = { isHardwareMuteEnabled ->
+            viewModel.setHardwareMuteEnabled(isHardwareMuteEnabled)
         },
-        onHidModeSelected = { usbDongle, id ->
-            viewModel.setHidMode(usbDongle, id)
+        onHidModeSelected = { hidModeId ->
+            viewModel.setHidMode(hidModeId)
         },
-        onIndicatorStateSelected = { usbDongle, id ->
-            viewModel.setIndicatorState(usbDongle, id)
+        onIndicatorStateSelected = { indicatorStateId ->
+            viewModel.setIndicatorState(indicatorStateId)
         },
-        onSpdifOutEnabledSelected = { usbDongle, isSpdifOutEnabled ->
-            viewModel.setSpdifOutEnabled(usbDongle, isSpdifOutEnabled)
+        onSpdifOutEnabledSelected = { isSpdifOutEnabled ->
+            viewModel.setSpdifOutEnabled(isSpdifOutEnabled)
         },
-        onVolumeLevelSelected = { usbDongle, volumeLevel ->
-            viewModel.setVolumeLevel(usbDongle, volumeLevel)
+        onVolumeLevelSelected = { volumeLevel ->
+            viewModel.setVolumeLevel(volumeLevel)
         },
-        onVolumeModeSelected = { usbDongle, id ->
-            viewModel.setVolumeMode(usbDongle, id)
+        onVolumeModeSelected = { volumeModeId ->
+            viewModel.setVolumeMode(volumeModeId)
         }
     )
 }
@@ -345,29 +375,29 @@ fun ControlScreen(
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    usbDongle: UsbDongle = UnsupportedUsbDongle,
     profiles: ProfilesList = ProfilesList(),
+    usbDongle: UsbDongle = UnsupportedUsbDongle,
     isLoading: Boolean = false,
     onRefresh: () -> Unit = {},
-    onReset: (UsbDongle) -> Unit = {},
+    onReset: () -> Unit = {},
     onProfileShortcutAdd: (Profile) -> Unit = {},
     onProfileShortcutRemove: (Profile) -> Unit = {},
-    onProfileDelete: (UsbDongle, Profile) -> Unit = { _, _ -> },
-    onProfileApply: (UsbDongle, Profile) -> Unit = { _, _ -> },
-    onProfileExport: (UsbDongle, String) -> Unit = { _, _ -> },
-    onChannelBalanceSelected: (UsbDongle, Int) -> Unit = { _, _ -> },
-    onDacModeSelected: (UsbDongle, Byte) -> Unit = { _, _ -> },
-    onDisplayBrightnessSelected: (UsbDongle, Int) -> Unit = { _, _ -> },
-    onDisplayTimeoutSelected: (UsbDongle, Int) -> Unit = { _, _ -> },
-    onDisplayInvertChange: (UsbDongle, Boolean) -> Unit = { _, _ -> },
-    onFilterSelected: (UsbDongle, Byte) -> Unit = { _, _ -> },
-    onGainSelected: (UsbDongle, Byte) -> Unit = { _, _ -> },
-    onHardwareMuteEnabledSelected: (UsbDongle, Boolean) -> Unit = { _, _ -> },
-    onHidModeSelected: (UsbDongle, Byte) -> Unit = { _, _ -> },
-    onIndicatorStateSelected: (UsbDongle, Byte) -> Unit = { _, _ -> },
-    onSpdifOutEnabledSelected: (UsbDongle, Boolean) -> Unit = { _, _ -> },
-    onVolumeLevelSelected: (UsbDongle, Int) -> Unit = { _, _ -> },
-    onVolumeModeSelected: (UsbDongle, Byte) -> Unit = { _, _ -> }
+    onProfileDelete: (Profile) -> Unit = { _ -> },
+    onProfileApply: (Profile) -> Unit = { _ -> },
+    onProfileExport: (String) -> Unit = { _ -> },
+    onChannelBalanceSelected: (Int) -> Unit = { _ -> },
+    onDacModeSelected: (Byte) -> Unit = { _ -> },
+    onDisplayBrightnessSelected: (Int) -> Unit = { _ -> },
+    onDisplayTimeoutSelected: (Int) -> Unit = { _ -> },
+    onDisplayInvertChange: (Boolean) -> Unit = { _ -> },
+    onFilterSelected: (Byte) -> Unit = { _ -> },
+    onGainSelected: (Byte) -> Unit = { _ -> },
+    onHardwareMuteEnabledSelected: (Boolean) -> Unit = { _ -> },
+    onHidModeSelected: (Byte) -> Unit = { _ -> },
+    onIndicatorStateSelected: (Byte) -> Unit = { _ -> },
+    onSpdifOutEnabledSelected: (Boolean) -> Unit = { _ -> },
+    onVolumeLevelSelected: (Int) -> Unit = { _ -> },
+    onVolumeModeSelected: (Byte) -> Unit = { _ -> }
 ) {
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -375,20 +405,19 @@ fun ControlScreen(
             ControlTopAppBar(
                 windowSizeClass = windowSizeClass,
                 scrollBehavior = scrollBehavior,
-                shouldShowActions = {
-                    windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
-                },
-                usbDongle = usbDongle,
+                productName = usbDongle.productName(),
                 onRefresh = onRefresh,
                 onReset = onReset,
-                onProfileExport = onProfileExport
+                onProfileExport = onProfileExport,
+                shouldShowActions = {
+                    windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
+                }
             )
         },
         bottomBar = {
             if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
                 ControlBottomAppBar(
                     windowSizeClass = windowSizeClass,
-                    usbDongle = usbDongle,
                     onRefresh = onRefresh,
                     onReset = onReset,
                     onProfileExport = onProfileExport
@@ -455,40 +484,40 @@ fun ControlScreen(
                             ),
                             fiioKa5 = usbDongle,
                             onChannelBalanceSelected = { channelBalance ->
-                                onChannelBalanceSelected(usbDongle, channelBalance)
-                            },
-                            onVolumeLevelSelected = { volumeLevel ->
-                                onVolumeLevelSelected(usbDongle, volumeLevel)
-                            },
-                            onVolumeModeSelected = { volumeMode ->
-                                onVolumeModeSelected(usbDongle, volumeMode)
+                                onChannelBalanceSelected(channelBalance)
                             },
                             onDisplayBrightnessSelected = { displayBrightness ->
-                                onDisplayBrightnessSelected(usbDongle, displayBrightness)
-                            },
-                            onDisplayTimeoutSelected = { displayTimeout ->
-                                onDisplayTimeoutSelected(usbDongle, displayTimeout)
+                                onDisplayBrightnessSelected(displayBrightness)
                             },
                             onDisplayInvertSelected = { isDisplayInvertEnabled ->
-                                onDisplayInvertChange(usbDongle, isDisplayInvertEnabled)
+                                onDisplayInvertChange(isDisplayInvertEnabled)
                             },
-                            onGainSelected = { gain ->
-                                onGainSelected(usbDongle, gain)
+                            onDisplayTimeoutSelected = { displayTimeout ->
+                                onDisplayTimeoutSelected(displayTimeout)
                             },
-                            onFilterSelected = { filter ->
-                                onFilterSelected(usbDongle, filter)
+                            onDacModeSelected = { dacModeId ->
+                                onDacModeSelected(dacModeId)
                             },
-                            onSpdifOutSelected = { isSpdifOutEnabled ->
-                                onSpdifOutEnabledSelected(usbDongle, isSpdifOutEnabled)
+                            onFilterSelected = { filterId ->
+                                onFilterSelected(filterId)
+                            },
+                            onGainSelected = { gainId ->
+                                onGainSelected(gainId)
                             },
                             onHardwareMuteSelected = { isHardwareMuteEnabled ->
-                                onHardwareMuteEnabledSelected(usbDongle, isHardwareMuteEnabled)
+                                onHardwareMuteEnabledSelected(isHardwareMuteEnabled)
                             },
-                            onDacModeSelected = { dacMode ->
-                                onDacModeSelected(usbDongle, dacMode)
+                            onHidModeSelected = { hidModeId ->
+                                onHidModeSelected(hidModeId)
                             },
-                            onHidModeSelected = { hidMode ->
-                                onHidModeSelected(usbDongle, hidMode)
+                            onSpdifOutSelected = { isSpdifOutEnabled ->
+                                onSpdifOutEnabledSelected(isSpdifOutEnabled)
+                            },
+                            onVolumeLevelSelected = { volumeLevel ->
+                                onVolumeLevelSelected(volumeLevel)
+                            },
+                            onVolumeModeSelected = { volumeModeId ->
+                                onVolumeModeSelected(volumeModeId)
                             }
                         )
                     }
@@ -498,17 +527,17 @@ fun ControlScreen(
                                 horizontal = windowSizeClass.getHorizontalPadding()
                             ),
                             moondropDawn = usbDongle,
-                            onFilterSelected = { filter ->
-                                onFilterSelected(usbDongle, filter)
+                            onFilterSelected = { filterId ->
+                                onFilterSelected(filterId)
                             },
-                            onGainSelected = { gain ->
-                                onGainSelected(usbDongle, gain)
+                            onGainSelected = { gainId ->
+                                onGainSelected(gainId)
                             },
-                            onIndicatorStateSelected = { indicatorState ->
-                                onIndicatorStateSelected(usbDongle, indicatorState)
+                            onIndicatorStateSelected = { indicatorStateId ->
+                                onIndicatorStateSelected(indicatorStateId)
                             },
                             onVolumeLevelSelected = { volumeLevel ->
-                                onVolumeLevelSelected(usbDongle, volumeLevel)
+                                onVolumeLevelSelected(volumeLevel)
                             }
                         )
                     }
@@ -523,21 +552,24 @@ fun ControlScreen(
                     onProfileShortcutAdd = onProfileShortcutAdd,
                     onProfileShortcutRemove = onProfileShortcutRemove,
                     onProfileDelete = { profile ->
-                        onProfileDelete(usbDongle, profile)
+                        onProfileDelete(profile)
                     },
                     onProfileApply = { profile ->
-                        onProfileApply(usbDongle, profile)
+                        onProfileApply(profile)
                     }
                 )
             }
             val context = (LocalContext.current as? Activity)
             if (context != null) {
-                LaunchedEffect(Unit) {
-                    val profileShortcut = context.intent.consumeProfileShortcut()
-                    if (profileShortcut != null) {
-                        selectedTabIndex = ControlTabs.Profiles.index
-                        val index = profiles.items.indexOf(profileShortcut)
-                        profileListState.animateScrollToItem(if (index >= 0) index else 0)
+                val profileItems = profiles.items
+                LaunchedEffect(profileItems) {
+                    if (profileItems.isNotEmpty()) {
+                        val profileShortcut = context.intent.consumeProfileShortcut()
+                        if (profileShortcut != null) {
+                            selectedTabIndex = ControlTabs.Profiles.index
+                            val index = profileItems.indexOf(profileShortcut)
+                            profileListState.animateScrollToItem(if (index >= 0) index else 0)
+                        }
                     }
                 }
             }

@@ -36,7 +36,7 @@
                 android:resource="@xml/device_filter" />
         </activity>
         <receiver
-            android:name=".volume.UsbDetachReceiver"
+            android:name=".volume.receiver.UsbDetachReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />

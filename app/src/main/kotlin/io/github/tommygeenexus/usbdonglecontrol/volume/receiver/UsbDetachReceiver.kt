@@ -18,7 +18,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.volume
+package io.github.tommygeenexus.usbdonglecontrol.volume.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -27,17 +27,17 @@ import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import androidx.core.content.IntentCompat
 import io.github.tommygeenexus.usbdonglecontrol.dongle.toUsbDongleOrNull
+import io.github.tommygeenexus.usbdonglecontrol.volume.UsbService
 
 class UsbDetachReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context != null && intent?.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
-            val device =
-                IntentCompat.getParcelableExtra(
-                    intent,
-                    UsbManager.EXTRA_DEVICE,
-                    UsbDevice::class.java
-                )
+            val device = IntentCompat.getParcelableExtra(
+                intent,
+                UsbManager.EXTRA_DEVICE,
+                UsbDevice::class.java
+            )
             if (device.toUsbDongleOrNull() != null) {
                 context.stopService(Intent(context, UsbService::class.java))
             }

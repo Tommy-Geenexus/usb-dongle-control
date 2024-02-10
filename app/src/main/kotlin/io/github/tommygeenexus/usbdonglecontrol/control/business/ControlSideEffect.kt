@@ -57,9 +57,7 @@ sealed class ControlSideEffect : Parcelable {
         sealed class Get : Profile() {
 
             @Parcelize
-            data class All(
-                val usbDongle: UsbDongle
-            ) : Get()
+            data object All : Get()
 
             @Parcelize
             data object Success : Get()

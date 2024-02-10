@@ -38,24 +38,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.productName
 
 @Composable
 fun ControlTopAppBar(
     windowSizeClass: WindowSizeClass,
     scrollBehavior: TopAppBarScrollBehavior,
-    shouldShowActions: () -> Boolean,
-    usbDongle: UsbDongle,
+    productName: String,
     onRefresh: () -> Unit,
-    onReset: (UsbDongle) -> Unit,
-    onProfileExport: (UsbDongle, String) -> Unit,
+    onReset: () -> Unit,
+    onProfileExport: (String) -> Unit,
+    shouldShowActions: () -> Boolean,
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = usbDongle.productName(),
+                text = productName,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -66,7 +64,6 @@ fun ControlTopAppBar(
                 var showMore by rememberSaveable { mutableStateOf(false) }
                 ControlDropdownMenu(
                     windowSizeClass = windowSizeClass,
-                    usbDongle = usbDongle,
                     onShouldShowMore = { showMore },
                     onDismissRequest = { showMore = false },
                     onRefresh = onRefresh,

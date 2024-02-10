@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,25 +18,31 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.di
+package io.github.tommygeenexus.usbdonglecontrol.volume.receiver
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Qualifier
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import androidx.core.content.IntentCompat
+import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.volume.UsbService
+import io.github.tommygeenexus.usbdonglecontrol.volume.UsbServiceNotification
 
-@Module
-@InstallIn(SingletonComponent::class)
-object CoroutineModule {
+class UsbServiceReceiver(
+    private val onVolumeLevelChanged: (UsbDongle) -> Unit
+) : BroadcastReceiver() {
 
-    @DispatcherIo
-    @Provides
-    fun provideDispatcherIo(): CoroutineDispatcher = Dispatchers.IO
+    override fun onReceive(context: Context?, intent: Intent?) {
+        if (context == null || intent == null) {
+            return
+        }
+        val usbDongle = IntentCompat.getParcelableExtra(
+            intent,
+            UsbServiceNotification.INTENT_EXTRA_USB_DONGLE,
+            UsbDongle::class.java
+        ) ?: return
+        if (intent.action == UsbService.INTENT_ACTION_VOLUME_CHANGED) {
+            onVolumeLevelChanged(usbDongle)
+        }
+    }
 }
-
-@Qualifier
-@Retention(AnnotationRetention.RUNTIME)
-annotation class DispatcherIo

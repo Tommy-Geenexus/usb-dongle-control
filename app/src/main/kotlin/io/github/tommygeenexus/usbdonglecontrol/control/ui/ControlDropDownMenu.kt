@@ -35,17 +35,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
 
 @Composable
 fun ControlDropdownMenu(
     windowSizeClass: WindowSizeClass,
-    usbDongle: UsbDongle,
     onShouldShowMore: () -> Boolean,
     onDismissRequest: () -> Unit,
     onRefresh: () -> Unit,
-    onReset: (UsbDongle) -> Unit,
-    onProfileExport: (UsbDongle, String) -> Unit,
+    onReset: () -> Unit,
+    onProfileExport: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showExportProfile by rememberSaveable { mutableStateOf(false) }
@@ -54,7 +52,7 @@ fun ControlDropdownMenu(
             onDismiss = { showExportProfile = false },
             onConfirm = { profileName ->
                 showExportProfile = false
-                onProfileExport(usbDongle, profileName)
+                onProfileExport(profileName)
             }
         )
     }
@@ -88,7 +86,7 @@ fun ControlDropdownMenu(
             },
             onClick = {
                 onDismissRequest()
-                onReset(usbDongle)
+                onReset()
             }
         )
         DropdownMenuItem(
