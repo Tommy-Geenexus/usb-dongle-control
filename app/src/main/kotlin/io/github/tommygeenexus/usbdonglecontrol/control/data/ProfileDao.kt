@@ -20,10 +20,10 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.data
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Upsert
 
 @Dao
@@ -33,29 +33,11 @@ interface ProfileDao {
             "WHERE Profile.vendorId=:vendorId AND Profile.productId=:productId " +
             "ORDER BY name ASC"
     )
-    suspend fun getProfiles(vendorId: Int, productId: Int): List<Profile>
-
-    @Query(
-        "SELECT COUNT(*) FROM Profile " +
-            "WHERE Profile.vendorId=:vendorId AND Profile.productId=:productId"
-    )
-    suspend fun getProfileCount(vendorId: Int, productId: Int): Int
+    fun getProfiles(vendorId: Int, productId: Int): PagingSource<Int, Profile>
 
     @Upsert
     suspend fun upsert(profile: Profile)
 
     @Delete
     suspend fun delete(profile: Profile)
-
-    @Transaction
-    suspend fun deleteAndGetAll(vendorId: Int, productId: Int, profile: Profile): List<Profile> {
-        delete(profile)
-        return getProfiles(vendorId, productId)
-    }
-
-    @Transaction
-    suspend fun upsertAndGetAll(vendorId: Int, productId: Int, profile: Profile): List<Profile> {
-        upsert(profile)
-        return getProfiles(vendorId, productId)
-    }
 }

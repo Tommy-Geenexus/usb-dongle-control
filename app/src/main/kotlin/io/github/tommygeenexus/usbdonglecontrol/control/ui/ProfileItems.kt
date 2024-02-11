@@ -21,24 +21,28 @@
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.SwitchAccessShortcut
 import androidx.compose.material.icons.outlined.SwitchAccessShortcutAdd
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,18 +51,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
-import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfilesList
+import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun ProfileItems(
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
-    profiles: ProfilesList = ProfilesList(),
+    profiles: LazyPagingItems<Profile> =
+        UnsupportedUsbDongle.profileFlow().collectAsLazyPagingItems(),
     onProfileShortcutAdd: (Profile) -> Unit = {},
     onProfileShortcutRemove: (Profile) -> Unit = {},
     onProfileDelete: (Profile) -> Unit = {},
@@ -72,8 +84,14 @@ fun ProfileItems(
         verticalItemSpacing = cardPaddingBetween,
         horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
     ) {
-        items(items = profiles.items) { profile ->
+        items(
+            count = profiles.itemCount,
+            key = profiles.itemKey { profile ->
+                profile.id
+            }
+        ) { index ->
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                val profile = profiles[index] ?: return@ElevatedCard
                 Row(
                     modifier = Modifier.padding(all = cardPadding),
                     verticalAlignment = Alignment.CenterVertically
@@ -142,19 +160,88 @@ fun ProfileItems(
                 }
             }
         }
+        when (profiles.loadState.prepend) {
+            is LoadState.NotLoading -> {
+                // Ignore
+            }
+            LoadState.Loading -> item {
+                Spinner(modifier = Modifier.fillMaxSize())
+            }
+            is LoadState.Error -> item {
+                Refresh {
+                    profiles.refresh()
+                }
+            }
+        }
+        when (profiles.loadState.append) {
+            is LoadState.NotLoading -> {
+                // Ignore
+            }
+            LoadState.Loading -> item {
+                Spinner(modifier = Modifier.fillMaxSize())
+            }
+            is LoadState.Error -> item {
+                Refresh {
+                    profiles.refresh()
+                }
+            }
+        }
+        when (profiles.loadState.refresh) {
+            is LoadState.NotLoading -> {
+                // Ignore
+            }
+            LoadState.Loading -> item {
+                Spinner(modifier = Modifier.fillMaxSize())
+            }
+            is LoadState.Error -> item {
+                Refresh {
+                    profiles.refresh()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Refresh(
+    modifier: Modifier = Modifier,
+    alignment: Alignment = Alignment.Center,
+    onRefresh: () -> Unit
+) {
+    Box(
+        contentAlignment = alignment,
+        modifier = modifier
+    ) {
+        IconButton(onClick = { onRefresh() }) {
+            Icon(
+                imageVector = Icons.Outlined.Refresh,
+                contentDescription = stringResource(id = R.string.refresh)
+            )
+        }
+    }
+}
+
+@Composable
+fun Spinner(
+    modifier: Modifier = Modifier,
+    progressModifier: Modifier = Modifier.padding(all = cardPadding),
+    alignment: Alignment = Alignment.Center
+) {
+    Box(
+        contentAlignment = alignment,
+        modifier = modifier
+    ) {
+        CircularProgressIndicator(modifier = progressModifier)
     }
 }
 
 @Preview
 @Composable
 private fun ProfileItemsPreview() {
-    ProfileItems(
-        profiles = ProfilesList(
-            listOf(
-                Profile(name = "Profile 1", vendorId = 0, productId = 0),
-                Profile(name = "Profile 2", vendorId = 0, productId = 0),
-                Profile(name = "Profile 3", vendorId = 0, productId = 0)
-            )
-        )
-    )
+    val profiles = mutableListOf<Profile>().apply {
+        for (i in 0L..16) {
+            add(Profile(id = i, name = "Profile $i", vendorId = 0, productId = 0))
+        }
+    }
+    ProfileItems(profiles = flowOf(PagingData.from(profiles)).collectAsLazyPagingItems())
 }

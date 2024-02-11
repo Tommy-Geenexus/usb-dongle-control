@@ -42,39 +42,15 @@ class ProfileRepository @Inject constructor(
     @DispatcherIo private val dispatcherIo: CoroutineDispatcher,
     private val profileDao: ProfileDao
 ) {
-    private companion object {
 
-        const val PROFILES_MAX = 100
-    }
+    fun getProfilesForUsbDongleWith(vendorId: Int, productId: Int) =
+        profileDao.getProfiles(vendorId, productId)
 
-    suspend fun getProfilesForUsbDongleWith(vendorId: Int, productId: Int): Result<ProfilesList> {
+    suspend fun exportProfile(profile: Profile): Result<Unit> {
         return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
-                Result.success(
-                    value = ProfilesList(items = profileDao.getProfiles(vendorId, productId))
-                )
-            }.getOrElse { exception ->
-                Timber.e(exception)
-                Result.failure(exception)
-            }
-        }
-    }
-
-    suspend fun exportProfileAndGetProfilesForUsbDongleWith(
-        vendorId: Int,
-        productId: Int,
-        profile: Profile
-    ): Result<ProfilesList> {
-        return withContext(dispatcherIo) {
-            coroutineContext.suspendRunCatching {
-                if (profileDao.getProfileCount(vendorId, productId) > PROFILES_MAX) {
-                    error("Profile limit reached")
-                }
-                Result.success(
-                    value = ProfilesList(
-                        items = profileDao.upsertAndGetAll(vendorId, productId, profile)
-                    )
-                )
+                profileDao.upsert(profile)
+                Result.success(Unit)
             }
         }.getOrElse { exception ->
             Timber.e(exception)
@@ -82,18 +58,11 @@ class ProfileRepository @Inject constructor(
         }
     }
 
-    suspend fun deleteProfileAndGetProfilesForUsbDongleWith(
-        vendorId: Int,
-        productId: Int,
-        profile: Profile
-    ): Result<ProfilesList> {
+    suspend fun deleteProfile(profile: Profile): Result<Unit> {
         return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
-                Result.success(
-                    value = ProfilesList(
-                        items = profileDao.deleteAndGetAll(vendorId, productId, profile)
-                    )
-                )
+                profileDao.delete(profile)
+                Result.success(Unit)
             }.getOrElse { exception ->
                 Timber.e(exception)
                 Result.failure(exception)
@@ -101,49 +70,45 @@ class ProfileRepository @Inject constructor(
         }
     }
 
-    suspend fun addProfileShortcut(profile: Profile): Boolean {
+    suspend fun addProfileShortcut(profile: Profile): Result<Unit> {
         return withContext(dispatcherIo) {
             coroutineContext.suspendRunCatching {
                 val intent = context
                     .packageManager
                     .getLaunchIntentForPackage(context.packageName)
                     ?.apply {
-                        putExtra(
-                            INTENT_ACTION_SHORTCUT_PROFILE,
-                            profile.toPersistableBundle()
-                        )
                         flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        putExtra(INTENT_ACTION_SHORTCUT_PROFILE, profile.toPersistableBundle())
                     }
-                    ?: return@suspendRunCatching false
-                val icon = IconCompat.createWithResource(
-                    context,
-                    R.drawable.ic_shortcut_profile
-                )
-                val shortcut =
-                    ShortcutInfoCompat.Builder(context, profile.id.toString())
-                        .setShortLabel(profile.name)
-                        .setLongLabel(profile.name)
-                        .setIcon(icon)
-                        .setIntent(intent)
-                        .build()
-                ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
+                    ?: error("getLaunchIntentForPackage()")
+                val icon = IconCompat.createWithResource(context, R.drawable.ic_shortcut_profile)
+                val shortcut = ShortcutInfoCompat.Builder(context, profile.id.toString())
+                    .setShortLabel(profile.name)
+                    .setLongLabel(profile.name)
+                    .setIcon(icon)
+                    .setIntent(intent)
+                    .build()
+                if (!ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)) {
+                    error("pushDynamicShortcut()")
+                }
+                Result.success(Unit)
             }.getOrElse { exception ->
                 Timber.e(exception)
-                false
+                Result.failure(exception)
             }
         }
     }
 
-    suspend fun removeProfileShortcut(profile: Profile): Boolean {
+    suspend fun removeProfileShortcut(profile: Profile): Result<Unit> {
         return withContext(dispatcherIo) {
             val shortcut = listOf(profile.id.toString())
             coroutineContext.suspendRunCatching {
                 ShortcutManagerCompat.removeDynamicShortcuts(context, shortcut)
                 ShortcutManagerCompat.disableShortcuts(context, shortcut, null)
-                true
+                Result.success(Unit)
             }.getOrElse { exception ->
                 Timber.e(exception)
-                false
+                Result.failure(exception)
             }
         }
     }

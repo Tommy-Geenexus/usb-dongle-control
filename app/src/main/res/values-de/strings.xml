@@ -67,8 +67,6 @@
     <string name="profile_export">Profil exportieren</string>
     <string name="profile_export_fail">Profil nicht exportiert</string>
     <string name="profile_export_success">Profil exportiert</string>
-    <string name="profile_get_fail">Profile wurden geladen</string>
-    <string name="profile_get_success">Profile wurden nicht geladen</string>
     <string name="profile_name">Profilname</string>
 
     <string name="profiles">Profile</string>

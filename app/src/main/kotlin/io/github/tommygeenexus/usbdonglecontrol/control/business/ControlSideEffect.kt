@@ -58,12 +58,6 @@ sealed class ControlSideEffect : Parcelable {
 
             @Parcelize
             data object All : Get()
-
-            @Parcelize
-            data object Success : Get()
-
-            @Parcelize
-            data object Failure : Get()
         }
     }
 

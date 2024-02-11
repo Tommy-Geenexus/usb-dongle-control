@@ -20,6 +20,9 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle
 
+import androidx.paging.PagingData
+import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -30,9 +33,19 @@ data object UnsupportedUsbDongle : UsbDongle(
     productId = -1
 ) {
 
-    override fun currentStateAsProfile(profileName: String) = throw UnsupportedOperationException()
+    override fun currentStateAsProfile(profileName: String) = Profile(
+        name = "",
+        vendorId = vendorId,
+        productId = productId
+    )
 
-    override fun defaultStateAsProfile() = throw UnsupportedOperationException()
+    override fun defaultStateAsProfile() = Profile(
+        name = "",
+        vendorId = vendorId,
+        productId = productId
+    )
 }
 
-internal class UnsupportedUsbDongleException : Exception("Unsupported usb dongle")
+fun UnsupportedUsbDongle.profileFlow() = flowOf(PagingData.from(listOf(defaultStateAsProfile())))
+
+class UnsupportedUsbDongleException : Exception("Unsupported usb dongle")

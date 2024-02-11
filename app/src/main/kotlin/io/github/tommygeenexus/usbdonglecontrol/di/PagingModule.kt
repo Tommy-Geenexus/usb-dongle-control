@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,14 +18,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.control.data
+package io.github.tommygeenexus.usbdonglecontrol.di
 
-import android.os.Parcelable
-import androidx.compose.runtime.Immutable
-import kotlinx.parcelize.Parcelize
+import androidx.paging.PagingConfig
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
-@Immutable
-@Parcelize
-data class ProfilesList(
-    val items: List<Profile> = emptyList()
-) : Parcelable
+@Module
+@InstallIn(SingletonComponent::class)
+object PagingModule {
+
+    private const val PAGE_SIZE = 128
+
+    @Provides
+    fun providePagingConfig() = PagingConfig(
+        pageSize = PAGE_SIZE,
+        enablePlaceholders = true
+    )
+}

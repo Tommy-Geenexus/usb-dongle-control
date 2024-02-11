@@ -69,13 +69,14 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.core.content.ContextCompat
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.UsbReceiver
 import io.github.tommygeenexus.usbdonglecontrol.consumeProfileShortcut
 import io.github.tommygeenexus.usbdonglecontrol.control.business.ControlSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.control.business.ControlViewModel
 import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
-import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfilesList
 import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
@@ -83,6 +84,7 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui.FiioKa5Ite
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.ui.MoondropDawnItems
 import io.github.tommygeenexus.usbdonglecontrol.dongle.productName
+import io.github.tommygeenexus.usbdonglecontrol.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
 import io.github.tommygeenexus.usbdonglecontrol.volume.UsbService
 import io.github.tommygeenexus.usbdonglecontrol.volume.receiver.UsbServiceReceiver
@@ -105,14 +107,13 @@ fun ControlScreen(
     val profileDeleteSuccess = stringResource(id = R.string.profile_delete_success)
     val profileExportFail = stringResource(id = R.string.profile_export_fail)
     val profileExportSuccess = stringResource(id = R.string.profile_export_success)
-    val profileGetFail = stringResource(id = R.string.profile_get_fail)
-    val profileGetSuccess = stringResource(id = R.string.profile_get_success)
     val shortcutAddFail = stringResource(id = R.string.shortcut_add_fail)
     val shortcutAddSuccess = stringResource(id = R.string.shortcut_add_success)
     val shortcutDeleteFail = stringResource(id = R.string.shortcut_delete_fail)
     val shortcutDeleteSuccess = stringResource(id = R.string.shortcut_delete_success)
     val usbCommunicationFailure = stringResource(id = R.string.usb_comm_failure)
     val usbCommunicationSuccess = stringResource(id = R.string.usb_comm_success)
+    val profiles = viewModel.profileFlow.collectAsLazyPagingItems()
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             ControlSideEffect.Profile.Apply.Failure -> {
@@ -170,25 +171,7 @@ fun ControlScreen(
                 }
             }
             is ControlSideEffect.Profile.Get.All -> {
-                viewModel.getProfiles()
-            }
-            ControlSideEffect.Profile.Get.Failure -> {
-                scope.launch {
-                    snackBarHostState.currentSnackbarData?.dismiss()
-                    snackBarHostState.showSnackbar(
-                        message = profileGetFail,
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            }
-            ControlSideEffect.Profile.Get.Success -> {
-                scope.launch {
-                    snackBarHostState.currentSnackbarData?.dismiss()
-                    snackBarHostState.showSnackbar(
-                        message = profileGetSuccess,
-                        duration = SnackbarDuration.Short
-                    )
-                }
+                profiles.refresh()
             }
             ControlSideEffect.Service.Start -> {
                 context.startService(Intent(context, UsbService::class.java))
@@ -304,7 +287,7 @@ fun ControlScreen(
         windowSizeClass = windowSizeClass,
         scrollBehavior = scrollBehavior,
         snackBarHostState = snackBarHostState,
-        profiles = state.profiles,
+        profiles = profiles,
         usbDongle = state.usbDongle,
         isLoading = state.loadingTasks > 0.toUInt(),
         onRefresh = { viewModel.getCurrentStateForUsbDongle(state.usbDongle) },
@@ -375,7 +358,8 @@ fun ControlScreen(
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    profiles: ProfilesList = ProfilesList(),
+    profiles: LazyPagingItems<Profile> =
+        UnsupportedUsbDongle.profileFlow().collectAsLazyPagingItems(),
     usbDongle: UsbDongle = UnsupportedUsbDongle,
     isLoading: Boolean = false,
     onRefresh: () -> Unit = {},
@@ -561,14 +545,20 @@ fun ControlScreen(
             }
             val context = (LocalContext.current as? Activity)
             if (context != null) {
-                val profileItems = profiles.items
+                val profileItems = profiles.itemSnapshotList.items
                 LaunchedEffect(profileItems) {
                     if (profileItems.isNotEmpty()) {
                         val profileShortcut = context.intent.consumeProfileShortcut()
                         if (profileShortcut != null) {
                             selectedTabIndex = ControlTabs.Profiles.index
                             val index = profileItems.indexOf(profileShortcut)
-                            profileListState.animateScrollToItem(if (index >= 0) index else 0)
+                            profileListState.animateScrollToItem(
+                                index = if (index >= 0) {
+                                    index
+                                } else {
+                                    profileItems.lastIndex
+                                }
+                            )
                         }
                     }
                 }

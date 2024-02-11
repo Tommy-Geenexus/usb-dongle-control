@@ -22,6 +22,8 @@ package io.github.tommygeenexus.usbdonglecontrol.control.business
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
 import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfileRepository
@@ -55,6 +57,7 @@ import org.orbitmvi.orbit.viewmodel.container
 @HiltViewModel
 class ControlViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    pagingConfig: PagingConfig,
     private val usbRepository: UsbRepository,
     private val profileRepository: ProfileRepository,
     private val setProfileUseCase: SetProfileUseCase,
@@ -83,6 +86,16 @@ class ControlViewModel @Inject constructor(
             getCurrentStateForFirstAttachedUsbDongle()
         }
     )
+
+    val profileFlow = Pager(
+        config = pagingConfig,
+        pagingSourceFactory = {
+            profileRepository.getProfilesForUsbDongleWith(
+                vendorId = container.stateFlow.value.usbDongle.vendorId,
+                productId = container.stateFlow.value.usbDongle.productId
+            )
+        }
+    ).flow
 
     fun synchronizeVolumeLevel(usbDongle: UsbDongle) = intent {
         reduce {
@@ -129,29 +142,6 @@ class ControlViewModel @Inject constructor(
         }
     }
 
-    fun getProfiles() = intent {
-        reduce {
-            state.copy(loadingTasks = state.plusLoadingTask())
-        }
-        val result = profileRepository.getProfilesForUsbDongleWith(
-            vendorId = state.usbDongle.vendorId,
-            productId = state.usbDongle.productId
-        )
-        reduce {
-            state.copy(
-                profiles = result.getOrDefault(state.profiles),
-                loadingTasks = state.minusLoadingTask()
-            )
-        }
-        postSideEffect(
-            if (result.isSuccess) {
-                ControlSideEffect.Profile.Get.Success
-            } else {
-                ControlSideEffect.Profile.Get.Failure
-            }
-        )
-    }
-
     fun setProfile(profile: Profile) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
@@ -178,16 +168,9 @@ class ControlViewModel @Inject constructor(
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = profileRepository.exportProfileAndGetProfilesForUsbDongleWith(
-            vendorId = state.usbDongle.vendorId,
-            productId = state.usbDongle.productId,
-            profile = profile
-        )
+        val result = profileRepository.exportProfile(profile)
         reduce {
-            state.copy(
-                profiles = result.getOrDefault(state.profiles),
-                loadingTasks = state.minusLoadingTask()
-            )
+            state.copy(loadingTasks = state.minusLoadingTask())
         }
         postSideEffect(
             if (result.isSuccess) {
@@ -202,19 +185,12 @@ class ControlViewModel @Inject constructor(
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        val result = profileRepository.deleteProfileAndGetProfilesForUsbDongleWith(
-            vendorId = state.usbDongle.vendorId,
-            productId = state.usbDongle.productId,
-            profile = profile
-        )
+        val result = profileRepository.deleteProfile(profile = profile)
         if (result.isSuccess) {
             profileRepository.removeProfileShortcut(profile)
         }
         reduce {
-            state.copy(
-                profiles = result.getOrDefault(state.profiles),
-                loadingTasks = state.minusLoadingTask()
-            )
+            state.copy(loadingTasks = state.minusLoadingTask())
         }
         postSideEffect(
             if (result.isSuccess) {
@@ -226,9 +202,9 @@ class ControlViewModel @Inject constructor(
     }
 
     fun addProfileShortcut(profile: Profile) = intent {
-        val success = profileRepository.addProfileShortcut(profile)
+        val result = profileRepository.addProfileShortcut(profile)
         postSideEffect(
-            if (success) {
+            if (result.isSuccess) {
                 ControlSideEffect.Shortcut.Add.Success
             } else {
                 ControlSideEffect.Shortcut.Add.Failure
@@ -237,9 +213,9 @@ class ControlViewModel @Inject constructor(
     }
 
     fun removeProfileShortcut(profile: Profile) = intent {
-        val success = profileRepository.removeProfileShortcut(profile)
+        val result = profileRepository.removeProfileShortcut(profile)
         postSideEffect(
-            if (success) {
+            if (result.isSuccess) {
                 ControlSideEffect.Shortcut.Delete.Success
             } else {
                 ControlSideEffect.Shortcut.Delete.Failure
