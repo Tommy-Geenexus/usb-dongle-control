@@ -26,7 +26,6 @@ import android.content.Intent
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
-import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.tommygeenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
 import io.github.tommygeenexus.usbdonglecontrol.di.DispatcherIo
@@ -118,12 +117,10 @@ open class UsbRepository @Inject constructor(
                         PendingIntent.getBroadcast(
                             context,
                             0,
-                            Intent(INTENT_ACTION_USB_PERMISSION),
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                PendingIntent.FLAG_IMMUTABLE
-                            } else {
-                                PendingIntent.FLAG_MUTABLE
-                            }
+                            Intent(INTENT_ACTION_USB_PERMISSION).apply {
+                                setPackage(context.packageName)
+                            },
+                            PendingIntent.FLAG_MUTABLE
                         )
                     )
                     Result.success(true)
