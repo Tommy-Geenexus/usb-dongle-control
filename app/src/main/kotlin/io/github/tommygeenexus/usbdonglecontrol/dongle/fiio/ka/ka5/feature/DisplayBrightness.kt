@@ -55,7 +55,7 @@ internal fun DisplayBrightness.Companion.createFromDisplayValue(
 
 internal fun DisplayBrightness.Companion.default() = DisplayBrightness(
     displayValue = DEFAULT,
-    payload = displayBrightness.first()
+    payload = displayBrightness.getOrElse(DEFAULT - 1) { DEFAULT }
 )
 
 internal fun DisplayBrightness.displayValueToPercent(): String {
