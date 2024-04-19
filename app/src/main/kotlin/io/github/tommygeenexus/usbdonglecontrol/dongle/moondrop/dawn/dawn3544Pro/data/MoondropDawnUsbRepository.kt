@@ -30,6 +30,7 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn35
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn44
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawnPro
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropMoonriver2Ti
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.IndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.createFromPayload
@@ -130,6 +131,16 @@ class MoondropDawnUsbRepository @Inject constructor(
                             )
                         )
                     }
+                    is MoondropMoonriver2Ti -> {
+                        Result.success(
+                            value = usbDongle.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
+                        )
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -168,6 +179,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                     is MoondropDawnPro -> {
                         Result.success(value = moondropDawn.copy(filter = filter))
                     }
+                    is MoondropMoonriver2Ti -> {
+                        Result.success(value = moondropDawn.copy(filter = filter))
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -204,6 +218,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                         Result.success(value = moondropDawn.copy(gain = gain))
                     }
                     is MoondropDawnPro -> {
+                        Result.success(value = moondropDawn.copy(gain = gain))
+                    }
+                    is MoondropMoonriver2Ti -> {
                         Result.success(value = moondropDawn.copy(gain = gain))
                     }
                 }
@@ -247,6 +264,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                     is MoondropDawnPro -> {
                         Result.success(value = moondropDawn.copy(indicatorState = indicatorState))
                     }
+                    is MoondropMoonriver2Ti -> {
+                        Result.success(value = moondropDawn.copy(indicatorState = indicatorState))
+                    }
                 }
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -286,6 +306,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                         Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
                     }
                     is MoondropDawnPro -> {
+                        Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
+                    }
+                    is MoondropMoonriver2Ti -> {
                         Result.success(value = moondropDawn.copy(volumeLevel = volumeLevel))
                     }
                 }
@@ -371,6 +394,16 @@ class MoondropDawnUsbRepository @Inject constructor(
                         )
                     }
                     is MoondropDawnPro -> {
+                        Result.success(
+                            value = moondropDawn.copy(
+                                filter = filter,
+                                gain = gain,
+                                indicatorState = indicatorState,
+                                volumeLevel = volumeLevel
+                            )
+                        )
+                    }
+                    is MoondropMoonriver2Ti -> {
                         Result.success(
                             value = moondropDawn.copy(
                                 filter = filter,
