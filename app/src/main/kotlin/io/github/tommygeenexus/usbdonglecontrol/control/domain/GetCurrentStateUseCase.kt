@@ -20,12 +20,12 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.domain
 
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongleException
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbRepository
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.data.MoondropDawnUsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

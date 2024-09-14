@@ -58,8 +58,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.profileFlow
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
