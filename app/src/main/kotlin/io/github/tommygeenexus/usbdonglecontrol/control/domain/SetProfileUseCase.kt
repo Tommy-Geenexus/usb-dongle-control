@@ -20,29 +20,29 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.domain
 
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongleException
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.data.FiioKa5UsbRepository
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.ChannelBalance
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.DacMode
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.DisplayBrightness
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.DisplayInvert
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.DisplayTimeout
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.Filter
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.Gain
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.HardwareMute
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.HidMode
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.SpdifOut
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.VolumeLevel as VolumeLevelKa5
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.VolumeMode
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.feature.createFromDisplayValue
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.data.MoondropDawnUsbRepository
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.IndicatorState
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.VolumeLevel as VolumeLevelDawn
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.createFromDisplayValue
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.ChannelBalance
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DacMode
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayBrightness
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayInvert
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayTimeout
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.HardwareMute
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.HidMode
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.SpdifOut
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeLevel as VolumeLevelFiioKa5
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeMode
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.createFromDisplayValue
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,8 +52,8 @@ class SetProfileUseCase @Inject constructor(
     private val moondropDawnUsbRepository: MoondropDawnUsbRepository
 ) {
 
-    suspend operator fun invoke(usbDongle: UsbDongle, profile: Profile): Result<UsbDongle> {
-        return when (usbDongle) {
+    suspend operator fun invoke(usbDongle: UsbDongle, profile: Profile): Result<UsbDongle> =
+        when (usbDongle) {
             is FiioKa5 -> {
                 fiioKa5UsbRepository.setAll(
                     fiioKa5 = usbDongle,
@@ -73,7 +73,7 @@ class SetProfileUseCase @Inject constructor(
                     hardwareMute = HardwareMute(isEnabled = profile.isHardwareMuteEnabled),
                     hidMode = HidMode.findByIdOrDefault(id = profile.hidModeId),
                     spdifOut = SpdifOut(isEnabled = profile.isSpdifOutEnabled),
-                    volumeLevel = VolumeLevelKa5.createFromDisplayValue(
+                    volumeLevel = VolumeLevelFiioKa5.createFromDisplayValue(
                         displayValue = profile.volumeLevel,
                         volumeMode = VolumeMode.findByIdOrDefault(
                             id = profile.volumeModeId
@@ -90,12 +90,11 @@ class SetProfileUseCase @Inject constructor(
                     indicatorState = IndicatorState.findByIdOrDefault(
                         id = profile.indicatorStateId
                     ),
-                    volumeLevel = VolumeLevelDawn.createFromDisplayValue(
+                    volumeLevel = VolumeLevel.createFromDisplayValue(
                         displayValue = profile.volumeLevel
                     )
                 )
             }
             else -> Result.failure(UnsupportedUsbDongleException())
         }
-    }
 }

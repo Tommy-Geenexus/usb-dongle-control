@@ -28,8 +28,8 @@
     <ID>MagicNumber:DisplayBrightness.kt$100</ID>
     <ID>MagicNumber:ProfileItems.kt$16</ID>
     <ID>MagicNumber:VolumeLevel.kt$100</ID>
-    <ID>ReturnCount:UsbServiceNotificationReceiver.kt$UsbServiceNotificationReceiver$override fun onReceive(context: Context?, intent: Intent?)</ID>
-    <ID>TooGenericExceptionCaught:Extensions.kt$exception: Exception</ID>
+    <ID>ReturnCount:UsbServiceVolumeLevelReceiver.kt$UsbServiceVolumeLevelReceiver$override fun onReceive(context: Context?, intent: Intent?)</ID>
+    <ID>TooGenericExceptionCaught:CoroutineExtensions.kt$exception: Exception</ID>
     <ID>TooManyFunctions:ControlViewModel.kt$ControlViewModel : ViewModelContainerHost</ID>
     <ID>TooManyFunctions:FiioKa5UsbRepository.kt$FiioKa5UsbRepository : UsbRepository</ID>
     <ID>TopLevelPropertyNaming:NavGraph.kt$private const val TRANSITION_DURATION = 300</ID>

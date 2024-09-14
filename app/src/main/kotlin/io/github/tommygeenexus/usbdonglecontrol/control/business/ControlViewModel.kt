@@ -25,7 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfileRepository
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetCurrentStateUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetVolumeLevelUseCase
@@ -43,15 +43,12 @@ import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetProfileUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetSpdifOutEnabledUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeLevelUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeModeUseCase
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbRepository
-import io.github.tommygeenexus.usbdonglecontrol.volume.HardwareVolumeControl
+import io.github.tommygeenexus.usbdonglecontrol.core.data.UsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
 import javax.inject.Inject
 import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.postSideEffect
-import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 
 @HiltViewModel

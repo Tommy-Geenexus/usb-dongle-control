@@ -65,29 +65,30 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.UsbReceiver
-import io.github.tommygeenexus.usbdonglecontrol.consumeProfileShortcut
 import io.github.tommygeenexus.usbdonglecontrol.control.business.ControlSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.control.business.ControlViewModel
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.FiioKa5
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka.ka5.ui.FiioKa5Items
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.ui.MoondropDawnItems
-import io.github.tommygeenexus.usbdonglecontrol.dongle.productName
-import io.github.tommygeenexus.usbdonglecontrol.dongle.profileFlow
+import io.github.tommygeenexus.usbdonglecontrol.core.control.ControlTabs
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.productName
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.profileFlow
+import io.github.tommygeenexus.usbdonglecontrol.core.extension.consumeProfileShortcut
+import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbDeviceAttachDetachPermissionReceiver
+import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbServiceVolumeLevelChangedReceiver
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
-import io.github.tommygeenexus.usbdonglecontrol.volume.UsbService
-import io.github.tommygeenexus.usbdonglecontrol.volume.receiver.UsbServiceReceiver
+import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -243,7 +244,7 @@ fun ControlScreen(
     }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     DisposableEffect(LocalLifecycleOwner.current) {
-        val usbReceiver = UsbReceiver(
+        val usbReceiver = UsbDeviceAttachDetachPermissionReceiver(
             onAttachedDevicesChanged = { isAttached ->
                 if (!isAttached) {
                     scrollBehavior.state.heightOffset = 0f
@@ -252,7 +253,7 @@ fun ControlScreen(
                 }
             }
         )
-        val usbServiceReceiver = UsbServiceReceiver(
+        val usbServiceVolumeLevelChangedReceiver = UsbServiceVolumeLevelChangedReceiver(
             onVolumeLevelChanged = { usbDongle ->
                 viewModel.synchronizeVolumeLevel(usbDongle)
             }
@@ -265,13 +266,13 @@ fun ControlScreen(
         )
         ContextCompat.registerReceiver(
             context,
-            usbServiceReceiver,
+            usbServiceVolumeLevelChangedReceiver,
             IntentFilter(UsbService.INTENT_ACTION_VOLUME_CHANGED),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
         onDispose {
             context.unregisterReceiver(usbReceiver)
-            context.unregisterReceiver(usbServiceReceiver)
+            context.unregisterReceiver(usbServiceVolumeLevelChangedReceiver)
         }
     }
     val activity = LocalContext.current as Activity

@@ -21,7 +21,7 @@
 package io.github.tommygeenexus.usbdonglecontrol.control.business
 
 import android.os.Parcelable
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import kotlinx.parcelize.Parcelize
 
 sealed class ControlSideEffect : Parcelable {
@@ -96,9 +96,7 @@ sealed class ControlSideEffect : Parcelable {
         sealed class Get : UsbCommunication() {
 
             @Parcelize
-            data class Success(
-                val usbDongle: UsbDongle
-            ) : Get()
+            data class Success(val usbDongle: UsbDongle) : Get()
 
             @Parcelize
             data object Failure : Get()

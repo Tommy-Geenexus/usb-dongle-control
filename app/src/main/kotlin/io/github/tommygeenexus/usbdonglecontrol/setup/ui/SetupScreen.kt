@@ -48,17 +48,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import io.github.tommygeenexus.usbdonglecontrol.INTENT_ACTION_USB_PERMISSION
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.UsbReceiver
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbDeviceAttachDetachPermissionReceiver
+import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_USB_PERMISSION
 import io.github.tommygeenexus.usbdonglecontrol.setup.business.SetupSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.setup.business.SetupViewModel
 import kotlinx.coroutines.launch
@@ -98,7 +98,7 @@ fun SetupScreen(viewModel: SetupViewModel, onNavigateToControl: () -> Unit) {
         }
     }
     DisposableEffect(LocalLifecycleOwner.current) {
-        val usbReceiver = UsbReceiver(
+        val usbReceiver = UsbDeviceAttachDetachPermissionReceiver(
             onPermissionGrantResult = { isGranted ->
                 if (isGranted) {
                     viewModel.verifyConnectedUsbDevices()

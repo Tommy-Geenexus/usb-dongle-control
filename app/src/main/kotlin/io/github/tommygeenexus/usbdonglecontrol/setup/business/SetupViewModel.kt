@@ -23,13 +23,10 @@ package io.github.tommygeenexus.usbdonglecontrol.setup.business
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.core.data.UsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import javax.inject.Inject
 import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.postSideEffect
-import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 
 @HiltViewModel

@@ -22,8 +22,8 @@ package io.github.tommygeenexus.usbdonglecontrol.control.business
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import kotlinx.parcelize.Parcelize
 
 @Immutable

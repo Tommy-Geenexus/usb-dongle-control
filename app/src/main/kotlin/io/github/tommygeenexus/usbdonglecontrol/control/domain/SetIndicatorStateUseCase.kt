@@ -20,11 +20,11 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.domain
 
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UnsupportedUsbDongleException
-import io.github.tommygeenexus.usbdonglecontrol.dongle.UsbDongle
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.MoondropDawn
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.data.MoondropDawnUsbRepository
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.dawn3544Pro.feature.IndicatorState
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,8 +33,8 @@ class SetIndicatorStateUseCase @Inject constructor(
     private val moondropDawnUsbRepository: MoondropDawnUsbRepository
 ) {
 
-    suspend operator fun invoke(usbDongle: UsbDongle, id: Byte): Result<UsbDongle> {
-        return when (usbDongle) {
+    suspend operator fun invoke(usbDongle: UsbDongle, id: Byte): Result<UsbDongle> =
+        when (usbDongle) {
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setIndicatorState(
                     moondropDawn = usbDongle,
@@ -43,5 +43,4 @@ class SetIndicatorStateUseCase @Inject constructor(
             }
             else -> Result.failure(UnsupportedUsbDongleException())
         }
-    }
 }
