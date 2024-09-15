@@ -20,7 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn
 
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.MoondropUsbDongle

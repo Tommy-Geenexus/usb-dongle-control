@@ -27,7 +27,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfileDatabase
+import io.github.tommygeenexus.usbdonglecontrol.core.db.ProfileDatabase
 
 @Module
 @InstallIn(SingletonComponent::class)

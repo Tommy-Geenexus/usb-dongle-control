@@ -23,7 +23,7 @@ package io.github.tommygeenexus.usbdonglecontrol.core.extension
 import android.content.Intent
 import android.os.PersistableBundle
 import androidx.core.content.IntentCompat
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_SHORTCUT_PROFILE
 import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_EXTRA_CONSUMED
 

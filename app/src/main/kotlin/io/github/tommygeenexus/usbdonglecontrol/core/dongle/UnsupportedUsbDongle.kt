@@ -21,7 +21,7 @@
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle
 
 import androidx.paging.PagingData
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.parcelize.Parcelize
 

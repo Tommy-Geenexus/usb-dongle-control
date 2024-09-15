@@ -22,7 +22,7 @@ package io.github.tommygeenexus.usbdonglecontrol.core.dongle
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 
 @Immutable
 abstract class UsbDongle(

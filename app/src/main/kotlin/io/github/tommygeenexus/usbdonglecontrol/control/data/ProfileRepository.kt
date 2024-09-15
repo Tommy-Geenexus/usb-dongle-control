@@ -27,6 +27,8 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.ProfileDao
 import io.github.tommygeenexus.usbdonglecontrol.core.di.DispatcherIo
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
 import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_SHORTCUT_PROFILE

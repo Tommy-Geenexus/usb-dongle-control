@@ -18,7 +18,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.control.data
+package io.github.tommygeenexus.usbdonglecontrol.core.db
 
 import android.os.Parcelable
 import android.os.PersistableBundle

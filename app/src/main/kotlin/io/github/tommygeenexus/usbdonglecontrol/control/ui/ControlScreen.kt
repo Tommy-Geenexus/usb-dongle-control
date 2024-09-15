@@ -74,7 +74,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.control.business.ControlSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.control.business.ControlViewModel
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5

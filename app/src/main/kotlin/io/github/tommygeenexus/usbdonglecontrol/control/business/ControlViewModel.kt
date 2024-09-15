@@ -25,7 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.tommygeenexus.usbdonglecontrol.control.data.Profile
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfileRepository
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetCurrentStateUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetVolumeLevelUseCase
