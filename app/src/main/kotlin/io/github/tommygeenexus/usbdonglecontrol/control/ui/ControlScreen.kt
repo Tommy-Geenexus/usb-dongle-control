@@ -23,21 +23,26 @@ package io.github.tommygeenexus.usbdonglecontrol.control.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.hardware.usb.UsbManager
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -46,7 +51,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -63,6 +67,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -275,13 +280,13 @@ fun ControlScreen(
             context.unregisterReceiver(usbServiceVolumeLevelChangedReceiver)
         }
     }
-    val activity = LocalContext.current as Activity
-    val bottomAppBarColor = MaterialTheme
-        .colorScheme
-        .surfaceColorAtElevation(BottomAppBarDefaults.ContainerElevation)
-        .toArgb()
-    SideEffect {
-        activity.window?.navigationBarColor = bottomAppBarColor
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        val activity = LocalContext.current as Activity
+        val bottomAppBarColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
+        SideEffect {
+            @Suppress("DEPRECATION")
+            activity.window?.navigationBarColor = bottomAppBarColor
+        }
     }
     val state by viewModel.collectAsState()
     ControlScreen(
@@ -385,7 +390,15 @@ fun ControlScreen(
     onVolumeModeSelected: (Byte) -> Unit = { _ -> }
 ) {
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = if (LocalConfiguration.current.orientation ==
+            Configuration.ORIENTATION_LANDSCAPE
+        ) {
+            modifier
+                .windowInsetsPadding(WindowInsets.displayCutout)
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+        } else {
+            modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        },
         topBar = {
             ControlTopAppBar(
                 windowSizeClass = windowSizeClass,
@@ -396,7 +409,8 @@ fun ControlScreen(
                 onProfileExport = onProfileExport,
                 shouldShowActions = {
                     windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
-                }
+                },
+                windowInsets = WindowInsets.statusBars
             )
         },
         bottomBar = {
@@ -427,9 +441,7 @@ fun ControlScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
             val surfaceColor = MaterialTheme.colorScheme.surface
-            val bottomAppBarColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                BottomAppBarDefaults.ContainerElevation
-            )
+            val bottomAppBarColor = MaterialTheme.colorScheme.surfaceContainer
             val overlappedFraction = if (scrollBehavior.state.overlappedFraction > 0.01f) 1f else 0f
             val animatedColor by animateColorAsState(
                 targetValue = lerp(
@@ -440,10 +452,13 @@ fun ControlScreen(
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
                 label = "StatusBarColorAnimation"
             )
-            val activity = LocalContext.current as? Activity
-            if (activity != null) {
-                LaunchedEffect(animatedColor) {
-                    activity.window?.statusBarColor = animatedColor.toArgb()
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                val activity = LocalContext.current as? Activity
+                if (activity != null) {
+                    LaunchedEffect(animatedColor) {
+                        @Suppress("DEPRECATION")
+                        activity.window?.statusBarColor = animatedColor.toArgb()
+                    }
                 }
             }
             var selectedTabIndex by rememberSaveable { mutableIntStateOf(ControlTabs.State.index) }

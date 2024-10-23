@@ -20,7 +20,6 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Refresh
@@ -66,7 +65,7 @@ fun ControlBottomAppBar(
                 )
             }
         },
-        modifier = modifier.navigationBarsPadding(),
+        modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onRefresh,
