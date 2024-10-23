@@ -41,19 +41,26 @@ sealed class MoondropDawn(
     HardwareVolumeControl,
     MoondropDawnUsbCommand {
 
-    override val getAny = byteArrayOf(-64, -91, -93)
+    override val getAny
+        get() = byteArrayOf(-64, -91, -93)
 
-    override val getVolumeLevel = byteArrayOf(-64, -91, -94)
+    override val getVolumeLevel
+        get() = byteArrayOf(-64, -91, -94)
 
-    override val setFilter = byteArrayOf(-64, -91, 1)
+    override val setFilter
+        get() = byteArrayOf(-64, -91, 1)
 
-    override val setGain = byteArrayOf(-64, -91, 2)
+    override val setGain
+        get() = byteArrayOf(-64, -91, 2)
 
-    override val setIndicatorState = byteArrayOf(-64, -91, 6)
+    override val setIndicatorState
+        get() = byteArrayOf(-64, -91, 6)
 
-    override val setVolumeLevel = byteArrayOf(-64, -91, 4)
+    override val setVolumeLevel
+        get() = byteArrayOf(-64, -91, 4)
 
-    override val maxVolumeStepSize = HardwareVolumeControl.VOLUME_STEP_SIZE_MAX - 1
+    override val maxVolumeStepSize
+        get() = HardwareVolumeControl.VOLUME_STEP_SIZE_3
 
     override val isVolumeControlAsc: Boolean
         get() = false

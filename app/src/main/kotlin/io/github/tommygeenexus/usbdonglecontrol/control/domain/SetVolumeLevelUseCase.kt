@@ -22,12 +22,16 @@ package io.github.tommygeenexus.usbdonglecontrol.control.domain
 
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel as VolumeLevelFiioKa13
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.createFromDisplayValue
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeLevel as VolumeLevelFiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.createFromDisplayValue
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel as VolumeLevelMoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
 import javax.inject.Inject
@@ -35,12 +39,21 @@ import javax.inject.Singleton
 
 @Singleton
 class SetVolumeLevelUseCase @Inject constructor(
+    private val fiioKa13UsbRepository: FiioKa13UsbRepository,
     private val fiioKa5UsbRepository: FiioKa5UsbRepository,
     private val moondropDawnUsbRepository: MoondropDawnUsbRepository
 ) {
 
     suspend operator fun invoke(usbDongle: UsbDongle, volumeLevel: Int): Result<UsbDongle> =
         when (usbDongle) {
+            is FiioKa13 -> {
+                fiioKa13UsbRepository.setVolumeLevel(
+                    fiioKa13 = usbDongle,
+                    volumeLevel = VolumeLevelFiioKa13.createFromDisplayValue(
+                        displayValue = volumeLevel
+                    )
+                )
+            }
             is FiioKa5 -> {
                 fiioKa5UsbRepository.setVolumeLevel(
                     fiioKa5 = usbDongle,
@@ -53,7 +66,7 @@ class SetVolumeLevelUseCase @Inject constructor(
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setVolumeLevel(
                     moondropDawn = usbDongle,
-                    volumeLevel = VolumeLevel.createFromDisplayValue(
+                    volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
                         displayValue = volumeLevel
                     )
                 )

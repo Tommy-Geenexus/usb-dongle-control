@@ -18,32 +18,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn
+package io.github.tommygeenexus.usbdonglecontrol.core.extension
 
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
-import kotlinx.parcelize.Parcelize
+import android.hardware.usb.UsbDeviceConnection
+import android.hardware.usb.UsbInterface
 
-@Parcelize
-data class MoondropDawnPro(
-    override val filter: Filter = Filter.default(),
-    override val gain: Gain = Gain.default(),
-    override val indicatorState: IndicatorState = IndicatorState.default(),
-    override val volumeLevel: VolumeLevel = VolumeLevel.default()
-) : MoondropDawn(
-    modelName = MODEL_NAME,
-    productId = PRODUCT_ID,
-    filter = filter,
-    gain = gain,
-    indicatorState = indicatorState,
-    volumeLevel = volumeLevel
-) {
-
-    companion object {
-        const val MODEL_NAME = "Dawn Pro"
-        const val PRODUCT_ID = 61546
+fun UsbDeviceConnection.claimInterface(usbInterface: UsbInterface): Boolean {
+    var success = claimInterface(usbInterface, false)
+    if (!success) {
+        success = claimInterface(usbInterface, true)
     }
+    return success
 }

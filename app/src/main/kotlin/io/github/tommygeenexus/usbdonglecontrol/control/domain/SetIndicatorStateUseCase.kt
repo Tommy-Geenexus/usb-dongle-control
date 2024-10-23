@@ -22,23 +22,33 @@ package io.github.tommygeenexus.usbdonglecontrol.control.domain
 
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.IndicatorState as IndicatorStateFiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState as IndicatorStateMoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SetIndicatorStateUseCase @Inject constructor(
+    private val fiioKa13UsbRepository: FiioKa13UsbRepository,
     private val moondropDawnUsbRepository: MoondropDawnUsbRepository
 ) {
 
     suspend operator fun invoke(usbDongle: UsbDongle, id: Byte): Result<UsbDongle> =
         when (usbDongle) {
+            is FiioKa13 -> {
+                fiioKa13UsbRepository.setIndicatorState(
+                    fiioKa13 = usbDongle,
+                    indicatorState = IndicatorStateFiioKa13.findByIdOrDefault(id)
+                )
+            }
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setIndicatorState(
                     moondropDawn = usbDongle,
-                    indicatorState = IndicatorState.findByIdOrDefault(id)
+                    indicatorState = IndicatorStateMoondropDawn.findByIdOrDefault(id)
                 )
             }
             else -> Result.failure(UnsupportedUsbDongleException())

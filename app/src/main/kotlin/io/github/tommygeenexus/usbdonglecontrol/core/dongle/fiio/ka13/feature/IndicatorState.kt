@@ -18,32 +18,37 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn
+package io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature
 
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
-data class MoondropDawnPro(
-    override val filter: Filter = Filter.default(),
-    override val gain: Gain = Gain.default(),
-    override val indicatorState: IndicatorState = IndicatorState.default(),
-    override val volumeLevel: VolumeLevel = VolumeLevel.default()
-) : MoondropDawn(
-    modelName = MODEL_NAME,
-    productId = PRODUCT_ID,
-    filter = filter,
-    gain = gain,
-    indicatorState = indicatorState,
-    volumeLevel = volumeLevel
-) {
+@Immutable
+sealed class IndicatorState(val id: Byte, val payload: ByteArray) : Parcelable {
 
     companion object {
-        const val MODEL_NAME = "Dawn Pro"
-        const val PRODUCT_ID = 61546
+
+        private val payloadIndicatorStateEnabled = byteArrayOf(-1, 0)
+        private val payloadIndicatorStateDisabledTemp = byteArrayOf(-2, 1)
+        private val payloadIndicatorStateDisabled = byteArrayOf(-3, 2)
+
+        fun default() = Enabled
+
+        fun findByIdOrDefault(id: Byte): IndicatorState = when (id) {
+            Enabled.id -> Enabled
+            DisabledTemp.id -> DisabledTemp
+            Disabled.id -> Disabled
+            else -> default()
+        }
     }
+
+    @Parcelize
+    data object Enabled : IndicatorState(id = 0, payload = payloadIndicatorStateEnabled)
+
+    @Parcelize
+    data object DisabledTemp : IndicatorState(id = 1, payload = payloadIndicatorStateDisabledTemp)
+
+    @Parcelize
+    data object Disabled : IndicatorState(id = 2, payload = payloadIndicatorStateDisabled)
 }

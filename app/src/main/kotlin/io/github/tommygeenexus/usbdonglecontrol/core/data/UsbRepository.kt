@@ -96,11 +96,11 @@ open class UsbRepository @Inject constructor(
     }
 
     @Throws(UnsupportedUsbDongleException::class, IllegalStateException::class)
-    suspend fun openFirstAttachedUsbDongleOrThrow(): UsbDeviceConnection =
+    suspend fun openFirstAttachedUsbDongleOrThrow(): Pair<UsbDevice, UsbDeviceConnection> =
         withContext(dispatcherIo) {
             val (usbDevice, _, _) = getFirstAttachedUsbDongle().getOrThrow()
             val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-            manager.openDevice(usbDevice).also { connection ->
+            usbDevice to manager.openDevice(usbDevice).also { connection ->
                 if (connection == null) {
                     error("manager.openDevice() failed")
                 }
@@ -170,16 +170,20 @@ open class UsbRepository @Inject constructor(
 
     @Throws(IllegalStateException::class)
     suspend fun UsbDeviceConnection.controlWrite(
+        requestType: Int = REQUEST_TYPE_WRITE,
+        requestId: Int = REQUEST_ID_WRITE,
+        requestValue: Int = REQUEST_VALUE,
+        requestIndex: Int = REQUEST_INDEX,
         payload: ByteArray,
         payloadSize: Int,
         transferTimeout: Int,
         delayInMillisecondsAfterTransfer: Long
     ) = withContext(dispatcherIo) {
         val result = controlTransfer(
-            REQUEST_TYPE_WRITE,
-            REQUEST_ID_WRITE,
-            REQUEST_VALUE,
-            REQUEST_INDEX,
+            requestType,
+            requestId,
+            requestValue,
+            requestIndex,
             payload,
             payloadSize,
             transferTimeout

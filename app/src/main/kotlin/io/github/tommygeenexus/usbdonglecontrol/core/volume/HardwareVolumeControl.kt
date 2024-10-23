@@ -28,9 +28,11 @@ interface HardwareVolumeControl {
 
     companion object {
 
-        const val VOLUME_STEP_SIZE_MIN = 1
-        const val VOLUME_STEP_SIZE_MAX = 4
-        const val VOLUME_STEP_SIZE_DEFAULT = VOLUME_STEP_SIZE_MIN
+        const val VOLUME_STEP_SIZE_1 = 1
+        const val VOLUME_STEP_SIZE_2 = 2
+        const val VOLUME_STEP_SIZE_3 = 3
+        const val VOLUME_STEP_SIZE_4 = 4
+        const val VOLUME_STEP_SIZE_DEFAULT = VOLUME_STEP_SIZE_1
     }
 }
 
@@ -49,7 +51,7 @@ fun HardwareVolumeControl.volumeUp(volumeStepSize: Int) = if (isVolumeControlAsc
 fun HardwareVolumeControl.incrementOrWrapVolumeStepSize(volumeStepSize: Int): Int {
     var nextVolumeStepSize = volumeStepSize.inc()
     if (nextVolumeStepSize > maxVolumeStepSize) {
-        nextVolumeStepSize = HardwareVolumeControl.VOLUME_STEP_SIZE_MIN
+        nextVolumeStepSize = HardwareVolumeControl.VOLUME_STEP_SIZE_1
     }
     return nextVolumeStepSize
 }
