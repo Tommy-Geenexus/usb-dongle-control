@@ -20,7 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -48,6 +48,7 @@ fun ControlTopAppBar(
     onReset: () -> Unit,
     onProfileExport: (String) -> Unit,
     shouldShowActions: () -> Boolean,
+    windowInsets: WindowInsets,
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
@@ -58,7 +59,7 @@ fun ControlTopAppBar(
                 overflow = TextOverflow.Ellipsis
             )
         },
-        modifier = modifier.statusBarsPadding(),
+        modifier = modifier,
         actions = {
             if (shouldShowActions()) {
                 var showMore by rememberSaveable { mutableStateOf(false) }
@@ -78,6 +79,7 @@ fun ControlTopAppBar(
                 }
             }
         },
+        windowInsets = windowInsets,
         scrollBehavior = scrollBehavior
     )
 }
