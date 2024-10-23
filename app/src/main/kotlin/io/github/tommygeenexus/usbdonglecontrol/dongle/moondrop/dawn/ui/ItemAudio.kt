@@ -46,6 +46,7 @@ fun ItemAudio(
     volumeLevelInPercent: String = VolumeLevel.default().displayValueToPercent(),
     volumeLevelStart: Float = VolumeLevel.MAX.toFloat(),
     volumeLevelEnd: Float = VolumeLevel.MIN.toFloat(),
+    volumeLevelStepSize: Float = 0f,
     onVolumeLevelToPercent: (Int) -> String = { _ -> volumeLevelInPercent },
     onVolumeLevelSelected: (Int) -> Unit = {}
 ) {
@@ -56,16 +57,14 @@ fun ItemAudio(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = stringResource(
-                    id = R.string.volume_level,
-                    volumeLevelInPercent
-                ),
+                text = stringResource(id = R.string.volume_level, volumeLevelInPercent),
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
             AndroidView(
                 factory = { context ->
                     Slider(context).apply {
+                        stepSize = volumeLevelStepSize
                         setLabelFormatter { value ->
                             onVolumeLevelToPercent(value.roundToInt())
                         }

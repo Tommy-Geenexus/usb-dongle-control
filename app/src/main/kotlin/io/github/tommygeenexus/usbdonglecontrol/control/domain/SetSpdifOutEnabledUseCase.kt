@@ -22,14 +22,17 @@ package io.github.tommygeenexus.usbdonglecontrol.control.domain
 
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.SpdifOut
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SetSpdifOutEnabledUseCase @Inject constructor(
+    private val fiioKa13UsbRepository: FiioKa13UsbRepository,
     private val fiioKa5UsbRepository: FiioKa5UsbRepository
 ) {
 
@@ -37,6 +40,12 @@ class SetSpdifOutEnabledUseCase @Inject constructor(
         usbDongle: UsbDongle,
         isSpdifOutEnabled: Boolean
     ): Result<UsbDongle> = when (usbDongle) {
+        is FiioKa13 -> {
+            fiioKa13UsbRepository.setSpdifOut(
+                fiioKa13 = usbDongle,
+                spdifOut = SpdifOut(isEnabled = isSpdifOutEnabled)
+            )
+        }
         is FiioKa5 -> {
             fiioKa5UsbRepository.setSpdifOut(
                 fiioKa5 = usbDongle,

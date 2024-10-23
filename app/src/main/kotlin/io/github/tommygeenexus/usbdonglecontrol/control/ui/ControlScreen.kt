@@ -83,6 +83,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.control.ControlTabs
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.productName
@@ -90,6 +91,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.consumeProfileShortcut
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbDeviceAttachDetachPermissionReceiver
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbServiceVolumeLevelChangedReceiver
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui.FiioKa13Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
@@ -477,6 +479,26 @@ fun ControlScreen(
             )
             if (selectedTabIndex == ControlTabs.State.index) {
                 when (usbDongle) {
+                    is FiioKa13 -> {
+                        FiioKa13Items(
+                            modifier = Modifier.padding(
+                                horizontal = windowSizeClass.getHorizontalPadding()
+                            ),
+                            fiioKa13 = usbDongle,
+                            onFilterSelected = { filterId ->
+                                onFilterSelected(filterId)
+                            },
+                            onIndicatorStateSelected = { indicatorStateId ->
+                                onIndicatorStateSelected(indicatorStateId)
+                            },
+                            onSpdifOutSelected = { isSpdifOutEnabled ->
+                                onSpdifOutEnabledSelected(isSpdifOutEnabled)
+                            },
+                            onVolumeLevelSelected = { volumeLevel ->
+                                onVolumeLevelSelected(volumeLevel)
+                            }
+                        )
+                    }
                     is FiioKa5 -> {
                         FiioKa5Items(
                             modifier = Modifier.padding(

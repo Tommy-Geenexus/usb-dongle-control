@@ -18,32 +18,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn
+package io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature
 
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 
+@Immutable
 @Parcelize
-data class MoondropDawnPro(
-    override val filter: Filter = Filter.default(),
-    override val gain: Gain = Gain.default(),
-    override val indicatorState: IndicatorState = IndicatorState.default(),
-    override val volumeLevel: VolumeLevel = VolumeLevel.default()
-) : MoondropDawn(
-    modelName = MODEL_NAME,
-    productId = PRODUCT_ID,
-    filter = filter,
-    gain = gain,
-    indicatorState = indicatorState,
-    volumeLevel = volumeLevel
-) {
+data class FirmwareVersion(val displayValue: String) : Parcelable {
 
     companion object {
-        const val MODEL_NAME = "Dawn Pro"
-        const val PRODUCT_ID = 61546
+
+        const val DEFAULT = "0.00"
     }
 }
+
+fun FirmwareVersion.Companion.default() = FirmwareVersion(displayValue = DEFAULT)

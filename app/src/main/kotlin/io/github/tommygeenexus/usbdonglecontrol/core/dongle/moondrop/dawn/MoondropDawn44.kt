@@ -34,7 +34,7 @@ data class MoondropDawn44(
     override val indicatorState: IndicatorState = IndicatorState.default(),
     override val volumeLevel: VolumeLevel = VolumeLevel.default()
 ) : MoondropDawn(
-    modelName = "Dawn 4.4mm",
+    modelName = MODEL_NAME,
     productId = PRODUCT_ID,
     filter = filter,
     gain = gain,
@@ -43,7 +43,7 @@ data class MoondropDawn44(
 ) {
 
     companion object {
-
+        const val MODEL_NAME = "Dawn 4.4mm"
         const val PRODUCT_ID = 61543
     }
 }

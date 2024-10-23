@@ -59,7 +59,7 @@ class MoondropDawnUsbRepository @Inject constructor(
 
     suspend fun getCurrentState(usbDongle: MoondropDawn): Result<MoondropDawn> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -140,7 +140,7 @@ class MoondropDawnUsbRepository @Inject constructor(
 
     suspend fun setFilter(moondropDawn: MoondropDawn, filter: Filter): Result<MoondropDawn> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -178,7 +178,7 @@ class MoondropDawnUsbRepository @Inject constructor(
 
     suspend fun setGain(moondropDawn: MoondropDawn, gain: Gain): Result<MoondropDawn> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -219,7 +219,7 @@ class MoondropDawnUsbRepository @Inject constructor(
         indicatorState: IndicatorState
     ): Result<MoondropDawn> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -260,7 +260,7 @@ class MoondropDawnUsbRepository @Inject constructor(
         volumeLevel: VolumeLevel
     ): Result<MoondropDawn> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -304,7 +304,7 @@ class MoondropDawnUsbRepository @Inject constructor(
         volumeLevel: VolumeLevel
     ): Result<MoondropDawn> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)

@@ -18,32 +18,54 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn
+package io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature
 
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 
+@Immutable
 @Parcelize
-data class MoondropDawnPro(
-    override val filter: Filter = Filter.default(),
-    override val gain: Gain = Gain.default(),
-    override val indicatorState: IndicatorState = IndicatorState.default(),
-    override val volumeLevel: VolumeLevel = VolumeLevel.default()
-) : MoondropDawn(
-    modelName = MODEL_NAME,
-    productId = PRODUCT_ID,
-    filter = filter,
-    gain = gain,
-    indicatorState = indicatorState,
-    volumeLevel = volumeLevel
-) {
+data class SampleRate(val displayValue: String) : Parcelable {
 
     companion object {
-        const val MODEL_NAME = "Dawn Pro"
-        const val PRODUCT_ID = 61546
+
+        const val DEFAULT = "48kHz"
     }
 }
+
+fun SampleRate.Companion.create(key: Int) = SampleRate(
+    displayValue = sampleRates.getOrDefault(
+        key = key,
+        defaultValue = DEFAULT
+    )
+)
+
+fun SampleRate.Companion.default() = SampleRate(displayValue = DEFAULT)
+
+private val sampleRates = mapOf(
+    0 to "44.1kHz",
+    1 to "48kHz",
+    2 to "88.2kHz",
+    3 to "96kHz",
+    4 to "176.4kHz",
+    5 to "192kHz",
+    6 to "352.8kHz",
+    7 to "384kHz",
+    8 to "705.6kHz",
+    9 to "768kHz",
+    16 to "DoP64",
+    17 to "DoP64",
+    18 to "DoP128",
+    19 to "DoP128",
+    20 to "DoP256",
+    21 to "DoP256",
+    32 to "Native64",
+    33 to "Native64",
+    34 to "Native128",
+    35 to "Native128",
+    36 to "Native256",
+    37 to "Native256",
+    38 to "Native512",
+    39 to "Native512"
+)

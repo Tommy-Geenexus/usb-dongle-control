@@ -80,7 +80,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun getCurrentState(usbDongle: FiioKa5): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -200,7 +200,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun getVolumeLevelAndMode(usbDongle: FiioKa5): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -254,7 +254,7 @@ class FiioKa5UsbRepository @Inject constructor(
         channelBalance: ChannelBalance
     ): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -283,7 +283,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setDacMode(fiioKa5: FiioKa5, dacMode: DacMode): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -314,7 +314,7 @@ class FiioKa5UsbRepository @Inject constructor(
         displayBrightness: DisplayBrightness
     ): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -342,7 +342,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setDisplayInvert(fiioKa5: FiioKa5, displayInvert: DisplayInvert): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -373,7 +373,7 @@ class FiioKa5UsbRepository @Inject constructor(
         displayTimeout: DisplayTimeout
     ): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -401,7 +401,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setFilter(fiioKa5: FiioKa5, filter: Filter): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -429,7 +429,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setGain(fiioKa5: FiioKa5, gain: Gain): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -457,7 +457,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setHardwareMute(fiioKa5: FiioKa5, hardwareMute: HardwareMute): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -485,7 +485,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setHidMode(fiioKa5: FiioKa5, hidMode: HidMode): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -513,7 +513,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setSpdifOut(fiioKa5: FiioKa5, spdifOut: SpdifOut): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -541,7 +541,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setVolumeMode(fiioKa5: FiioKa5, volumeMode: VolumeMode): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -569,7 +569,7 @@ class FiioKa5UsbRepository @Inject constructor(
 
     suspend fun setVolumeLevel(fiioKa5: FiioKa5, volumeLevel: VolumeLevel): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)
@@ -611,7 +611,7 @@ class FiioKa5UsbRepository @Inject constructor(
         volumeMode: VolumeMode
     ): Result<FiioKa5> {
         return withContext(dispatcherIo) {
-            val usbConnection = coroutineContext.suspendRunCatching {
+            val (_, usbConnection) = coroutineContext.suspendRunCatching {
                 openFirstAttachedUsbDongleOrThrow()
             }.getOrElse { exception ->
                 Timber.e(exception)

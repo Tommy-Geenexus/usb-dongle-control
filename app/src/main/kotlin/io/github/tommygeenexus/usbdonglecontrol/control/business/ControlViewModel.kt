@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfileRepository
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetCurrentStateUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetVolumeLevelUseCase
@@ -44,6 +43,7 @@ import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetSpdifOutEnable
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeLevelUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeModeUseCase
 import io.github.tommygeenexus.usbdonglecontrol.core.data.UsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl

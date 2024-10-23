@@ -59,72 +59,92 @@ data class FiioKa5(
     val volumeLevel: VolumeLevel = VolumeLevel.default(),
     val volumeMode: VolumeMode = VolumeMode.default()
 ) : FiioUsbDongle(
-    modelName = "KA5",
+    modelName = MODEL_NAME,
     productId = PRODUCT_ID
 ),
     HardwareVolumeControl,
     FiioKa5UsbCommand {
 
     companion object {
+        const val MODEL_NAME = "KA5"
         const val PRODUCT_ID = 85
     }
 
     @IgnoredOnParcel
-    override val getFilter = byteArrayOf(-57, -91, -93)
+    override val getFilter
+        get() = byteArrayOf(-57, -91, -93)
 
     @IgnoredOnParcel
-    override val getOtherState = byteArrayOf(-57, -91, -92)
+    override val getOtherState
+        get() = byteArrayOf(-57, -91, -92)
 
     @IgnoredOnParcel
-    override val getSampleRate = byteArrayOf(-57, -91, -95)
+    override val getSampleRate
+        get() = byteArrayOf(-57, -91, -95)
 
     @IgnoredOnParcel
-    override val getVersion = byteArrayOf(-57, -91, -96)
+    override val getVersion
+        get() = byteArrayOf(-57, -91, -96)
 
     @IgnoredOnParcel
-    override val getVolumeLevel = byteArrayOf(-57, -91, -94)
+    override val getVolumeLevel
+        get() = byteArrayOf(-57, -91, -94)
 
     @IgnoredOnParcel
-    override val setChannelBalance = byteArrayOf(-57, -91, 5)
+    override val setChannelBalance
+        get() = byteArrayOf(-57, -91, 5)
 
     @IgnoredOnParcel
-    override val setDacMode = byteArrayOf(-57, -91, 6)
+    override val setDacMode
+        get() = byteArrayOf(-57, -91, 6)
 
     @IgnoredOnParcel
-    override val setDisplayBrightness = byteArrayOf(-57, -91, 11)
+    override val setDisplayBrightness
+        get() = byteArrayOf(-57, -91, 11)
 
     @IgnoredOnParcel
-    override val setDisplayInvert = byteArrayOf(-57, -91, 12)
+    override val setDisplayInvert
+        get() = byteArrayOf(-57, -91, 12)
 
     @IgnoredOnParcel
-    override val setDisplayTimeout = byteArrayOf(-57, -91, 9)
+    override val setDisplayTimeout
+        get() = byteArrayOf(-57, -91, 9)
 
     @IgnoredOnParcel
-    override val setFilter = byteArrayOf(-57, -91, 1)
+    override val setFilter
+        get() = byteArrayOf(-57, -91, 1)
 
     @IgnoredOnParcel
-    override val setGain = byteArrayOf(-57, -91, 2)
+    override val setGain
+        get() = byteArrayOf(-57, -91, 2)
 
     @IgnoredOnParcel
-    override val setHardwareMute = byteArrayOf(-57, -91, 7)
+    override val setHardwareMute
+        get() = byteArrayOf(-57, -91, 7)
 
     @IgnoredOnParcel
-    override val setHidMode = byteArrayOf(-57, -91, 10)
+    override val setHidMode
+        get() = byteArrayOf(-57, -91, 10)
 
     @IgnoredOnParcel
-    override val setSpdifOut = byteArrayOf(-57, -91, 8)
+    override val setSpdifOut
+        get() = byteArrayOf(-57, -91, 8)
 
     @IgnoredOnParcel
-    override val setVolumeLevel = byteArrayOf(-57, -91, 4)
+    override val setVolumeLevel
+        get() = byteArrayOf(-57, -91, 4)
 
     @IgnoredOnParcel
-    override val setVolumeMode = byteArrayOf(-57, -91, 13)
+    override val setVolumeMode
+        get() = byteArrayOf(-57, -91, 13)
 
     @IgnoredOnParcel
-    override val maxVolumeStepSize = HardwareVolumeControl.VOLUME_STEP_SIZE_MAX
+    override val maxVolumeStepSize
+        get() = HardwareVolumeControl.VOLUME_STEP_SIZE_4
 
     @IgnoredOnParcel
-    override val isVolumeControlAsc = true
+    override val isVolumeControlAsc
+        get() = true
 
     override val currentVolumeLevel
         get() = volumeLevel.displayValue
