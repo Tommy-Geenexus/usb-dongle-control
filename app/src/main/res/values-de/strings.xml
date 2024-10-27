@@ -2,7 +2,7 @@
 <resources>
     <string name="apply">Anwenden</string>
 
-    <string name="attach_device">Gerät anschließen</string>
+    <string name="attach_device">Schließe ein USB-Dongle an und stelle sicher, dass das Kabel komplett eingesteckt ist</string>
 
     <string name="cable">Kabel</string>
 
@@ -56,6 +56,8 @@
     <string name="low">Niedrig</string>
 
     <string name="more">Mehr</string>
+
+    <string name="no_dongle_detected">Kein USB-Dongle erkannt!</string>
 
     <string name="permission_request_fail">USB-Berechtigung nicht angefordert</string>
     <string name="permission_request_success">USB-Berechtigung angefordert</string>

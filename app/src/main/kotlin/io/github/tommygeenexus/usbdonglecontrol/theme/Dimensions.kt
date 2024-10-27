@@ -30,8 +30,6 @@ fun WindowSizeClass.getHorizontalPadding() = if (widthSizeClass == WindowWidthSi
     16.dp
 }
 
-val iconSize = 56.dp
-
 val cardPadding = 16.dp
 val cardPaddingBetween = 8.dp
 

@@ -4,7 +4,7 @@
 
     <string name="apply">Apply</string>
 
-    <string name="attach_device">Attach device</string>
+    <string name="attach_device">Attach a USB dongle and make sure the cable is fully inserted</string>
 
     <string name="cable">Cable</string>
 
@@ -58,6 +58,8 @@
     <string name="low">Low</string>
 
     <string name="more">More</string>
+
+    <string name="no_dongle_detected">No USB dongle detected!</string>
 
     <string name="permission_request_fail">USB permission not requested</string>
     <string name="permission_request_success">USB permission requested</string>
