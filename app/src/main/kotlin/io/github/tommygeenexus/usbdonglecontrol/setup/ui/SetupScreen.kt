@@ -132,10 +132,13 @@ fun SetupScreen(viewModel: SetupViewModel, onNavigateToControl: () -> Unit) {
             }
         }
     }
-    val activity = LocalContext.current as Activity
-    val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
-    SideEffect {
-        activity.window?.navigationBarColor = surfaceColor
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        val activity = LocalContext.current as Activity
+        val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+        SideEffect {
+            @Suppress("DEPRECATION")
+            activity.window?.navigationBarColor = surfaceColor
+        }
     }
     SetupScreen(
         snackBarHostState = snackBarHostState,

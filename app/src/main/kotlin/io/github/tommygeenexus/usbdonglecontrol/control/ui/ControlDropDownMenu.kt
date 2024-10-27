@@ -29,7 +29,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -46,7 +46,7 @@ fun ControlDropdownMenu(
     onProfileExport: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showExportProfile by rememberSaveable { mutableStateOf(false) }
+    var showExportProfile by remember { mutableStateOf(false) }
     if (showExportProfile) {
         ExportProfileDialog(
             onDismiss = { showExportProfile = false },

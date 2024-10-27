@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import io.github.tommygeenexus.usbdonglecontrol.control.ui.ControlScreen
+import io.github.tommygeenexus.usbdonglecontrol.settings.ui.SettingsScreen
 import io.github.tommygeenexus.usbdonglecontrol.setup.ui.SetupScreen
 
 private const val TRANSITION_DURATION = 300
@@ -40,15 +41,14 @@ fun NavGraph(
     windowSizeClass: WindowSizeClass,
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination: String = NavDestinations.ROUTE_SETUP
+    startDestination: NavDestinations = NavDestinations.Setup
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier
     ) {
-        composable(
-            route = NavDestinations.ROUTE_SETUP,
+        composable<NavDestinations.Setup>(
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Start,
@@ -67,9 +67,9 @@ fun NavGraph(
                 onNavigateToControl = {
                     navController.popBackStack()
                     navController.navigate(
-                        route = NavDestinations.ROUTE_CONTROL,
+                        route = NavDestinations.Control,
                         navOptions = navOptions {
-                            popUpTo(route = NavDestinations.ROUTE_SETUP) {
+                            popUpTo(route = NavDestinations.Setup) {
                                 inclusive = true
                             }
                         }
@@ -77,8 +77,7 @@ fun NavGraph(
                 }
             )
         }
-        composable(
-            route = NavDestinations.ROUTE_CONTROL,
+        composable<NavDestinations.Control>(
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Start,
@@ -93,6 +92,31 @@ fun NavGraph(
             }
         ) {
             ControlScreen(
+                windowSizeClass = windowSizeClass,
+                viewModel = hiltViewModel(),
+                onNavigateToSettings = {
+                    navController.navigate(NavDestinations.Settings)
+                },
+                onNavigateUp = {
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable<NavDestinations.Settings>(
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.End,
+                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
+                )
+            }
+        ) {
+            SettingsScreen(
                 windowSizeClass = windowSizeClass,
                 viewModel = hiltViewModel(),
                 onNavigateUp = {

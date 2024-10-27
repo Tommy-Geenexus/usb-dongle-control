@@ -4,6 +4,8 @@
 
     <string name="attach_device">Schließe ein USB-Dongle an und stelle sicher, dass das Kabel komplett eingesteckt ist</string>
 
+    <string name="audio">Audio</string>
+
     <string name="cable">Kabel</string>
 
     <string name="channel_balance">Kanal-Balance</string>
@@ -55,7 +57,13 @@
 
     <string name="low">Niedrig</string>
 
+    <string name="maximize_volume">Lautstärke maximieren</string>
+    <string name="maximize_volume_description">Musiklautstärke maximieren nachdem Dongle verbunden wurde</string>
+    <string name="maximize_volume_failed">Musiklautstärke nicht angepasst</string>
+
     <string name="more">Mehr</string>
+
+    <string name="navigate_back">Navigiere rückwärts</string>
 
     <string name="no_dongle_detected">Kein USB-Dongle erkannt!</string>
 
@@ -78,6 +86,8 @@
     <string name="right">rechts</string>
 
     <string name="sample_rate">Abtastrate: %s</string>
+
+    <string name="settings">Einstellungen</string>
 
     <string name="shortcut_add">Shortcut hinzufügen</string>
     <string name="shortcut_add_fail">Shortcut nicht hinzugefügt</string>

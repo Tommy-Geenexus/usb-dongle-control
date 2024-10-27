@@ -11,9 +11,11 @@ core-ktx = "1.13.1"
 coroutines = "1.9.0"
 dagger-hilt = "2.52"
 dagger-hilt-extensions = "1.2.0"
+datastore = "1.1.1"
 detekt = "1.23.7"
 kotlin = "2.0.21"
 kotlinter = "4.4.1"
+kotlinx-serialization = "1.7.3"
 ksp = "2.0.21-1.0.25"
 leakcanary = "2.14"
 lifecycle = "2.8.6"
@@ -46,6 +48,8 @@ dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compil
 dagger-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "dagger-hilt-extensions" }
 dagger-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "dagger-hilt-extensions" }
 dagger-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "dagger-hilt-extensions" }
+datastore-prefs = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+kotlin-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
@@ -77,6 +81,8 @@ implementation = [
     "coroutines-android",
     "dagger-hilt-android",
     "dagger-hilt-navigation-compose",
+    "datastore-prefs",
+    "kotlin-serialization",
     "kotlin-stdlib",
     "lifecycle-runtime-ktx",
     "material",
@@ -108,6 +114,7 @@ dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "da
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }

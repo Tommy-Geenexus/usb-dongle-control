@@ -26,6 +26,12 @@ import kotlinx.parcelize.Parcelize
 
 sealed class ControlSideEffect : Parcelable {
 
+    sealed class MaximizeVolume : ControlSideEffect() {
+
+        @Parcelize
+        data object Failure : MaximizeVolume()
+    }
+
     sealed class Profile : ControlSideEffect() {
 
         sealed class Apply : Profile() {

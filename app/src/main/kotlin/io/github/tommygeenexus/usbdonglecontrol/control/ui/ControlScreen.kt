@@ -61,7 +61,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.lerp
@@ -94,7 +93,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbServiceVolumeLe
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui.FiioKa13Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
-import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
+import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
@@ -104,11 +103,13 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun ControlScreen(
     windowSizeClass: WindowSizeClass,
     viewModel: ControlViewModel,
+    onNavigateToSettings: () -> Unit,
     onNavigateUp: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
+    val maximizeVolumeFailed = stringResource(id = R.string.maximize_volume_failed)
     val profileApplyFail = stringResource(id = R.string.profile_apply_fail)
     val profileApplySuccess = stringResource(id = R.string.profile_apply_success)
     val profileDeleteFail = stringResource(id = R.string.profile_delete_fail)
@@ -124,6 +125,15 @@ fun ControlScreen(
     val profiles = viewModel.profileFlow.collectAsLazyPagingItems()
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
+            ControlSideEffect.MaximizeVolume.Failure -> {
+                scope.launch {
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    snackBarHostState.showSnackbar(
+                        message = maximizeVolumeFailed,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
             ControlSideEffect.Profile.Apply.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -298,6 +308,7 @@ fun ControlScreen(
         profiles = profiles,
         usbDongle = state.usbDongle,
         isLoading = state.loadingTasks > 0.toUInt(),
+        onNavigateToSettings = onNavigateToSettings,
         onRefresh = { viewModel.getCurrentStateForUsbDongle(state.usbDongle) },
         onReset = {
             viewModel.setProfile(state.usbDongle.defaultStateAsProfile())
@@ -370,6 +381,7 @@ fun ControlScreen(
         UnsupportedUsbDongle.profileFlow().collectAsLazyPagingItems(),
     usbDongle: UsbDongle = UnsupportedUsbDongle,
     isLoading: Boolean = false,
+    onNavigateToSettings: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onReset: () -> Unit = {},
     onProfileShortcutAdd: (Profile) -> Unit = {},
@@ -421,7 +433,8 @@ fun ControlScreen(
                     windowSizeClass = windowSizeClass,
                     onRefresh = onRefresh,
                     onReset = onReset,
-                    onProfileExport = onProfileExport
+                    onProfileExport = onProfileExport,
+                    onNavigateToSettings = onNavigateToSettings
                 )
             }
         },
@@ -463,7 +476,7 @@ fun ControlScreen(
                     }
                 }
             }
-            var selectedTabIndex by rememberSaveable { mutableIntStateOf(ControlTabs.State.index) }
+            var selectedTabIndex by remember { mutableIntStateOf(ControlTabs.State.index) }
             ControlTabRow(
                 selectedTabIndex = selectedTabIndex,
                 containerColor = animatedColor,
@@ -482,7 +495,7 @@ fun ControlScreen(
                     is FiioKa13 -> {
                         FiioKa13Items(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalPadding()
+                                horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
                             fiioKa13 = usbDongle,
                             onFilterSelected = { filterId ->
@@ -502,7 +515,7 @@ fun ControlScreen(
                     is FiioKa5 -> {
                         FiioKa5Items(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalPadding()
+                                horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
                             fiioKa5 = usbDongle,
                             onChannelBalanceSelected = { channelBalance ->
@@ -546,7 +559,7 @@ fun ControlScreen(
                     is MoondropDawn -> {
                         MoondropDawnItems(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalPadding()
+                                horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
                             moondropDawn = usbDongle,
                             onFilterSelected = { filterId ->
@@ -567,7 +580,7 @@ fun ControlScreen(
             } else {
                 ProfileItems(
                     modifier = Modifier.padding(
-                        horizontal = windowSizeClass.getHorizontalPadding()
+                        horizontal = windowSizeClass.getHorizontalCardPadding()
                     ),
                     state = profileListState,
                     profiles = profiles,

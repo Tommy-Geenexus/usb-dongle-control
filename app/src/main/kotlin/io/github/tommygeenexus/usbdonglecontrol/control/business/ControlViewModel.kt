@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.tommygeenexus.usbdonglecontrol.control.data.AudioRepository
 import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfileRepository
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetCurrentStateUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetVolumeLevelUseCase
@@ -47,6 +48,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
+import io.github.tommygeenexus.usbdonglecontrol.settings.data.SettingsRepository
 import javax.inject.Inject
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -55,8 +57,10 @@ import org.orbitmvi.orbit.viewmodel.container
 class ControlViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     pagingConfig: PagingConfig,
-    private val usbRepository: UsbRepository,
+    private val audioRepository: AudioRepository,
     private val profileRepository: ProfileRepository,
+    private val usbRepository: UsbRepository,
+    private val settingsRepository: SettingsRepository,
     private val setProfileUseCase: SetProfileUseCase,
     private val getCurrentStateUseCase: GetCurrentStateUseCase,
     private val getVolumeLevelUseCase: GetVolumeLevelUseCase,
@@ -80,6 +84,12 @@ class ControlViewModel @Inject constructor(
         initialState = ControlState(),
         savedStateHandle = savedStateHandle,
         onCreate = {
+            if (settingsRepository.isMaximizeVolumeEnabled()) {
+                val result = audioRepository.maximizeMusicVolume()
+                if (result.isFailure) {
+                    postSideEffect(ControlSideEffect.MaximizeVolume.Failure)
+                }
+            }
             getCurrentStateForFirstAttachedUsbDongle()
         }
     )

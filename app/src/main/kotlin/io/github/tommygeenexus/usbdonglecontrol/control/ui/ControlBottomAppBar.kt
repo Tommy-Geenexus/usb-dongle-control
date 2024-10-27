@@ -23,6 +23,7 @@ package io.github.tommygeenexus.usbdonglecontrol.control.ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -33,7 +34,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -45,11 +46,24 @@ fun ControlBottomAppBar(
     onRefresh: () -> Unit,
     onReset: () -> Unit,
     onProfileExport: (String) -> Unit,
+    onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     BottomAppBar(
         actions = {
-            var showMore by rememberSaveable { mutableStateOf(false) }
+            IconButton(onClick = onNavigateToSettings) {
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = stringResource(id = R.string.settings)
+                )
+            }
+            var showMore by remember { mutableStateOf(false) }
+            IconButton(onClick = { showMore = true }) {
+                Icon(
+                    imageVector = Icons.Outlined.MoreVert,
+                    contentDescription = stringResource(id = R.string.more)
+                )
+            }
             ControlDropdownMenu(
                 windowSizeClass = windowSizeClass,
                 onShouldShowMore = { showMore },
@@ -58,12 +72,6 @@ fun ControlBottomAppBar(
                 onReset = onReset,
                 onProfileExport = onProfileExport
             )
-            IconButton(onClick = { showMore = true }) {
-                Icon(
-                    imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = stringResource(id = R.string.more)
-                )
-            }
         },
         modifier = modifier,
         floatingActionButton = {

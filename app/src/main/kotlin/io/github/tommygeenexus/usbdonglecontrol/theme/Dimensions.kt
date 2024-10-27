@@ -24,10 +24,18 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.unit.dp
 
-fun WindowSizeClass.getHorizontalPadding() = if (widthSizeClass == WindowWidthSizeClass.Compact) {
+fun WindowSizeClass.getHorizontalCardPadding() = if (
+    widthSizeClass == WindowWidthSizeClass.Compact
+) {
     8.dp
 } else {
     16.dp
+}
+
+fun WindowSizeClass.getHorizontalPadding() = if (widthSizeClass == WindowWidthSizeClass.Compact) {
+    16.dp
+} else {
+    24.dp
 }
 
 val cardPadding = 16.dp

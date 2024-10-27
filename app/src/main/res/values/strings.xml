@@ -6,6 +6,8 @@
 
     <string name="attach_device">Attach a USB dongle and make sure the cable is fully inserted</string>
 
+    <string name="audio">Audio</string>
+
     <string name="cable">Cable</string>
 
     <string name="channel_balance">Channel balance</string>
@@ -57,7 +59,13 @@
 
     <string name="low">Low</string>
 
+    <string name="maximize_volume">Maximize volume</string>
+    <string name="maximize_volume_description">Maximize music volume after dongle is connected</string>
+    <string name="maximize_volume_failed">Music volume not adjusted</string>
+
     <string name="more">More</string>
+
+    <string name="navigate_back">Navigate back</string>
 
     <string name="no_dongle_detected">No USB dongle detected!</string>
 
@@ -80,6 +88,8 @@
     <string name="right">right</string>
 
     <string name="sample_rate">Sample rate: %s</string>
+
+    <string name="settings">Settings</string>
 
     <string name="shortcut_add">Add shortcut</string>
     <string name="shortcut_add_fail">Shortcut not added</string>
