@@ -20,8 +20,6 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,8 +31,11 @@ import androidx.navigation.navOptions
 import io.github.tommygeenexus.usbdonglecontrol.control.ui.ControlScreen
 import io.github.tommygeenexus.usbdonglecontrol.settings.ui.SettingsScreen
 import io.github.tommygeenexus.usbdonglecontrol.setup.ui.SetupScreen
-
-private const val TRANSITION_DURATION = 300
+import soup.compose.material.motion.animation.materialSharedAxisXIn
+import soup.compose.material.motion.animation.materialSharedAxisXOut
+import soup.compose.material.motion.animation.materialSharedAxisZIn
+import soup.compose.material.motion.animation.materialSharedAxisZOut
+import soup.compose.material.motion.animation.rememberSlideDistance
 
 @Composable
 fun NavGraph(
@@ -43,6 +44,7 @@ fun NavGraph(
     modifier: Modifier = Modifier,
     startDestination: NavDestinations = NavDestinations.Setup
 ) {
+    val slideDistance = rememberSlideDistance()
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -50,16 +52,10 @@ fun NavGraph(
     ) {
         composable<NavDestinations.Setup>(
             enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
-                )
+                materialSharedAxisXIn(forward = true, slideDistance = slideDistance)
             },
             exitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
-                )
+                materialSharedAxisXOut(forward = false, slideDistance = slideDistance)
             }
         ) {
             SetupScreen(
@@ -79,16 +75,18 @@ fun NavGraph(
         }
         composable<NavDestinations.Control>(
             enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
-                )
+                if (initialState
+                        .destination
+                        .route
+                        ?.endsWith(NavDestinations.Setup.toString()) == true
+                ) {
+                    materialSharedAxisXIn(forward = true, slideDistance = slideDistance)
+                } else {
+                    materialSharedAxisZIn(forward = true)
+                }
             },
             exitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
-                )
+                materialSharedAxisZOut(forward = false)
             }
         ) {
             ControlScreen(
@@ -104,16 +102,10 @@ fun NavGraph(
         }
         composable<NavDestinations.Settings>(
             enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
-                )
+                materialSharedAxisZIn(forward = true)
             },
             exitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(durationMillis = TRANSITION_DURATION)
-                )
+                materialSharedAxisZOut(forward = false)
             }
         ) {
             SettingsScreen(
