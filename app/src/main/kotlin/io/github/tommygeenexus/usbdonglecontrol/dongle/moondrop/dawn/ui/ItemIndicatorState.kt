@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,7 +57,12 @@ fun ItemIndicatorState(
                 stringResource(id = R.string.disabled)
             )
             indicatorStates.forEachIndexed { index, i ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onIndicatorStateSelected(index.toByte()) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     RadioButton(
                         selected = index.toByte() == indicatorStateId,
                         onClick = {

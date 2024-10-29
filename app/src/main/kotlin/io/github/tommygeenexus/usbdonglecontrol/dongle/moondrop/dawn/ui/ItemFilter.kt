@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,7 +59,12 @@ fun ItemFilter(
                 stringResource(id = R.string.filter_non_over_sampling)
             )
             filterNames.forEachIndexed { index, filterName ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onFilterSelected(index.toByte()) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     RadioButton(
                         selected = index.toByte() == filterId,
                         onClick = {

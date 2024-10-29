@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -142,7 +143,10 @@ fun ItemDisplay(
                 }
             )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = cardPadding)
+                    .clickable { onDisplayInvertSwitched(!isDisplayInvertEnabled) },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {

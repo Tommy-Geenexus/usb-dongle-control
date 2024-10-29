@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,7 +47,8 @@ fun ItemMisc(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = cardPadding),
+                .padding(all = cardPadding)
+                .clickable { onSpdifOutEnabledSwitched(!isSpdifOutEnabled) },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

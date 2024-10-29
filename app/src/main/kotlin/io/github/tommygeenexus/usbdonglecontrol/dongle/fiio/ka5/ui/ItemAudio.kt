@@ -21,6 +21,7 @@
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
 import android.content.res.ColorStateList
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -197,7 +198,12 @@ fun ItemAudio(
                 stringResource(id = R.string.volume_steps_60)
             )
             volumeSteps.forEachIndexed { index, step ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onVolumeModeSelected(index.toByte()) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     RadioButton(
                         selected = index.toByte() == volumeMode.id,
                         onClick = {

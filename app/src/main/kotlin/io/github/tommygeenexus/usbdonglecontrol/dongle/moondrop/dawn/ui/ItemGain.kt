@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,7 +56,12 @@ fun ItemGain(
                 stringResource(id = R.string.high)
             )
             gains.forEachIndexed { index, g ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onGainSelected(index.toByte()) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     RadioButton(
                         selected = index.toByte() == gainId,
                         onClick = {

@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,7 +60,9 @@ fun ItemFilter(
             )
             filters.forEachIndexed { index, f ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onFilterSelected(index.toByte()) },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(

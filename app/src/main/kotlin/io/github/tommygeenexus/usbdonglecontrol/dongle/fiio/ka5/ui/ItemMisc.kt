@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,7 +65,12 @@ fun ItemMisc(
                 stringResource(id = R.string.hid_mode_b)
             )
             hidModes.forEachIndexed { index, mode ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onHidModeSelected(index.toByte()) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     RadioButton(
                         selected = index.toByte() == hidModeId,
                         onClick = {
@@ -87,7 +93,12 @@ fun ItemMisc(
                 stringResource(id = R.string.dac_mode_h)
             )
             dacModes.forEachIndexed { index, mode ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onDacModeSelected(index.toByte()) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     RadioButton(
                         selected = index.toByte() == dacModeId,
                         onClick = {
@@ -103,7 +114,8 @@ fun ItemMisc(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = cardPadding),
+                    .padding(top = cardPadding)
+                    .clickable { onSpdifOutEnabledSwitched(!isSpdifOutEnabled) },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -119,7 +131,8 @@ fun ItemMisc(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = cardPadding),
+                    .padding(top = cardPadding)
+                    .clickable { onHardwareMuteEnabledSwitched(!isHardwareMuteEnabled) },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
