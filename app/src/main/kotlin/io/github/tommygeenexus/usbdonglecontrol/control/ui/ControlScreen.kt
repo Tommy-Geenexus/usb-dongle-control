@@ -21,11 +21,13 @@
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.hardware.usb.UsbManager
 import android.os.Build
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -43,6 +45,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -259,13 +263,24 @@ fun ControlScreen(
             }
         }
     }
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val isTouchExplorationEnabled = remember {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        am.isEnabled && am.isTouchExplorationEnabled
+    }
+    val topScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val bottomScrollBehavior = if (!isTouchExplorationEnabled) {
+        BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    } else {
+        null
+    }
     DisposableEffect(LocalLifecycleOwner.current) {
         val usbReceiver = UsbDeviceAttachDetachPermissionReceiver(
             onAttachedDevicesChanged = { isAttached ->
                 if (!isAttached) {
-                    scrollBehavior.state.heightOffset = 0f
-                    scrollBehavior.state.contentOffset = 0f
+                    topScrollBehavior.state.heightOffset = 0f
+                    topScrollBehavior.state.contentOffset = 0f
+                    bottomScrollBehavior?.state?.heightOffset = 0f
+                    bottomScrollBehavior?.state?.contentOffset = 0f
                     onNavigateUp()
                 }
             }
@@ -303,7 +318,8 @@ fun ControlScreen(
     val state by viewModel.collectAsState()
     ControlScreen(
         windowSizeClass = windowSizeClass,
-        scrollBehavior = scrollBehavior,
+        topScrollBehavior = topScrollBehavior,
+        bottomScrollBehavior = bottomScrollBehavior,
         snackBarHostState = snackBarHostState,
         profiles = profiles,
         usbDongle = state.usbDongle,
@@ -374,7 +390,8 @@ fun ControlScreen(
 fun ControlScreen(
     modifier: Modifier = Modifier,
     windowSizeClass: WindowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero),
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+    topScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+    bottomScrollBehavior: BottomAppBarScrollBehavior? = null,
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     profiles: LazyPagingItems<Profile> =
@@ -404,19 +421,28 @@ fun ControlScreen(
     onVolumeModeSelected: (Byte) -> Unit = { _ -> }
 ) {
     Scaffold(
-        modifier = if (LocalConfiguration.current.orientation ==
-            Configuration.ORIENTATION_LANDSCAPE
-        ) {
+        modifier = if (bottomScrollBehavior != null) {
+            if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                modifier
+                    .windowInsetsPadding(WindowInsets.displayCutout)
+                    .nestedScroll(topScrollBehavior.nestedScrollConnection)
+                    .nestedScroll(bottomScrollBehavior.nestedScrollConnection)
+            } else {
+                modifier
+                    .nestedScroll(topScrollBehavior.nestedScrollConnection)
+                    .nestedScroll(bottomScrollBehavior.nestedScrollConnection)
+            }
+        } else if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             modifier
                 .windowInsetsPadding(WindowInsets.displayCutout)
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .nestedScroll(topScrollBehavior.nestedScrollConnection)
         } else {
-            modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            modifier.nestedScroll(topScrollBehavior.nestedScrollConnection)
         },
         topBar = {
             ControlTopAppBar(
                 windowSizeClass = windowSizeClass,
-                scrollBehavior = scrollBehavior,
+                scrollBehavior = topScrollBehavior,
                 productName = usbDongle.productName(),
                 onRefresh = onRefresh,
                 onReset = onReset,
@@ -431,6 +457,7 @@ fun ControlScreen(
             if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
                 ControlBottomAppBar(
                     windowSizeClass = windowSizeClass,
+                    scrollBehavior = bottomScrollBehavior,
                     onRefresh = onRefresh,
                     onReset = onReset,
                     onProfileExport = onProfileExport,
@@ -457,7 +484,11 @@ fun ControlScreen(
             }
             val surfaceColor = MaterialTheme.colorScheme.surface
             val bottomAppBarColor = MaterialTheme.colorScheme.surfaceContainer
-            val overlappedFraction = if (scrollBehavior.state.overlappedFraction > 0.01f) 1f else 0f
+            val overlappedFraction = if (topScrollBehavior.state.overlappedFraction > 0.01f) {
+                1f
+            } else {
+                0f
+            }
             val animatedColor by animateColorAsState(
                 targetValue = lerp(
                     surfaceColor,

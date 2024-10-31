@@ -20,12 +20,14 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -37,28 +39,44 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import io.github.tommygeenexus.usbdonglecontrol.R
 
 @Composable
 fun ControlBottomAppBar(
     windowSizeClass: WindowSizeClass,
+    scrollBehavior: BottomAppBarScrollBehavior?,
     onRefresh: () -> Unit,
     onReset: () -> Unit,
     onProfileExport: (String) -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val collapsedFraction by animateFloatAsState(
+        targetValue = if (scrollBehavior != null) {
+            1 - scrollBehavior.state.collapsedFraction
+        } else {
+            1f
+        },
+        label = "ControlBottomAppBarAlphaAnimation"
+    )
     BottomAppBar(
         actions = {
-            IconButton(onClick = onNavigateToSettings) {
+            IconButton(
+                onClick = onNavigateToSettings,
+                modifier = Modifier.alpha(collapsedFraction)
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.Settings,
                     contentDescription = stringResource(id = R.string.settings)
                 )
             }
             var showMore by remember { mutableStateOf(false) }
-            IconButton(onClick = { showMore = true }) {
+            IconButton(
+                onClick = { showMore = true },
+                modifier = Modifier.alpha(collapsedFraction)
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.MoreVert,
                     contentDescription = stringResource(id = R.string.more)
@@ -77,6 +95,7 @@ fun ControlBottomAppBar(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onRefresh,
+                modifier = Modifier.alpha(collapsedFraction),
                 containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
             ) {
@@ -85,6 +104,7 @@ fun ControlBottomAppBar(
                     contentDescription = stringResource(id = R.string.refresh)
                 )
             }
-        }
+        },
+        scrollBehavior = scrollBehavior
     )
 }
