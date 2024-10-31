@@ -20,6 +20,9 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.contract.ActivityResultContractViewUrl
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.FirmwareVersion
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.SampleRate
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.default
@@ -45,24 +51,34 @@ import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 @Composable
 fun ItemInfo(
     modifier: Modifier = Modifier,
+    firmwareUri: Uri = FiioKa13.FIRMWARE_URL.toUri(),
     firmwareVersion: String = FirmwareVersion.default().displayValue,
     sampleRate: String = SampleRate.default().displayValue
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(all = cardPadding)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column {
+            val viewUrl = rememberLauncherForActivityResult(ActivityResultContractViewUrl()) { }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = cardPadding)
+                    .clickable { viewUrl.launch(firmwareUri) },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.BuildCircle,
                     contentDescription = stringResource(id = R.string.fw_version)
                 )
                 Text(
                     text = stringResource(id = R.string.fw_version, firmwareVersion),
-                    modifier = Modifier.padding(horizontal = cardPadding),
+                    modifier = Modifier.padding(all = cardPadding),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             Row(
-                modifier = Modifier.padding(top = cardPadding),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = cardPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -71,7 +87,7 @@ fun ItemInfo(
                 )
                 Text(
                     text = stringResource(id = R.string.sample_rate, sampleRate),
-                    modifier = Modifier.padding(horizontal = cardPadding),
+                    modifier = Modifier.padding(all = cardPadding),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

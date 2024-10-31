@@ -51,6 +51,8 @@ data class FiioKa13(
     FiioKa13UsbCommand {
 
     companion object {
+        const val FIRMWARE_URL =
+            "https://forum.fiio.com/note/showNoteContent.do?id=202309281720242213748&floor="
         const val MODEL_NAME = "KA13"
         const val PRODUCT_ID = 98
     }
