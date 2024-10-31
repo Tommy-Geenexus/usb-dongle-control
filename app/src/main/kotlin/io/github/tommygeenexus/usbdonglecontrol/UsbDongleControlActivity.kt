@@ -33,10 +33,6 @@ import io.github.tommygeenexus.usbdonglecontrol.theme.UsbDongleControlTheme
 @AndroidEntryPoint
 class UsbDongleControlActivity : ComponentActivity() {
 
-    init {
-        addOnNewIntentListener { intent -> setIntent(intent) }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
