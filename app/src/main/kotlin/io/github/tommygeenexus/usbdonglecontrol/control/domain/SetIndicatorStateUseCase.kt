@@ -26,15 +26,18 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.IndicatorState as IndicatorStateFiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState as IndicatorStateMoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.data.MoondropMoonriver2TiUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SetIndicatorStateUseCase @Inject constructor(
     private val fiioKa13UsbRepository: FiioKa13UsbRepository,
-    private val moondropDawnUsbRepository: MoondropDawnUsbRepository
+    private val moondropDawnUsbRepository: MoondropDawnUsbRepository,
+    private val moondropMoonriver2TiUsbRepository: MoondropMoonriver2TiUsbRepository
 ) {
 
     suspend operator fun invoke(usbDongle: UsbDongle, id: Byte): Result<UsbDongle> =
@@ -48,6 +51,12 @@ class SetIndicatorStateUseCase @Inject constructor(
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setIndicatorState(
                     moondropDawn = usbDongle,
+                    indicatorState = IndicatorStateMoondropDawn.findByIdOrDefault(id)
+                )
+            }
+            is MoondropMoonriver2Ti -> {
+                moondropMoonriver2TiUsbRepository.setIndicatorState(
+                    moondropMoonriver2Ti = usbDongle,
                     indicatorState = IndicatorStateMoondropDawn.findByIdOrDefault(id)
                 )
             }

@@ -10,4 +10,6 @@
     <usb-device vendor-id="12230" product-id="61544" />
     <!-- Moondrop Dawn Pro -->
     <usb-device vendor-id="12230" product-id="61546" />
+    <!-- Moondrop Moonriver 2 TI -->
+    <usb-device vendor-id="12230" product-id="61547" />
 </resources>

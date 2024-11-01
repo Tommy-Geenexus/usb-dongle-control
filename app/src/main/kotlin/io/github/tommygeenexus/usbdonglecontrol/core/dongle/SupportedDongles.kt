@@ -26,13 +26,15 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn35
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn44
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawnPro
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 
 val supportedDongles = listOf<UsbDongle>(
     FiioKa13(),
     FiioKa5(),
     MoondropDawn35(),
     MoondropDawn44(),
-    MoondropDawnPro()
+    MoondropDawnPro(),
+    MoondropMoonriver2Ti()
 )
 
 fun UsbDevice?.toUsbDongleOrNull() = supportedDongles.find { usbDongle ->

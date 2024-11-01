@@ -89,6 +89,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.productName
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.consumeProfileShortcut
@@ -97,7 +98,9 @@ import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbServiceVolumeLe
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui.FiioKa13Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.ui.MoondropMoonriver2TiItems
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
+import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
@@ -593,6 +596,26 @@ fun ControlScreen(
                                 horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
                             moondropDawn = usbDongle,
+                            onFilterSelected = { filterId ->
+                                onFilterSelected(filterId)
+                            },
+                            onGainSelected = { gainId ->
+                                onGainSelected(gainId)
+                            },
+                            onIndicatorStateSelected = { indicatorStateId ->
+                                onIndicatorStateSelected(indicatorStateId)
+                            },
+                            onVolumeLevelSelected = { volumeLevel ->
+                                onVolumeLevelSelected(volumeLevel)
+                            }
+                        )
+                    }
+                    is MoondropMoonriver2Ti -> {
+                        MoondropMoonriver2TiItems(
+                            modifier = Modifier.padding(
+                                horizontal = windowSizeClass.getHorizontalPadding()
+                            ),
+                            moondropMoonriver2Ti = usbDongle,
                             onFilterSelected = { filterId ->
                                 onFilterSelected(filterId)
                             },

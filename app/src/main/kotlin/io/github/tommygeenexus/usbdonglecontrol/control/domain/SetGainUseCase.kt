@@ -25,15 +25,18 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.data.MoondropMoonriver2TiUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SetGainUseCase @Inject constructor(
     private val fiioKa5UsbRepository: FiioKa5UsbRepository,
-    private val moondropDawnUsbRepository: MoondropDawnUsbRepository
+    private val moondropDawnUsbRepository: MoondropDawnUsbRepository,
+    private val moondropMoonriver2TiUsbRepository: MoondropMoonriver2TiUsbRepository
 ) {
 
     suspend operator fun invoke(usbDongle: UsbDongle, id: Byte): Result<UsbDongle> =
@@ -47,6 +50,12 @@ class SetGainUseCase @Inject constructor(
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setGain(
                     moondropDawn = usbDongle,
+                    gain = Gain.findByIdOrDefault(id)
+                )
+            }
+            is MoondropMoonriver2Ti -> {
+                moondropMoonriver2TiUsbRepository.setGain(
+                    moondropMoonriver2Ti = usbDongle,
                     gain = Gain.findByIdOrDefault(id)
                 )
             }

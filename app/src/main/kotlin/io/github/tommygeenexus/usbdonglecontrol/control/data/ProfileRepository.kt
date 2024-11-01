@@ -70,14 +70,15 @@ class ProfileRepository @Inject constructor(
 
     suspend fun addProfileShortcut(profile: Profile): Result<Unit> = withContext(dispatcherIo) {
         coroutineContext.suspendRunCatching {
-            val intent = context
-                .packageManager
-                .getLaunchIntentForPackage(context.packageName)
-                ?.apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    putExtra(INTENT_ACTION_SHORTCUT_PROFILE, profile.toPersistableBundle())
-                }
-                ?: error("getLaunchIntentForPackage()")
+            val intent = checkNotNull(
+                context
+                    .packageManager
+                    .getLaunchIntentForPackage(context.packageName)
+                    ?.apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        putExtra(INTENT_ACTION_SHORTCUT_PROFILE, profile.toPersistableBundle())
+                    }
+            )
             val icon = IconCompat.createWithResource(context, R.drawable.ic_shortcut_profile)
             val shortcut = ShortcutInfoCompat.Builder(context, profile.id.toString())
                 .setShortLabel(profile.name)
@@ -85,9 +86,7 @@ class ProfileRepository @Inject constructor(
                 .setIcon(icon)
                 .setIntent(intent)
                 .build()
-            if (!ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)) {
-                error("pushDynamicShortcut()")
-            }
+            check(ShortcutManagerCompat.pushDynamicShortcut(context, shortcut))
             Result.success(Unit)
         }.getOrElse { exception ->
             Timber.e(exception)

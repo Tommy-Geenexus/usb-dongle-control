@@ -46,9 +46,11 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.Moondr
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState as IndicatorStateMoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel as VolumeLevelMoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.data.MoondropMoonriver2TiUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,7 +58,8 @@ import javax.inject.Singleton
 class SetProfileUseCase @Inject constructor(
     private val fiioKa13UsbRepository: FiioKa13UsbRepository,
     private val fiioKa5UsbRepository: FiioKa5UsbRepository,
-    private val moondropDawnUsbRepository: MoondropDawnUsbRepository
+    private val moondropDawnUsbRepository: MoondropDawnUsbRepository,
+    private val moondropMoonriver2TiUsbRepository: MoondropMoonriver2TiUsbRepository
 ) {
 
     suspend operator fun invoke(usbDongle: UsbDongle, profile: Profile): Result<UsbDongle> =
@@ -103,6 +106,19 @@ class SetProfileUseCase @Inject constructor(
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setAll(
                     moondropDawn = usbDongle,
+                    filter = FilterFiioKa5.findByIdOrDefault(id = profile.filterId),
+                    gain = Gain.findByIdOrDefault(id = profile.gainId),
+                    indicatorState = IndicatorStateMoondropDawn.findByIdOrDefault(
+                        id = profile.indicatorStateId
+                    ),
+                    volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
+                        displayValue = profile.volumeLevel
+                    )
+                )
+            }
+            is MoondropMoonriver2Ti -> {
+                moondropMoonriver2TiUsbRepository.setAll(
+                    moondropMoonriver2Ti = usbDongle,
                     filter = FilterFiioKa5.findByIdOrDefault(id = profile.filterId),
                     gain = Gain.findByIdOrDefault(id = profile.gainId),
                     indicatorState = IndicatorStateMoondropDawn.findByIdOrDefault(
