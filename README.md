@@ -14,10 +14,12 @@
 Android application for controlling USB audio dongles.
 
 ## Supported devices
-- FiiO KA5
-- Moondrop Dawn 3.5mm
-- Moondrop Dawn 4.4mm
-- Moondrop Dawn Pro
+- FiiO KA13 (partial support, writing works but reading is not implemented)
+- FiiO KA5 (full support)
+- Moondrop Dawn 3.5mm (full support)
+- Moondrop Dawn 4.4mm (full support)
+- Moondrop Dawn Pro (full support)
+- Moondrop Moonriver 2 TI (full support)
 
 ## Download
 <a href='https://github.com/Tommy-Geenexus/usb-dongle-control/releases/latest'><img alt='Get it on GitHub' height='80' src='https://s1.ax1x.com/2023/01/12/pSu1a36.png'/></a>
