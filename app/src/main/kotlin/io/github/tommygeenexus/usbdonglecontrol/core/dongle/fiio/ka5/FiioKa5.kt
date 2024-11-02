@@ -141,10 +141,6 @@ data class FiioKa5(
         get() = byteArrayOf(-57, -91, 13)
 
     @IgnoredOnParcel
-    override val maxVolumeStepSize
-        get() = HardwareVolumeControl.VOLUME_STEP_SIZE_4
-
-    @IgnoredOnParcel
     override val isVolumeControlAsc
         get() = true
 

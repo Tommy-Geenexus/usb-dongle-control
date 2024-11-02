@@ -118,7 +118,7 @@ class UsbService : Service() {
             startForeground(
                 context = applicationContext,
                 usbDongle = currentUsbDongle,
-                volumeStepSize = HardwareVolumeControl.VOLUME_STEP_SIZE_DEFAULT
+                volumeStepSize = UsbServiceNotification.VOLUME_STEP_SIZE_MIN
             )
         }
     }

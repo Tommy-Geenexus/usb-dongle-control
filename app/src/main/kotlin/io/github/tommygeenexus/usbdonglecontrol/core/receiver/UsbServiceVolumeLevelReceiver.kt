@@ -26,7 +26,6 @@ import android.content.Intent
 import androidx.core.content.IntentCompat
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
-import io.github.tommygeenexus.usbdonglecontrol.core.volume.incrementOrWrapVolumeStepSize
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.volumeDown
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.volumeUp
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbServiceNotification
@@ -47,7 +46,7 @@ class UsbServiceVolumeLevelReceiver(
         ) ?: return
         val volumeStepSize = intent.getIntExtra(
             UsbServiceNotification.INTENT_EXTRA_VOLUME_STEP_SIZE,
-            HardwareVolumeControl.VOLUME_STEP_SIZE_DEFAULT
+            UsbServiceNotification.VOLUME_STEP_SIZE_MIN
         )
         if (usbDongle !is HardwareVolumeControl) {
             return
@@ -70,9 +69,26 @@ class UsbServiceVolumeLevelReceiver(
             UsbServiceNotification.INTENT_ACTION_VOLUME_STEP_SIZE -> {
                 onSetVolumeStepSize(
                     usbDongle,
-                    usbDongle.incrementOrWrapVolumeStepSize(volumeStepSize)
+                    incrementOrWrapVolumeStepSize(
+                        minVolumeStepSize = UsbServiceNotification.VOLUME_STEP_SIZE_MIN,
+                        maxVolumeStepSize = UsbServiceNotification.VOLUME_STEP_SIZE_MAX,
+                        currentVolumeStepSize = volumeStepSize
+                    )
                 )
             }
         }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun incrementOrWrapVolumeStepSize(
+        minVolumeStepSize: Int,
+        maxVolumeStepSize: Int,
+        currentVolumeStepSize: Int
+    ): Int {
+        var nextVolumeStepSize = currentVolumeStepSize.inc()
+        if (nextVolumeStepSize > maxVolumeStepSize) {
+            nextVolumeStepSize = minVolumeStepSize
+        }
+        return nextVolumeStepSize
     }
 }

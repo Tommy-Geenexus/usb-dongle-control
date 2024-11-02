@@ -21,19 +21,9 @@
 package io.github.tommygeenexus.usbdonglecontrol.core.volume
 
 interface HardwareVolumeControl {
-    val maxVolumeStepSize: Int
     val isVolumeControlAsc: Boolean
     val currentVolumeLevel: Int
     val displayVolumeLevel: String
-
-    companion object {
-
-        const val VOLUME_STEP_SIZE_1 = 1
-        const val VOLUME_STEP_SIZE_2 = 2
-        const val VOLUME_STEP_SIZE_3 = 3
-        const val VOLUME_STEP_SIZE_4 = 4
-        const val VOLUME_STEP_SIZE_DEFAULT = VOLUME_STEP_SIZE_1
-    }
 }
 
 fun HardwareVolumeControl.volumeDown(volumeStepSize: Int) = if (isVolumeControlAsc) {
@@ -46,12 +36,4 @@ fun HardwareVolumeControl.volumeUp(volumeStepSize: Int) = if (isVolumeControlAsc
     currentVolumeLevel + volumeStepSize
 } else {
     currentVolumeLevel - volumeStepSize
-}
-
-fun HardwareVolumeControl.incrementOrWrapVolumeStepSize(volumeStepSize: Int): Int {
-    var nextVolumeStepSize = volumeStepSize.inc()
-    if (nextVolumeStepSize > maxVolumeStepSize) {
-        nextVolumeStepSize = HardwareVolumeControl.VOLUME_STEP_SIZE_1
-    }
-    return nextVolumeStepSize
 }

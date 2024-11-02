@@ -68,9 +68,6 @@ data class MoondropMoonriver2Ti(
     override val setVolumeLevel
         get() = byteArrayOf(-64, -91, 4)
 
-    override val maxVolumeStepSize
-        get() = HardwareVolumeControl.VOLUME_STEP_SIZE_3
-
     override val isVolumeControlAsc: Boolean
         get() = false
 
