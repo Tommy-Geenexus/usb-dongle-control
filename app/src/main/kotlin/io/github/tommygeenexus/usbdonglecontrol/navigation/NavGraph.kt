@@ -52,10 +52,10 @@ fun NavGraph(
     ) {
         composable<NavDestinations.Setup>(
             enterTransition = {
-                materialSharedAxisXIn(forward = true, slideDistance = slideDistance)
+                materialSharedAxisXIn(forward = false, slideDistance = slideDistance)
             },
             exitTransition = {
-                materialSharedAxisXOut(forward = false, slideDistance = slideDistance)
+                materialSharedAxisXOut(forward = true, slideDistance = slideDistance)
             }
         ) {
             SetupScreen(
@@ -82,11 +82,19 @@ fun NavGraph(
                 ) {
                     materialSharedAxisXIn(forward = true, slideDistance = slideDistance)
                 } else {
-                    materialSharedAxisZIn(forward = true)
+                    materialSharedAxisZIn(forward = false)
                 }
             },
             exitTransition = {
-                materialSharedAxisZOut(forward = false)
+                if (initialState
+                        .destination
+                        .route
+                        ?.endsWith(NavDestinations.Setup.toString()) == true
+                ) {
+                    materialSharedAxisXOut(forward = false, slideDistance = slideDistance)
+                } else {
+                    materialSharedAxisZOut(forward = true)
+                }
             }
         ) {
             ControlScreen(
@@ -97,7 +105,14 @@ fun NavGraph(
                     navController.navigate(NavDestinations.Settings)
                 },
                 onNavigateToSetup = {
-                    navController.navigate(NavDestinations.Setup)
+                    navController.navigate(
+                        route = NavDestinations.Setup,
+                        navOptions = navOptions {
+                            popUpTo(route = NavDestinations.Control) {
+                                inclusive = true
+                            }
+                        }
+                    )
                 }
             )
         }
