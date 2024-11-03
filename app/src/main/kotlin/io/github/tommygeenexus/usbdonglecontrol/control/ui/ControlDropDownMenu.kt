@@ -34,17 +34,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
 
 @Composable
 fun ControlDropdownMenu(
     windowSizeClass: WindowSizeClass,
-    onShouldShowMore: () -> Boolean,
-    onDismissRequest: () -> Unit,
-    onRefresh: () -> Unit,
-    onReset: () -> Unit,
-    onProfileExport: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isExpanded: Boolean = false,
+    onDismissRequest: () -> Unit = {},
+    onRefresh: () -> Unit = {},
+    onReset: () -> Unit = {},
+    onProfileExport: (String) -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     var showExportProfile by remember { mutableStateOf(false) }
     if (showExportProfile) {
@@ -57,7 +62,7 @@ fun ControlDropdownMenu(
         )
     }
     DropdownMenu(
-        expanded = onShouldShowMore(),
+        expanded = isExpanded,
         onDismissRequest = onDismissRequest,
         modifier = modifier
     ) {
@@ -102,5 +107,47 @@ fun ControlDropdownMenu(
                 showExportProfile = true
             }
         )
+        if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.settings),
+                        fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                onClick = {
+                    onDismissRequest()
+                    onNavigateToSettings()
+                }
+            )
+        }
     }
+}
+
+@Preview(name = "Compact")
+@Composable
+private fun ControlDropdownMenuPreview1() {
+    ControlDropdownMenu(
+        windowSizeClass = windowWidthSizeClassCompact,
+        isExpanded = true
+    )
+}
+
+@Preview(name = "Medium")
+@Composable
+private fun ControlDropdownMenuPreview2() {
+    ControlDropdownMenu(
+        windowSizeClass = windowWidthSizeClassMedium,
+        isExpanded = true
+    )
+}
+
+@Preview(name = "Expanded")
+@Composable
+private fun ControlDropdownMenuPreview3() {
+    ControlDropdownMenu(
+        windowSizeClass = windowWidthSizeClassExpanded,
+        isExpanded = true
+    )
 }

@@ -20,13 +20,13 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.ui
 
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import io.github.tommygeenexus.usbdonglecontrol.control.ui.ControlScreen
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
 
 private val usbDongle = UnsupportedUsbDongle
 
@@ -34,6 +34,7 @@ private val usbDongle = UnsupportedUsbDongle
 @Composable
 private fun ControlScreenPreview1() {
     ControlScreen(
+        windowSizeClass = windowWidthSizeClassCompact,
         usbDongle = usbDongle,
         isLoading = true
     )
@@ -42,14 +43,17 @@ private fun ControlScreenPreview1() {
 @Preview(name = "Compact")
 @Composable
 private fun ControlScreenPreview2() {
-    ControlScreen(usbDongle = usbDongle)
+    ControlScreen(
+        windowSizeClass = windowWidthSizeClassCompact,
+        usbDongle = usbDongle
+    )
 }
 
 @Preview(name = "Medium")
 @Composable
 private fun ControlScreenPreview3() {
     ControlScreen(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero.copy(width = 600.dp)),
+        windowSizeClass = windowWidthSizeClassMedium,
         usbDongle = usbDongle
     )
 }
@@ -58,7 +62,7 @@ private fun ControlScreenPreview3() {
 @Composable
 private fun ControlScreenPreview4() {
     ControlScreen(
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero.copy(width = 840.dp)),
+        windowSizeClass = windowWidthSizeClassExpanded,
         usbDongle = usbDongle
     )
 }

@@ -20,8 +20,17 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.util
 
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+
 const val TOP_LEVEL_PACKAGE_NAME = "io.github.tommygeenexus."
 
 const val INTENT_ACTION_USB_PERMISSION = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_USB_PERMISSION"
 const val INTENT_ACTION_SHORTCUT_PROFILE = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_SHORTCUT_PROFILE"
 const val INTENT_EXTRA_CONSUMED = TOP_LEVEL_PACKAGE_NAME + "EXTRA_CONSUMED"
+
+val windowWidthSizeClassCompact = WindowSizeClass.calculateFromSize(DpSize.Zero)
+val windowWidthSizeClassMedium = WindowSizeClass.calculateFromSize(DpSize.Zero.copy(width = 600.dp))
+val windowWidthSizeClassExpanded =
+    WindowSizeClass.calculateFromSize(DpSize.Zero.copy(width = 840.dp))

@@ -49,8 +49,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpSize
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsViewModel
 import org.orbitmvi.orbit.compose.collectAsState
@@ -91,8 +93,8 @@ fun SettingsScreen(
 
 @Composable
 fun SettingScreen(
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    windowSizeClass: WindowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     isMaximizeVolumeEnabled: Boolean = false,
     onMaximizeVolumeRequested: (Boolean) -> Unit = {},
@@ -138,8 +140,20 @@ fun SettingScreen(
     }
 }
 
-@Preview(name = "Settings Screen")
+@Preview(name = "Compact")
 @Composable
-private fun SettingsScreen() {
-    SettingScreen()
+private fun SettingsScreen1() {
+    SettingScreen(windowSizeClass = windowWidthSizeClassCompact)
+}
+
+@Preview(name = "Medium")
+@Composable
+private fun SettingsScreen2() {
+    SettingScreen(windowSizeClass = windowWidthSizeClassMedium)
+}
+
+@Preview(name = "Expanded")
+@Composable
+private fun SettingsScreen3() {
+    SettingScreen(windowSizeClass = windowWidthSizeClassExpanded)
 }

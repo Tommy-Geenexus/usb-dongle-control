@@ -36,14 +36,15 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.tommygeenexus.usbdonglecontrol.R
 
 @Composable
 fun ExportProfileDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (profileName: String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit = {},
+    onConfirm: (profileName: String) -> Unit = {}
 ) {
     val textFieldState = remember { mutableStateOf(TextFieldValue()) }
     AlertDialog(
@@ -93,4 +94,10 @@ fun ExportProfileDialog(
             }
         }
     )
+}
+
+@Preview
+@Composable
+private fun ExportProfileDialogPreview() {
+    ExportProfileDialog()
 }

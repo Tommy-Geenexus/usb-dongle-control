@@ -37,16 +37,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
 
 @Composable
 fun SettingsAudioItem(
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    windowSizeClass: WindowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero),
     isMaximizeVolumeEnabled: Boolean = false,
     onMaximizeVolumeRequested: (Boolean) -> Unit = {}
 ) {
@@ -107,8 +109,20 @@ fun SettingsAudioItem(
     }
 }
 
-@Preview
+@Preview(name = "Compact")
 @Composable
-private fun SettingsAudioItemPreview() {
-    SettingsAudioItem()
+private fun SettingsAudioItemPreview1() {
+    SettingsAudioItem(windowSizeClass = windowWidthSizeClassCompact)
+}
+
+@Preview(name = "Medium")
+@Composable
+private fun SettingsAudioItemPreview2() {
+    SettingsAudioItem(windowSizeClass = windowWidthSizeClassMedium)
+}
+
+@Preview(name = "Expanded")
+@Composable
+private fun SettingsAudioItemPreview3() {
+    SettingsAudioItem(windowSizeClass = windowWidthSizeClassExpanded)
 }

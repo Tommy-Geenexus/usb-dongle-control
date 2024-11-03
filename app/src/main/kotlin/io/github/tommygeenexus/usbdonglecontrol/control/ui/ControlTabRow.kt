@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.core.control.ControlTabs
 
 @Composable
@@ -35,7 +37,7 @@ fun ControlTabRow(
     selectedTabIndex: Int,
     containerColor: Color,
     modifier: Modifier = Modifier,
-    onTabSelected: (Int) -> Unit
+    onTabSelected: (Int) -> Unit = {}
 ) {
     TabRow(
         selectedTabIndex = selectedTabIndex,
@@ -56,4 +58,13 @@ fun ControlTabRow(
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun ControlTabRowPreview() {
+    ControlTabRow(
+        selectedTabIndex = 0,
+        containerColor = MaterialTheme.colorScheme.surface
+    )
 }

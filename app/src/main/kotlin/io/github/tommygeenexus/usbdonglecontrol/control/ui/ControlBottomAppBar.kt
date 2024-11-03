@@ -41,17 +41,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
 
 @Composable
 fun ControlBottomAppBar(
     windowSizeClass: WindowSizeClass,
-    scrollBehavior: BottomAppBarScrollBehavior?,
-    onRefresh: () -> Unit,
-    onReset: () -> Unit,
-    onProfileExport: (String) -> Unit,
-    onNavigateToSettings: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollBehavior: BottomAppBarScrollBehavior? = null,
+    onRefresh: () -> Unit = {},
+    onReset: () -> Unit = {},
+    onProfileExport: (String) -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val collapsedFraction by animateFloatAsState(
         targetValue = if (scrollBehavior != null) {
@@ -84,11 +86,12 @@ fun ControlBottomAppBar(
             }
             ControlDropdownMenu(
                 windowSizeClass = windowSizeClass,
-                onShouldShowMore = { showMore },
+                isExpanded = showMore,
                 onDismissRequest = { showMore = false },
                 onRefresh = onRefresh,
                 onReset = onReset,
-                onProfileExport = onProfileExport
+                onProfileExport = onProfileExport,
+                onNavigateToSettings = onNavigateToSettings
             )
         },
         modifier = modifier,
@@ -107,4 +110,10 @@ fun ControlBottomAppBar(
         },
         scrollBehavior = scrollBehavior
     )
+}
+
+@Preview
+@Composable
+private fun ControlBottomAppBarPreview() {
+    ControlBottomAppBar(windowSizeClass = windowWidthSizeClassCompact)
 }

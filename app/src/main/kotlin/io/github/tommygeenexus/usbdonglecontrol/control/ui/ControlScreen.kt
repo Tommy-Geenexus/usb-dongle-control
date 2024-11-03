@@ -74,7 +74,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpSize
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.compose.LazyPagingItems
@@ -391,8 +390,8 @@ fun ControlScreen(
 
 @Composable
 fun ControlScreen(
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    windowSizeClass: WindowSizeClass = WindowSizeClass.calculateFromSize(DpSize.Zero),
     topScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
     bottomScrollBehavior: BottomAppBarScrollBehavior? = null,
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -444,16 +443,14 @@ fun ControlScreen(
         },
         topBar = {
             ControlTopAppBar(
+                windowInsets = WindowInsets.statusBars,
+                productName = usbDongle.productName(),
                 windowSizeClass = windowSizeClass,
                 scrollBehavior = topScrollBehavior,
-                productName = usbDongle.productName(),
                 onRefresh = onRefresh,
                 onReset = onReset,
                 onProfileExport = onProfileExport,
-                shouldShowActions = {
-                    windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
-                },
-                windowInsets = WindowInsets.statusBars
+                onNavigateToSettings = onNavigateToSettings
             )
         },
         bottomBar = {
