@@ -32,12 +32,6 @@ fun WindowSizeClass.getHorizontalCardPadding() = if (
     16.dp
 }
 
-fun WindowSizeClass.getHorizontalPadding() = if (widthSizeClass == WindowWidthSizeClass.Compact) {
-    16.dp
-} else {
-    24.dp
-}
-
 val cardPadding = 16.dp
 val cardPaddingBetween = 8.dp
 

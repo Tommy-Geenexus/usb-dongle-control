@@ -109,7 +109,6 @@ fun NavGraph(
             }
         ) {
             SettingsScreen(
-                windowSizeClass = windowSizeClass,
                 viewModel = hiltViewModel(),
                 onNavigateUp = {
                     navController.navigateUp()

@@ -22,7 +22,7 @@ package io.github.tommygeenexus.usbdonglecontrol.settings.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -31,98 +31,86 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
-import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
-import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
 
 @Composable
 fun SettingsAudioItem(
-    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     isMaximizeVolumeEnabled: Boolean = false,
-    onMaximizeVolumeRequested: (Boolean) -> Unit = {}
+    onMaximizeVolumeSwitched: (Boolean) -> Unit = {}
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.fillMaxSize()) {
         Text(
             text = stringResource(id = R.string.audio),
-            modifier = Modifier.padding(
-                start = 56.dp,
-                top = 24.dp,
-                end = 16.dp,
-                bottom = 8.dp
-            ),
+            modifier = Modifier.padding(start = 56.dp, top = 24.dp, bottom = 8.dp),
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.titleSmall
         )
-        Row(
+        ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    onMaximizeVolumeRequested(!isMaximizeVolumeEnabled)
-                },
-            verticalAlignment = Alignment.CenterVertically
+                    onMaximizeVolumeSwitched(!isMaximizeVolumeEnabled)
+                }
         ) {
+            val (icon, title, subtitle, checkbox) = createRefs()
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
                 contentDescription = stringResource(id = R.string.maximize_volume),
-                modifier = Modifier.padding(start = windowSizeClass.getHorizontalPadding())
+                modifier = Modifier.constrainAs(icon) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(anchor = parent.start, margin = 16.dp)
+                    top.linkTo(parent.top)
+                }
             )
-            Column(modifier = Modifier.weight(2f)) {
-                Text(
-                    text = stringResource(id = R.string.maximize_volume),
-                    modifier = Modifier.padding(
-                        start = 16.dp,
-                        top = 16.dp
-                    ),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Text(
-                    text = stringResource(id = R.string.maximize_volume_description),
-                    modifier = Modifier.padding(
-                        start = 16.dp,
-                        top = 4.dp,
-                        bottom = 24.dp
-                    ),
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            Text(
+                text = stringResource(R.string.maximize_volume),
+                modifier = Modifier.constrainAs(title) {
+                    bottom.linkTo(subtitle.top)
+                    end.linkTo(checkbox.start, margin = 16.dp)
+                    start.linkTo(icon.end, margin = 16.dp)
+                    top.linkTo(parent.top, margin = 16.dp)
+                    horizontalBias = 0f
+                    width = Dimension.preferredWrapContent
+                },
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = stringResource(id = R.string.maximize_volume_description),
+                modifier = Modifier.constrainAs(subtitle) {
+                    bottom.linkTo(parent.bottom, margin = 16.dp)
+                    end.linkTo(checkbox.start, margin = 16.dp)
+                    start.linkTo(icon.end, margin = 16.dp)
+                    top.linkTo(title.bottom)
+                    horizontalBias = 0f
+                    width = Dimension.preferredWrapContent
+                },
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodyMedium
+            )
             Checkbox(
                 checked = isMaximizeVolumeEnabled,
-                onCheckedChange = onMaximizeVolumeRequested,
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = windowSizeClass.getHorizontalCardPadding()
-                )
+                onCheckedChange = onMaximizeVolumeSwitched,
+                modifier = Modifier.constrainAs(checkbox) {
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(anchor = parent.end, margin = 16.dp)
+                    top.linkTo(parent.top)
+                    horizontalBias = 1f
+                }
             )
         }
     }
 }
 
-@Preview(name = "Compact")
+@Preview
 @Composable
-private fun SettingsAudioItemPreview1() {
-    SettingsAudioItem(windowSizeClass = windowWidthSizeClassCompact)
-}
-
-@Preview(name = "Medium")
-@Composable
-private fun SettingsAudioItemPreview2() {
-    SettingsAudioItem(windowSizeClass = windowWidthSizeClassMedium)
-}
-
-@Preview(name = "Expanded")
-@Composable
-private fun SettingsAudioItemPreview3() {
-    SettingsAudioItem(windowSizeClass = windowWidthSizeClassExpanded)
+private fun SettingsAudioItemPreview() {
+    SettingsAudioItem()
 }

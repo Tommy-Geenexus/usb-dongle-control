@@ -99,7 +99,6 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.ui.MoondropMoonriver2TiItems
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
-import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalPadding
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
@@ -610,7 +609,7 @@ fun ControlScreen(
                     is MoondropMoonriver2Ti -> {
                         MoondropMoonriver2TiItems(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalPadding()
+                                horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
                             moondropMoonriver2Ti = usbDongle,
                             onFilterSelected = { filterId ->

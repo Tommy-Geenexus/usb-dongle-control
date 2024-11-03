@@ -21,12 +21,16 @@
 package io.github.tommygeenexus.usbdonglecontrol.settings.ui
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -38,32 +42,25 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
-fun SettingsScreen(
-    windowSizeClass: WindowSizeClass,
-    viewModel: SettingsViewModel,
-    onNavigateUp: () -> Unit
-) {
+fun SettingsScreen(viewModel: SettingsViewModel, onNavigateUp: () -> Unit) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         val activity = LocalContext.current as Activity
         val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
@@ -82,7 +79,6 @@ fun SettingsScreen(
     }
     val state by viewModel.collectAsState()
     SettingScreen(
-        windowSizeClass = windowSizeClass,
         isMaximizeVolumeEnabled = state.isMaximizeVolumeEnabled,
         onMaximizeVolumeRequested = { isEnabled ->
             viewModel.storeMaximizeVolume(isEnabled)
@@ -93,7 +89,6 @@ fun SettingsScreen(
 
 @Composable
 fun SettingScreen(
-    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     isMaximizeVolumeEnabled: Boolean = false,
@@ -101,7 +96,13 @@ fun SettingScreen(
     onNavigateUp: () -> Unit = {}
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier = if (LocalConfiguration.current.orientation ==
+            Configuration.ORIENTATION_LANDSCAPE
+        ) {
+            modifier.windowInsetsPadding(WindowInsets.displayCutout)
+        } else {
+            modifier
+        },
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.settings)) },
@@ -130,9 +131,8 @@ fun SettingScreen(
             LazyColumn {
                 item {
                     SettingsAudioItem(
-                        windowSizeClass = windowSizeClass,
                         isMaximizeVolumeEnabled = isMaximizeVolumeEnabled,
-                        onMaximizeVolumeRequested = onMaximizeVolumeRequested
+                        onMaximizeVolumeSwitched = onMaximizeVolumeRequested
                     )
                 }
             }
@@ -140,20 +140,8 @@ fun SettingScreen(
     }
 }
 
-@Preview(name = "Compact")
+@Preview
 @Composable
-private fun SettingsScreen1() {
-    SettingScreen(windowSizeClass = windowWidthSizeClassCompact)
-}
-
-@Preview(name = "Medium")
-@Composable
-private fun SettingsScreen2() {
-    SettingScreen(windowSizeClass = windowWidthSizeClassMedium)
-}
-
-@Preview(name = "Expanded")
-@Composable
-private fun SettingsScreen3() {
-    SettingScreen(windowSizeClass = windowWidthSizeClassExpanded)
+private fun SettingsScreen() {
+    SettingScreen()
 }
