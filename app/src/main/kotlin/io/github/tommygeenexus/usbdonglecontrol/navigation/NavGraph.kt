@@ -91,12 +91,13 @@ fun NavGraph(
         ) {
             ControlScreen(
                 windowSizeClass = windowSizeClass,
+                navController = navController,
                 viewModel = hiltViewModel(),
                 onNavigateToSettings = {
                     navController.navigate(NavDestinations.Settings)
                 },
-                onNavigateUp = {
-                    navController.navigateUp()
+                onNavigateToSetup = {
+                    navController.navigate(NavDestinations.Setup)
                 }
             )
         }

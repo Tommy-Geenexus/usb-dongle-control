@@ -75,7 +75,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.tommygeenexus.usbdonglecontrol.R
@@ -98,6 +101,7 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui.FiioKa13Item
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.ui.MoondropMoonriver2TiItems
+import io.github.tommygeenexus.usbdonglecontrol.navigation.NavDestinations
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
@@ -107,9 +111,10 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun ControlScreen(
     windowSizeClass: WindowSizeClass,
+    navController: NavController,
     viewModel: ControlViewModel,
     onNavigateToSettings: () -> Unit,
-    onNavigateUp: () -> Unit
+    onNavigateToSetup: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -239,7 +244,7 @@ fun ControlScreen(
                 }
             }
             ControlSideEffect.UsbCommunication.Get.Failure -> {
-                onNavigateUp()
+                onNavigateToSetup()
             }
             is ControlSideEffect.UsbCommunication.Get.Success -> {
                 viewModel.getCurrentStateForUsbDongle(usbDongle = sideEffect.usbDongle)
@@ -274,7 +279,21 @@ fun ControlScreen(
     } else {
         null
     }
-    DisposableEffect(LocalLifecycleOwner.current) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            navController.currentBackStackEntryFlow.collect { navBackStackEntry ->
+                if (navBackStackEntry
+                        .destination
+                        .route
+                        ?.endsWith(NavDestinations.Control.toString()) == true
+                ) {
+                    viewModel.verifyUsbDongleIsAttachedAndUsbPermissionIsGranted()
+                }
+            }
+        }
+    }
+    DisposableEffect(lifecycleOwner) {
         val usbReceiver = UsbDeviceAttachDetachPermissionReceiver(
             onAttachedDevicesChanged = { isAttached ->
                 if (!isAttached) {
@@ -282,7 +301,7 @@ fun ControlScreen(
                     topScrollBehavior.state.contentOffset = 0f
                     bottomScrollBehavior?.state?.heightOffset = 0f
                     bottomScrollBehavior?.state?.contentOffset = 0f
-                    onNavigateUp()
+                    onNavigateToSetup()
                 }
             }
         )

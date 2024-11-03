@@ -149,6 +149,26 @@ class ControlViewModel @Inject constructor(
         }
     }
 
+    fun verifyUsbDongleIsAttachedAndUsbPermissionIsGranted() = intent {
+        reduce {
+            state.copy(loadingTasks = state.plusLoadingTask())
+        }
+        val result = usbRepository.getFirstAttachedUsbDongle()
+        reduce {
+            state.copy(loadingTasks = state.minusLoadingTask())
+        }
+        if (result.isSuccess) {
+            val (_, _, isUsbPermissionGranted) = result.getOrThrow()
+            if (!isUsbPermissionGranted) {
+                // Device has been detached then attached again without permission auto-grant
+                // while in another screen
+                postSideEffect(ControlSideEffect.UsbCommunication.Get.Failure)
+            }
+        } else {
+            postSideEffect(ControlSideEffect.UsbCommunication.Get.Failure)
+        }
+    }
+
     fun setProfile(profile: Profile) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
