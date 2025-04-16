@@ -20,7 +20,6 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -28,6 +27,7 @@ import android.content.res.Configuration
 import android.hardware.usb.UsbManager
 import android.os.Build
 import android.view.accessibility.AccessibilityManager
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -205,6 +205,7 @@ fun ControlScreen(
                 context.startService(Intent(context, UsbService::class.java))
             }
             ControlSideEffect.Service.Stop -> {
+                @Suppress("ImplicitSamInstance")
                 context.stopService(Intent(context, UsbService::class.java))
             }
             ControlSideEffect.Shortcut.Add.Failure -> {
@@ -328,11 +329,13 @@ fun ControlScreen(
         }
     }
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        val activity = LocalContext.current as Activity
-        val bottomAppBarColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
-        SideEffect {
-            @Suppress("DEPRECATION")
-            activity.window?.navigationBarColor = bottomAppBarColor
+        val activity = LocalActivity.current
+        if (activity != null) {
+            val bottomAppBarColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
+            SideEffect {
+                @Suppress("DEPRECATION")
+                activity.window?.navigationBarColor = bottomAppBarColor
+            }
         }
     }
     val state by viewModel.collectAsState()
@@ -517,7 +520,7 @@ fun ControlScreen(
                 label = "StatusBarColorAnimation"
             )
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                val activity = LocalContext.current as? Activity
+                val activity = LocalActivity.current
                 if (activity != null) {
                     LaunchedEffect(animatedColor) {
                         @Suppress("DEPRECATION")
@@ -663,12 +666,12 @@ fun ControlScreen(
                     }
                 )
             }
-            val context = (LocalContext.current as? Activity)
-            if (context != null) {
+            val activity = LocalActivity.current
+            if (activity != null) {
                 val profileItems = profiles.itemSnapshotList.items
                 LaunchedEffect(profileItems) {
                     if (profileItems.isNotEmpty()) {
-                        val profileShortcut = context.intent.consumeProfileShortcut()
+                        val profileShortcut = activity.intent.consumeProfileShortcut()
                         if (profileShortcut != null) {
                             selectedTabIndex = ControlTabs.Profiles.index
                             val index = profileItems.indexOf(profileShortcut)

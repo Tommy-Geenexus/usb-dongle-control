@@ -39,6 +39,7 @@ class UsbDeviceDetachReceiver : BroadcastReceiver() {
                 UsbDevice::class.java
             )
             if (device.toUsbDongleOrNull() != null) {
+                @Suppress("ImplicitSamInstance")
                 context.stopService(Intent(context, UsbService::class.java))
             }
         }

@@ -21,10 +21,10 @@
 package io.github.tommygeenexus.usbdonglecontrol.setup.ui
 
 import android.Manifest
-import android.app.Activity
 import android.content.IntentFilter
 import android.hardware.usb.UsbManager
 import android.os.Build
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -133,11 +133,13 @@ fun SetupScreen(viewModel: SetupViewModel, onNavigateToControl: () -> Unit) {
         }
     }
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        val activity = LocalContext.current as Activity
-        val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
-        SideEffect {
-            @Suppress("DEPRECATION")
-            activity.window?.navigationBarColor = surfaceColor
+        val activity = LocalActivity.current
+        if (activity != null) {
+            val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+            SideEffect {
+                @Suppress("DEPRECATION")
+                activity.window?.navigationBarColor = surfaceColor
+            }
         }
     }
     SetupScreen(
