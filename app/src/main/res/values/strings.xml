@@ -8,8 +8,6 @@
 
     <string name="audio">Audio</string>
 
-    <string name="cable">Cable</string>
-
     <string name="channel_balance">Channel balance</string>
     <string name="channel_balance_offset">Offset: %1$s %2$s</string>
 

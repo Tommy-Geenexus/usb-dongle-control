@@ -20,9 +20,9 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.settings.ui
 
-import android.app.Activity
 import android.content.res.Configuration
 import android.os.Build
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -49,7 +49,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,11 +61,13 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel, onNavigateUp: () -> Unit) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        val activity = LocalContext.current as Activity
-        val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
-        SideEffect {
-            @Suppress("DEPRECATION")
-            activity.window?.navigationBarColor = surfaceColor
+        val activity = LocalActivity.current
+        if (activity != null) {
+            val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+            SideEffect {
+                @Suppress("DEPRECATION")
+                activity.window?.navigationBarColor = surfaceColor
+            }
         }
     }
     viewModel.collectSideEffect { sideEffect ->
