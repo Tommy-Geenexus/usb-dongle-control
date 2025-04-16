@@ -91,7 +91,6 @@ class FiioKa5UsbRepository @Inject constructor(
                 val commands = listOf(
                     usbDongle.getVersion,
                     usbDongle.getSampleRate,
-                    usbDongle.getVolumeLevel,
                     usbDongle.getFilter,
                     usbDongle.getOtherState
                 )
@@ -99,10 +98,8 @@ class FiioKa5UsbRepository @Inject constructor(
                 var dacMode: DacMode = DacMode.default()
                 var hardwareMute: HardwareMute = HardwareMute.default()
                 var hidMode: HidMode = HidMode.default()
-                var volumeMode: VolumeMode = VolumeMode.default()
                 var firmwareVersion: FirmwareVersion = FirmwareVersion.default()
                 var sampleRate: SampleRate = SampleRate.default()
-                var volumeLevel: VolumeLevel = VolumeLevel.default()
                 var channelBalance: ChannelBalance = ChannelBalance.default()
                 var filter: Filter = Filter.default()
                 var spdifOut: SpdifOut = SpdifOut.default()
@@ -123,9 +120,6 @@ class FiioKa5UsbRepository @Inject constructor(
                             hidMode = HidMode.findByIdOrDefault(
                                 id = data[REQUEST_RESULT_INDEX_HID_MODE]
                             )
-                            volumeMode = VolumeMode.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_VOLUME_MODE]
-                            )
                             firmwareVersion = FirmwareVersion.createFromPayload(
                                 payload = data[REQUEST_RESULT_INDEX_VERSION]
                             )
@@ -134,10 +128,6 @@ class FiioKa5UsbRepository @Inject constructor(
                                 key = data[REQUEST_RESULT_INDEX_SAMPLE_RATE].toInt()
                             )
                         } else if (command.contentEquals(usbDongle.getVolumeLevel)) {
-                            volumeLevel = VolumeLevel.createFromPayload(
-                                payload = data[REQUEST_RESULT_INDEX_VOLUME_LEVEL].toUByte().toInt(),
-                                volumeMode = volumeMode
-                            )
                             channelBalance = ChannelBalance.createFromPayload(
                                 channelRight = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_R].toInt(),
                                 channelLeft = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_L].toInt()
@@ -173,8 +163,8 @@ class FiioKa5UsbRepository @Inject constructor(
                         }
                     }
                 }
-                Result.success(
-                    value = usbDongle.copy(
+                getVolumeLevelAndMode(
+                    usbDongle = usbDongle.copy(
                         channelBalance = channelBalance,
                         dacMode = dacMode,
                         displayBrightness = displayBrightness,
@@ -186,9 +176,7 @@ class FiioKa5UsbRepository @Inject constructor(
                         hardwareMute = hardwareMute,
                         hidMode = hidMode,
                         sampleRate = sampleRate,
-                        spdifOut = spdifOut,
-                        volumeLevel = volumeLevel,
-                        volumeMode = volumeMode
+                        spdifOut = spdifOut
                     )
                 )
             }.getOrElse { exception ->
