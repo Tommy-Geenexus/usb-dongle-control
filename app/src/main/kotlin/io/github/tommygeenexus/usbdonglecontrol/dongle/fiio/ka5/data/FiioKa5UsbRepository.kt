@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -87,7 +87,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 val commands = listOf(
                     usbDongle.getVersion,
                     usbDongle.getSampleRate,
@@ -195,7 +195,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 val commands = listOf(
                     usbDongle.getVersion,
                     usbDongle.getVolumeLevel
@@ -249,7 +249,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setChannelBalance.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = channelBalance.payload.first.toByte()
                 data[REQUEST_PAYLOAD_INDEX_SET + 1] = channelBalance.payload.second.toByte()
@@ -278,7 +278,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setDacMode.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = dacMode.id
                 mutex.withLock {
@@ -309,7 +309,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setDisplayBrightness.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = displayBrightness.payload.toByte()
                 mutex.withLock {
@@ -337,7 +337,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setDisplayInvert.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = displayInvert.payload
                 mutex.withLock {
@@ -368,7 +368,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setDisplayTimeout.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = displayTimeout.payload.toByte()
                 mutex.withLock {
@@ -396,7 +396,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setFilter.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
                 mutex.withLock {
@@ -424,7 +424,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setGain.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
                 mutex.withLock {
@@ -452,7 +452,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setHardwareMute.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = hardwareMute.payload
                 mutex.withLock {
@@ -480,7 +480,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setHidMode.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = hidMode.id
                 mutex.withLock {
@@ -508,7 +508,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setSpdifOut.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = spdifOut.payload
                 mutex.withLock {
@@ -536,7 +536,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setVolumeMode.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = volumeMode.id
                 mutex.withLock {
@@ -564,7 +564,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setVolumeLevel.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.payload.toByte()
                 mutex.withLock {
@@ -606,7 +606,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 fiioKa5.setChannelBalance.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = channelBalance.payload.first.toByte()
                 data[REQUEST_PAYLOAD_INDEX_SET + 1] = channelBalance.payload.second.toByte()

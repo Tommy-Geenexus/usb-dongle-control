@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -63,7 +63,7 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 usbDongle.getAny.copyInto(data)
                 val filter: Filter
                 val gain: Gain
@@ -123,7 +123,7 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 moondropMoonriver2Ti.setFilter.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
                 mutex.withLock {
@@ -154,7 +154,7 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 moondropMoonriver2Ti.setGain.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
                 mutex.withLock {
@@ -185,7 +185,7 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 moondropMoonriver2Ti.setIndicatorState.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = indicatorState.id
                 mutex.withLock {
@@ -216,7 +216,7 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 moondropMoonriver2Ti.setVolumeLevel.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.displayValueAndPayload.toByte()
                 mutex.withLock {
@@ -250,7 +250,7 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE) { 0 }
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
                 moondropMoonriver2Ti.setFilter.copyInto(data)
                 data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
                 mutex.withLock {
