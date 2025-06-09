@@ -36,7 +36,7 @@ object DbModule {
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context) = Room
         .databaseBuilder(context, ProfileDatabase::class.java, "app.db")
-        .fallbackToDestructiveMigration()
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
 
     @Provides
