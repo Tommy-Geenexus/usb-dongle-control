@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -27,10 +27,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -39,9 +40,13 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
 
 @Composable
 fun SettingsAudioItem(
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     isMaximizeVolumeEnabled: Boolean = false,
     onMaximizeVolumeSwitched: (Boolean) -> Unit = {}
@@ -49,7 +54,11 @@ fun SettingsAudioItem(
     Column(modifier = modifier.fillMaxSize()) {
         Text(
             text = stringResource(id = R.string.audio),
-            modifier = Modifier.padding(start = 56.dp, top = 24.dp, bottom = 8.dp),
+            modifier = Modifier.padding(
+                start = 8.dp + windowSizeClass.getHorizontalCardPadding(),
+                top = 24.dp,
+                bottom = 8.dp
+            ),
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.titleSmall
         )
@@ -60,7 +69,7 @@ fun SettingsAudioItem(
                     onMaximizeVolumeSwitched(!isMaximizeVolumeEnabled)
                 }
         ) {
-            val (icon, title, subtitle, checkbox) = createRefs()
+            val (icon, title, subtitle, switch) = createRefs()
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
                 contentDescription = stringResource(id = R.string.maximize_volume),
@@ -74,7 +83,7 @@ fun SettingsAudioItem(
                 text = stringResource(R.string.maximize_volume),
                 modifier = Modifier.constrainAs(title) {
                     bottom.linkTo(subtitle.top)
-                    end.linkTo(checkbox.start, margin = 16.dp)
+                    end.linkTo(switch.start, margin = 16.dp)
                     start.linkTo(icon.end, margin = 16.dp)
                     top.linkTo(parent.top, margin = 16.dp)
                     horizontalBias = 0f
@@ -86,7 +95,7 @@ fun SettingsAudioItem(
                 text = stringResource(id = R.string.maximize_volume_description),
                 modifier = Modifier.constrainAs(subtitle) {
                     bottom.linkTo(parent.bottom, margin = 16.dp)
-                    end.linkTo(checkbox.start, margin = 16.dp)
+                    end.linkTo(switch.start, margin = 16.dp)
                     start.linkTo(icon.end, margin = 16.dp)
                     top.linkTo(title.bottom)
                     horizontalBias = 0f
@@ -95,10 +104,10 @@ fun SettingsAudioItem(
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Checkbox(
+            Switch(
                 checked = isMaximizeVolumeEnabled,
                 onCheckedChange = onMaximizeVolumeSwitched,
-                modifier = Modifier.constrainAs(checkbox) {
+                modifier = Modifier.constrainAs(switch) {
                     bottom.linkTo(parent.bottom)
                     end.linkTo(anchor = parent.end, margin = 16.dp)
                     top.linkTo(parent.top)
@@ -109,8 +118,14 @@ fun SettingsAudioItem(
     }
 }
 
-@Preview
+@Preview("Compact")
 @Composable
-private fun SettingsAudioItemPreview() {
-    SettingsAudioItem()
+private fun SettingsAudioItemPreview1() {
+    SettingsAudioItem(windowSizeClass = windowWidthSizeClassCompact)
+}
+
+@Preview("Expanded")
+@Composable
+private fun SettingsAudioItemPreview2() {
+    SettingsAudioItem(windowSizeClass = windowWidthSizeClassExpanded)
 }

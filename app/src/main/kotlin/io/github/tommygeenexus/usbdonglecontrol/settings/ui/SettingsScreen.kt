@@ -20,56 +20,46 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.settings.ui
 
-import android.content.res.Configuration
-import android.os.Build
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onNavigateUp: () -> Unit) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        val activity = LocalActivity.current
-        if (activity != null) {
-            val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
-            SideEffect {
-                @Suppress("DEPRECATION")
-                activity.window?.navigationBarColor = surfaceColor
-            }
-        }
-    }
+fun SettingsScreen(
+    windowSizeClass: WindowSizeClass,
+    viewModel: SettingsViewModel,
+    onNavigateUp: () -> Unit
+) {
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             SettingsSideEffect.MaximizeVolume.Failure -> {
@@ -80,6 +70,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onNavigateUp: () -> Unit) {
     }
     val state by viewModel.collectAsState()
     SettingScreen(
+        windowSizeClass = windowSizeClass,
         isMaximizeVolumeEnabled = state.isMaximizeVolumeEnabled,
         onMaximizeVolumeRequested = { isEnabled ->
             viewModel.storeMaximizeVolume(isEnabled)
@@ -90,22 +81,18 @@ fun SettingsScreen(viewModel: SettingsViewModel, onNavigateUp: () -> Unit) {
 
 @Composable
 fun SettingScreen(
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    topScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
     isMaximizeVolumeEnabled: Boolean = false,
     onMaximizeVolumeRequested: (Boolean) -> Unit = {},
     onNavigateUp: () -> Unit = {}
 ) {
     Scaffold(
-        modifier = if (LocalConfiguration.current.orientation ==
-            Configuration.ORIENTATION_LANDSCAPE
-        ) {
-            modifier.windowInsetsPadding(WindowInsets.displayCutout)
-        } else {
-            modifier
-        },
+        modifier = modifier.nestedScroll(topScrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            MediumTopAppBar(
                 title = { Text(text = stringResource(id = R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
@@ -114,7 +101,8 @@ fun SettingScreen(
                             contentDescription = stringResource(id = R.string.navigate_back)
                         )
                     }
-                }
+                },
+                scrollBehavior = topScrollBehavior
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
@@ -132,6 +120,7 @@ fun SettingScreen(
             LazyColumn {
                 item {
                     SettingsAudioItem(
+                        windowSizeClass = windowSizeClass,
                         isMaximizeVolumeEnabled = isMaximizeVolumeEnabled,
                         onMaximizeVolumeSwitched = onMaximizeVolumeRequested
                     )
@@ -141,8 +130,14 @@ fun SettingScreen(
     }
 }
 
-@Preview
+@Preview("Compact")
 @Composable
-private fun SettingsScreen() {
-    SettingScreen()
+private fun SettingsScreen1() {
+    SettingScreen(windowSizeClass = windowWidthSizeClassCompact)
+}
+
+@Preview("Expanded")
+@Composable
+private fun SettingsScreen2() {
+    SettingScreen(windowSizeClass = windowWidthSizeClassExpanded)
 }

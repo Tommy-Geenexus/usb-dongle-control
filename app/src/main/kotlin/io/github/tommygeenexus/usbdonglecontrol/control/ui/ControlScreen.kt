@@ -20,57 +20,39 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.Configuration
 import android.hardware.usb.UsbManager
-import android.os.Build
-import android.view.accessibility.AccessibilityManager
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -270,16 +252,7 @@ fun ControlScreen(
             }
         }
     }
-    val isTouchExplorationEnabled = remember {
-        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-        am.isEnabled && am.isTouchExplorationEnabled
-    }
-    val topScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val bottomScrollBehavior = if (!isTouchExplorationEnabled) {
-        BottomAppBarDefaults.exitAlwaysScrollBehavior()
-    } else {
-        null
-    }
+    val bottomScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -298,10 +271,8 @@ fun ControlScreen(
         val usbReceiver = UsbDeviceAttachDetachPermissionReceiver(
             onAttachedDevicesChanged = { isAttached ->
                 if (!isAttached) {
-                    topScrollBehavior.state.heightOffset = 0f
-                    topScrollBehavior.state.contentOffset = 0f
-                    bottomScrollBehavior?.state?.heightOffset = 0f
-                    bottomScrollBehavior?.state?.contentOffset = 0f
+                    bottomScrollBehavior.state.heightOffset = 0f
+                    bottomScrollBehavior.state.contentOffset = 0f
                     onNavigateToSetup()
                 }
             }
@@ -328,21 +299,12 @@ fun ControlScreen(
             context.unregisterReceiver(usbServiceVolumeLevelChangedReceiver)
         }
     }
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        val activity = LocalActivity.current
-        if (activity != null) {
-            val bottomAppBarColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
-            SideEffect {
-                @Suppress("DEPRECATION")
-                activity.window?.navigationBarColor = bottomAppBarColor
-            }
-        }
-    }
+    val profileListState = rememberLazyStaggeredGridState()
     val state by viewModel.collectAsState()
     ControlScreen(
         windowSizeClass = windowSizeClass,
-        topScrollBehavior = topScrollBehavior,
         bottomScrollBehavior = bottomScrollBehavior,
+        profileListState = profileListState,
         snackBarHostState = snackBarHostState,
         profiles = profiles,
         usbDongle = state.usbDongle,
@@ -351,6 +313,11 @@ fun ControlScreen(
         onRefresh = { viewModel.getCurrentStateForUsbDongle(state.usbDongle) },
         onReset = {
             viewModel.setProfile(state.usbDongle.defaultStateAsProfile())
+        },
+        onScrollToProfileIndex = { index ->
+            scope.launch {
+                profileListState.animateScrollToItem(index)
+            }
         },
         onProfileShortcutAdd = { profile ->
             viewModel.addProfileShortcut(profile)
@@ -413,8 +380,8 @@ fun ControlScreen(
 fun ControlScreen(
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    topScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-    bottomScrollBehavior: BottomAppBarScrollBehavior? = null,
+    bottomScrollBehavior: BottomAppBarScrollBehavior =
+        BottomAppBarDefaults.exitAlwaysScrollBehavior(),
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     profiles: LazyPagingItems<Profile> =
@@ -424,6 +391,7 @@ fun ControlScreen(
     onNavigateToSettings: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onReset: () -> Unit = {},
+    onScrollToProfileIndex: (Int) -> Unit = {},
     onProfileShortcutAdd: (Profile) -> Unit = {},
     onProfileShortcutRemove: (Profile) -> Unit = {},
     onProfileDelete: (Profile) -> Unit = { _ -> },
@@ -444,47 +412,22 @@ fun ControlScreen(
     onVolumeModeSelected: (Byte) -> Unit = { _ -> }
 ) {
     Scaffold(
-        modifier = if (bottomScrollBehavior != null) {
-            if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                modifier
-                    .windowInsetsPadding(WindowInsets.displayCutout)
-                    .nestedScroll(topScrollBehavior.nestedScrollConnection)
-                    .nestedScroll(bottomScrollBehavior.nestedScrollConnection)
-            } else {
-                modifier
-                    .nestedScroll(topScrollBehavior.nestedScrollConnection)
-                    .nestedScroll(bottomScrollBehavior.nestedScrollConnection)
-            }
-        } else if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            modifier
-                .windowInsetsPadding(WindowInsets.displayCutout)
-                .nestedScroll(topScrollBehavior.nestedScrollConnection)
-        } else {
-            modifier.nestedScroll(topScrollBehavior.nestedScrollConnection)
-        },
+        modifier = modifier.nestedScroll(bottomScrollBehavior.nestedScrollConnection),
         topBar = {
             ControlTopAppBar(
                 windowInsets = WindowInsets.statusBars,
-                productName = usbDongle.productName(),
+                productName = usbDongle.productName()
+            )
+        },
+        bottomBar = {
+            ControlBottomAppBar(
                 windowSizeClass = windowSizeClass,
-                scrollBehavior = topScrollBehavior,
+                scrollBehavior = bottomScrollBehavior,
                 onRefresh = onRefresh,
                 onReset = onReset,
                 onProfileExport = onProfileExport,
                 onNavigateToSettings = onNavigateToSettings
             )
-        },
-        bottomBar = {
-            if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
-                ControlBottomAppBar(
-                    windowSizeClass = windowSizeClass,
-                    scrollBehavior = bottomScrollBehavior,
-                    onRefresh = onRefresh,
-                    onReset = onReset,
-                    onProfileExport = onProfileExport,
-                    onNavigateToSettings = onNavigateToSettings
-                )
-            }
         },
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
@@ -503,35 +446,9 @@ fun ControlScreen(
             AnimatedVisibility(visible = isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            val surfaceColor = MaterialTheme.colorScheme.surface
-            val bottomAppBarColor = MaterialTheme.colorScheme.surfaceContainer
-            val overlappedFraction = if (topScrollBehavior.state.overlappedFraction > 0.01f) {
-                1f
-            } else {
-                0f
-            }
-            val animatedColor by animateColorAsState(
-                targetValue = lerp(
-                    surfaceColor,
-                    bottomAppBarColor,
-                    FastOutLinearInEasing.transform(overlappedFraction)
-                ),
-                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                label = "StatusBarColorAnimation"
-            )
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                val activity = LocalActivity.current
-                if (activity != null) {
-                    LaunchedEffect(animatedColor) {
-                        @Suppress("DEPRECATION")
-                        activity.window?.statusBarColor = animatedColor.toArgb()
-                    }
-                }
-            }
             var selectedTabIndex by remember { mutableIntStateOf(ControlTabs.State.index) }
             ControlTabRow(
                 selectedTabIndex = selectedTabIndex,
-                containerColor = animatedColor,
                 onTabSelected = { index ->
                     val prev = selectedTabIndex
                     selectedTabIndex = index
@@ -675,8 +592,8 @@ fun ControlScreen(
                         if (profileShortcut != null) {
                             selectedTabIndex = ControlTabs.Profiles.index
                             val index = profileItems.indexOf(profileShortcut)
-                            profileListState.animateScrollToItem(
-                                index = if (index >= 0) {
+                            onScrollToProfileIndex(
+                                if (index >= 0) {
                                     index
                                 } else {
                                     profileItems.lastIndex
