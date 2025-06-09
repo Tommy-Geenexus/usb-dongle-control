@@ -61,8 +61,6 @@
     <string name="maximize_volume_description">Maximize music volume after dongle is connected</string>
     <string name="maximize_volume_failed">Music volume not adjusted</string>
 
-    <string name="more">More</string>
-
     <string name="navigate_back">Navigate back</string>
 
     <string name="no_dongle_detected">No USB dongle detected!</string>

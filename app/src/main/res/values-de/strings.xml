@@ -59,8 +59,6 @@
     <string name="maximize_volume_description">Musiklautstärke maximieren nachdem Dongle verbunden wurde</string>
     <string name="maximize_volume_failed">Musiklautstärke nicht angepasst</string>
 
-    <string name="more">Mehr</string>
-
     <string name="navigate_back">Navigiere rückwärts</string>
 
     <string name="no_dongle_detected">Kein USB-Dongle erkannt!</string>
