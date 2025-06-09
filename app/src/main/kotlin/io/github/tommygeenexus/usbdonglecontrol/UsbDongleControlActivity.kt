@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -24,9 +24,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.ui.graphics.toArgb
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.tommygeenexus.usbdonglecontrol.core.extension.setCutoutForegroundColor
 import io.github.tommygeenexus.usbdonglecontrol.navigation.NavGraph
 import io.github.tommygeenexus.usbdonglecontrol.theme.UsbDongleControlTheme
 
@@ -38,6 +41,9 @@ class UsbDongleControlActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             UsbDongleControlTheme {
+                setCutoutForegroundColor(
+                    color = MaterialTheme.colorScheme.surfaceContainer.toArgb()
+                )
                 NavGraph(
                     windowSizeClass = calculateWindowSizeClass(activity = this),
                     navController = rememberNavController()

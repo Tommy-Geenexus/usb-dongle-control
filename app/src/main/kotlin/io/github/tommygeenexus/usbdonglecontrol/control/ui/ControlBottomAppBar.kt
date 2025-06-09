@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,30 +20,38 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.ImportExport
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomAppBarScrollBehavior
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
 
 @Composable
 fun ControlBottomAppBar(
@@ -55,65 +63,99 @@ fun ControlBottomAppBar(
     onProfileExport: (String) -> Unit = {},
     onNavigateToSettings: () -> Unit = {}
 ) {
-    val collapsedFraction by animateFloatAsState(
-        targetValue = if (scrollBehavior != null) {
-            1 - scrollBehavior.state.collapsedFraction
-        } else {
-            1f
-        },
-        label = "ControlBottomAppBarAlphaAnimation"
-    )
-    BottomAppBar(
-        actions = {
-            IconButton(
-                onClick = onNavigateToSettings,
-                modifier = Modifier.alpha(collapsedFraction)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = stringResource(id = R.string.settings)
-                )
-            }
-            var showMore by remember { mutableStateOf(false) }
-            IconButton(
-                onClick = { showMore = true },
-                modifier = Modifier.alpha(collapsedFraction)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = stringResource(id = R.string.more)
-                )
-            }
-            ControlDropdownMenu(
-                windowSizeClass = windowSizeClass,
-                isExpanded = showMore,
-                onDismissRequest = { showMore = false },
-                onRefresh = onRefresh,
-                onReset = onReset,
-                onProfileExport = onProfileExport,
-                onNavigateToSettings = onNavigateToSettings
-            )
-        },
+    FlexibleBottomAppBar(
         modifier = modifier,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onRefresh,
-                modifier = Modifier.alpha(collapsedFraction),
-                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Refresh,
-                    contentDescription = stringResource(id = R.string.refresh)
+        horizontalArrangement = if (windowSizeClass.widthSizeClass ==
+            WindowWidthSizeClass.Compact
+        ) {
+            BottomAppBarDefaults.FlexibleHorizontalArrangement
+        } else {
+            BottomAppBarDefaults.FlexibleFixedHorizontalArrangement
+        },
+        scrollBehavior = scrollBehavior,
+        content = {
+            val exportProfile = stringResource(id = R.string.profile_export)
+            val factoryReset = stringResource(id = R.string.state_reset)
+            val refresh = stringResource(id = R.string.refresh)
+            val settings = stringResource(id = R.string.settings)
+            var showExportProfile by remember { mutableStateOf(false) }
+            if (showExportProfile) {
+                ExportProfileDialog(
+                    onDismiss = { showExportProfile = false },
+                    onConfirm = { profileName ->
+                        showExportProfile = false
+                        onProfileExport(profileName)
+                    }
                 )
             }
-        },
-        scrollBehavior = scrollBehavior
+            TooltipBox(
+                modifier = Modifier,
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(text = factoryReset) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = { onReset() }) {
+                    Icon(
+                        imageVector = Icons.Outlined.SettingsBackupRestore,
+                        contentDescription = factoryReset
+                    )
+                }
+            }
+            TooltipBox(
+                modifier = Modifier,
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(text = exportProfile) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = { showExportProfile = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.ImportExport,
+                        contentDescription = exportProfile
+                    )
+                }
+            }
+            TooltipBox(
+                modifier = Modifier,
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(text = settings) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = onNavigateToSettings) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = settings
+                    )
+                }
+            }
+            TooltipBox(
+                modifier = Modifier,
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(text = refresh) } },
+                state = rememberTooltipState()
+            ) {
+                FilledIconButton(
+                    onClick = onRefresh,
+                    modifier = Modifier.size(48.dp),
+                    shape = IconButtonDefaults.smallSquareShape
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Refresh,
+                        contentDescription = refresh
+                    )
+                }
+            }
+        }
     )
 }
 
-@Preview
+@Preview(name = "Compact")
 @Composable
-private fun ControlBottomAppBarPreview() {
+private fun ControlBottomAppBarPreview1() {
     ControlBottomAppBar(windowSizeClass = windowWidthSizeClassCompact)
+}
+
+@Preview(name = "Expanded")
+@Composable
+private fun ControlBottomAppBarPreview2() {
+    ControlBottomAppBar(windowSizeClass = windowWidthSizeClassExpanded)
 }

@@ -24,7 +24,6 @@ import android.Manifest
 import android.content.IntentFilter
 import android.hardware.usb.UsbManager
 import android.os.Build
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -33,7 +32,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -45,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -129,16 +126,6 @@ fun SetupScreen(viewModel: SetupViewModel, onNavigateToControl: () -> Unit) {
         if (!permissionState.status.isGranted && !permissionState.status.shouldShowRationale) {
             SideEffect {
                 permissionState.launchPermissionRequest()
-            }
-        }
-    }
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        val activity = LocalActivity.current
-        if (activity != null) {
-            val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
-            SideEffect {
-                @Suppress("DEPRECATION")
-                activity.window?.navigationBarColor = surfaceColor
             }
         }
     }
