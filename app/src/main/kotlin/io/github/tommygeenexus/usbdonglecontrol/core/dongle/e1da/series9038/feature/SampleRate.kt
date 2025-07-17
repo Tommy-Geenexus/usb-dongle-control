@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,27 +18,38 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.core.di
+package io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature
 
-import android.content.Context
-import androidx.room.Room
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import io.github.tommygeenexus.usbdonglecontrol.core.db.ProfileDatabase
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
+import kotlinx.parcelize.Parcelize
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DbModule {
+@Immutable
+@Parcelize
+data class SampleRate(val displayValue: String) : Parcelable {
 
-    @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context) = Room
-        .databaseBuilder(context, ProfileDatabase::class.java, "app.db")
-        .fallbackToDestructiveMigration(dropAllTables = true)
-        .build()
+    companion object {
 
-    @Provides
-    fun provideProfileDao(profileDatabase: ProfileDatabase) = profileDatabase.profileDao()
+        const val DEFAULT = "Unknown"
+    }
 }
+
+fun SampleRate.Companion.create(key: Int) = SampleRate(
+    displayValue = sampleRates.getOrDefault(key = key, defaultValue = DEFAULT)
+)
+
+fun SampleRate.Companion.default() = SampleRate(displayValue = DEFAULT)
+
+private val sampleRates = mapOf(
+    0 to "PCM 44.1kHz",
+    1 to "PCM 48kHz",
+    2 to "PCM 88.2kHz",
+    3 to "PCM 96kHz",
+    4 to "PCM 176.4kHz",
+    5 to "PCM 192kHz",
+    6 to "PCM 352.8kHz",
+    7 to "PCM 384kHz",
+    8 to "DSD 64",
+    9 to "DSD 128",
+    10 to "DSD 256"
+)

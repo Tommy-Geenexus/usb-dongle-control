@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,27 +18,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.core.di
+package io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature
 
-import android.content.Context
-import androidx.room.Room
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import io.github.tommygeenexus.usbdonglecontrol.core.db.ProfileDatabase
+import android.os.Parcelable
+import androidx.compose.runtime.Immutable
+import kotlinx.parcelize.Parcelize
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DbModule {
+@Immutable
+sealed class HardwareType(val displayValue: String, val id: Byte) : Parcelable {
 
-    @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context) = Room
-        .databaseBuilder(context, ProfileDatabase::class.java, "app.db")
-        .fallbackToDestructiveMigration(dropAllTables = true)
-        .build()
+    companion object {
 
-    @Provides
-    fun provideProfileDao(profileDatabase: ProfileDatabase) = profileDatabase.profileDao()
+        fun default() = Sg3
+
+        fun findByIdOrDefault(id: Byte): HardwareType = when (id) {
+            Sg3.id -> Sg3
+            Sg3Susumu.id -> Sg3Susumu
+            D.id -> D
+            else -> default()
+        }
+    }
+
+    @Parcelize
+    data object Sg3 : HardwareType(displayValue = "#9038SG3", id = 115)
+
+    @Parcelize
+    data object Sg3Susumu : HardwareType(displayValue = "#9038SG3 Susumu", id = 116)
+
+    @Parcelize
+    data object D : HardwareType(displayValue = "#9038D", id = 100)
 }

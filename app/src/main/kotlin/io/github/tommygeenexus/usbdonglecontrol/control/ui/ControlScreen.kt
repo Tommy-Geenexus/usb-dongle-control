@@ -70,6 +70,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.control.ControlTabs
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
@@ -79,6 +80,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.consumeProfileShortcut
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbDeviceAttachDetachPermissionReceiver
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbServiceVolumeLevelChangedReceiver
+import io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui.E1da9038Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui.FiioKa13Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
@@ -89,6 +91,7 @@ import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import timber.log.Timber
 
 @Composable
 fun ControlScreen(
@@ -352,6 +355,9 @@ fun ControlScreen(
         onFilterSelected = { filterId ->
             viewModel.setDacFilter(filterId)
         },
+        onFilterForSampleRateSelected = { filterId, index ->
+            viewModel.setDacFilterForSampleRate(filterId, index)
+        },
         onGainSelected = { gainId ->
             viewModel.setGain(gainId)
         },
@@ -364,11 +370,35 @@ fun ControlScreen(
         onIndicatorStateSelected = { indicatorStateId ->
             viewModel.setIndicatorState(indicatorStateId)
         },
+        onMasterClockDividerDsdSelected = { masterClockId, index ->
+            viewModel.setMasterClockDividerDsdForSampleRate(masterClockId, index)
+        },
+        onMasterClockDividerPcmSelected = { masterClockId, index ->
+            viewModel.setMasterClockDividerPcmForSampleRate(masterClockId, index)
+        },
         onSpdifOutEnabledSelected = { isSpdifOutEnabled ->
             viewModel.setSpdifOutEnabled(isSpdifOutEnabled)
         },
+        onStandbyEnabledSelected = { isStandbyEnabled ->
+            viewModel.setStandbyEnabled(isStandbyEnabled)
+        },
         onVolumeLevelSelected = { volumeLevel ->
             viewModel.setVolumeLevel(volumeLevel)
+        },
+        onVolumeLevelsSelected = {
+                volumeLevelChannelLeft: Float,
+                volumeLevelChannelRight: Float,
+                volumeLevelMin: Float,
+                volumeLevelMax: Float
+            ->
+            Timber.e("LEFT: " + volumeLevelChannelLeft)
+            Timber.e("RIGHT: " + volumeLevelChannelRight)
+            /*viewModel.setVolumeLevels(
+                volumeLevelChannelLeft,
+                volumeLevelChannelRight,
+                volumeLevelMin,
+                volumeLevelMax
+            )*/
         },
         onVolumeModeSelected = { volumeModeId ->
             viewModel.setVolumeMode(volumeModeId)
@@ -403,12 +433,17 @@ fun ControlScreen(
     onDisplayTimeoutSelected: (Int) -> Unit = { _ -> },
     onDisplayInvertChange: (Boolean) -> Unit = { _ -> },
     onFilterSelected: (Byte) -> Unit = { _ -> },
+    onFilterForSampleRateSelected: (Byte, Int) -> Unit = { _, _ -> },
     onGainSelected: (Byte) -> Unit = { _ -> },
     onHardwareMuteEnabledSelected: (Boolean) -> Unit = { _ -> },
     onHidModeSelected: (Byte) -> Unit = { _ -> },
     onIndicatorStateSelected: (Byte) -> Unit = { _ -> },
+    onMasterClockDividerDsdSelected: (Byte, Int) -> Unit = { _, _ -> },
+    onMasterClockDividerPcmSelected: (Byte, Int) -> Unit = { _, _ -> },
     onSpdifOutEnabledSelected: (Boolean) -> Unit = { _ -> },
+    onStandbyEnabledSelected: (Boolean) -> Unit = { _ -> },
     onVolumeLevelSelected: (Int) -> Unit = { _ -> },
+    onVolumeLevelsSelected: (Float, Float, Float, Float) -> Unit = { _, _, _, _ -> },
     onVolumeModeSelected: (Byte) -> Unit = { _ -> }
 ) {
     Scaffold(
@@ -461,6 +496,19 @@ fun ControlScreen(
             )
             if (selectedTabIndex == ControlTabs.State.index) {
                 when (usbDongle) {
+                    is E1da9038 -> {
+                        E1da9038Items(
+                            modifier = Modifier.padding(
+                                horizontal = windowSizeClass.getHorizontalCardPadding()
+                            ),
+                            e1da9038 = usbDongle,
+                            onFilterSelected = onFilterForSampleRateSelected,
+                            onHardwareMuteEnabledSelected = onHardwareMuteEnabledSelected,
+                            onMasterClockDividerDsdSelected = onMasterClockDividerDsdSelected,
+                            onMasterClockDividerPcmSelected = onMasterClockDividerPcmSelected,
+                            onStandbyEnabledSelected = onStandbyEnabledSelected
+                        )
+                    }
                     is FiioKa13 -> {
                         FiioKa13Items(
                             modifier = Modifier.padding(

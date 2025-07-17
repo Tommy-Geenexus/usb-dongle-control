@@ -1,0 +1,729 @@
+/*
+ * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY,WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.data
+
+import android.content.Context
+import androidx.compose.ui.util.fastJoinToString
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.tommygeenexus.usbdonglecontrol.core.data.UsbRepository
+import io.github.tommygeenexus.usbdonglecontrol.core.di.DispatcherIo
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.Filter
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.FirmwareVersion
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.HardwareMute
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.HardwareType
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.MasterClockDivider
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.SampleRate
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.Standby
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.VolumeLevel
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.VolumeLevelMax
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.VolumeLevelMin
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.create
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.createFromPayload
+import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import timber.log.Timber
+
+@Singleton
+class E1da9038UsbRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+) : UsbRepository(context, dispatcherIo) {
+
+    private companion object {
+
+        const val USB_IF_ID = 6
+        const val USB_EP_IN = 1
+        const val USB_EP_OUT = 0
+
+        const val DELAY_MS = 100L
+        const val TIMEOUT_MS = 1000
+
+        const val REQUEST_RESULT_INDEX_1 = 3
+        const val REQUEST_RESULT_INDEX_2 = 4
+        const val REQUEST_RESULT_INDEX_3 = 5
+        const val REQUEST_RESULT_INDEX_4 = 6
+
+        const val REQUEST_RESULT_INDEX_HW_TYPE = 3
+        const val REQUEST_RESULT_INDEX_SAMPLE_RATE = 3
+        const val REQUEST_RESULT_INDEX_VERSION = 4
+        const val REQUEST_RESULT_INDEX_HARDWARE_MUTE = 5
+        const val REQUEST_RESULT_INDEX_STANDBY = 6
+
+        const val REQUEST_RESULT_INDEX_VOL_L = 3
+
+        // const val REQUEST_RESULT_INDEX_VOL_R = 4
+        const val REQUEST_RESULT_INDEX_VOL_MAX = 5
+        const val REQUEST_RESULT_INDEX_VOL_MIN = 6
+    }
+
+    suspend fun getCurrentState(usbDongle: E1da9038): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val filters: MutableList<Filter> = mutableListOf()
+                val hardwareType: HardwareType
+                val firmwareVersion: FirmwareVersion
+                val hardwareMute: HardwareMute
+                val masterClockDividersPcm: MutableList<MasterClockDivider> = mutableListOf()
+                val masterClockDividersDsd: MutableList<MasterClockDivider> = mutableListOf()
+                val sampleRate: SampleRate
+                val standby: Standby
+                val volumeLevel: VolumeLevel
+                val volumeLevelMin: VolumeLevelMin
+                val volumeLevelMax: VolumeLevelMax
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbDongle.getHwTypeVersionMuteStandby.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    hardwareType = HardwareType.findByIdOrDefault(
+                        id = data[REQUEST_RESULT_INDEX_HW_TYPE]
+                    )
+                    firmwareVersion = FirmwareVersion.createFromPayload(
+                        payload = data[REQUEST_RESULT_INDEX_VERSION]
+                    )
+                    hardwareMute = HardwareMute(
+                        isEnabled = data[REQUEST_RESULT_INDEX_HARDWARE_MUTE].toInt() == 1
+                    )
+                    standby = Standby(
+                        isEnabled = data[REQUEST_RESULT_INDEX_STANDBY].toInt() == 1
+                    )
+                    data.fill(0)
+                    usbDongle.getAudioFormat.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    sampleRate = SampleRate.create(
+                        key = data[REQUEST_RESULT_INDEX_SAMPLE_RATE].toInt()
+                    )
+                    data.fill(0)
+                    usbDongle.getVolumeLeftRightMinMax.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    volumeLevel = VolumeLevel.createFromPayload(
+                        payload = data[REQUEST_RESULT_INDEX_VOL_L]
+                    )
+                    volumeLevelMax = VolumeLevelMax.createFromPayload(
+                        payload = data[REQUEST_RESULT_INDEX_VOL_MAX]
+                    )
+                    volumeLevelMin = VolumeLevelMin.createFromPayload(
+                        payload = data[REQUEST_RESULT_INDEX_VOL_MIN]
+                    )
+                    data.fill(0)
+                    usbDongle.getFilterPcm44To96.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    filters.addAll(
+                        elements = listOf(
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_1]
+                            ),
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_2]
+                            ),
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_3]
+                            ),
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_4]
+                            )
+                        )
+                    )
+                    data.fill(0)
+                    usbDongle.getFilterPcm176To384.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    filters.addAll(
+                        elements = listOf(
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_1]
+                            ),
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_2]
+                            ),
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_3]
+                            ),
+                            Filter.findByIdOrDefault(
+                                id = data[REQUEST_RESULT_INDEX_4]
+                            )
+                        )
+                    )
+                    data.fill(0)
+                    usbDongle.getMasterClockDividerPcm44To96.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    masterClockDividersPcm.addAll(
+                        elements = listOf(
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_1]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_2]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_3]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_4])
+                        )
+                    )
+                    data.fill(0)
+                    usbDongle.getMasterClockDividerPcm176To384.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    masterClockDividersPcm.addAll(
+                        elements = listOf(
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_1]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_2]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_3]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_4])
+                        )
+                    )
+                    data.fill(0)
+                    usbDongle.getMasterClockDividerDsd.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    masterClockDividersDsd.addAll(
+                        elements = listOf(
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_1]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_2]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_3])
+                        )
+                    )
+                    data.fill(0)
+                    usbDongle.setInit.copyInto(data)
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(
+                    value = usbDongle.copy(
+                        filters = filters,
+                        firmwareVersion = firmwareVersion,
+                        hardwareMute = hardwareMute,
+                        hardwareType = hardwareType,
+                        masterClockDividersDsd = masterClockDividersDsd,
+                        masterClockDividersPcm = masterClockDividersPcm,
+                        sampleRate = sampleRate,
+                        standby = standby,
+                        volumeLevel = volumeLevel,
+                        volumeLevelMax = volumeLevelMax,
+                        volumeLevelMin = volumeLevelMin
+                    )
+                )
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun getVolumeLevelLeftRightMinMax(usbDongle: E1da9038): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                usbDongle.getVolumeLeftRightMinMax.copyInto(data)
+                val volumeLevel: VolumeLevel
+                val volumeLevelMin: VolumeLevelMin
+                val volumeLevelMax: VolumeLevelMax
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbDongle.getVolumeLeftRightMinMax.copyInto(data)
+                    usbConnection.bulkWriteAndRead(
+                        usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
+                        usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    volumeLevel = VolumeLevel.createFromPayload(
+                        payload = data[REQUEST_RESULT_INDEX_VOL_L]
+                    )
+                    volumeLevelMax = VolumeLevelMax.createFromPayload(
+                        payload = data[REQUEST_RESULT_INDEX_VOL_MAX]
+                    )
+                    volumeLevelMin = VolumeLevelMin.createFromPayload(
+                        payload = data[REQUEST_RESULT_INDEX_VOL_MIN]
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(value = usbDongle.copy(volumeLevel = volumeLevel))
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setFilter(e1da9038: E1da9038, filter: Filter, index: Int): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                if (index < REQUEST_DATA_SIZE) {
+                    e1da9038.setFilterPcm44To96.copyInto(data)
+                    val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
+                        if (payloadIndex == index) {
+                            filter.id
+                        } else {
+                            e1da9038.filters[payloadIndex].id
+                        }
+                    }
+                    payload.copyInto(
+                        destination = data,
+                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
+                    )
+                } else {
+                    e1da9038.setFilterPcm176To384.copyInto(data)
+                    val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
+                        if (payloadIndex == index - REQUEST_DATA_SIZE) {
+                            filter.id
+                        } else {
+                            e1da9038.filters[payloadIndex + REQUEST_DATA_SIZE].id
+                        }
+                    }
+                    payload.copyInto(
+                        destination = data,
+                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
+                    )
+                }
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    data.fill(0)
+                    e1da9038.setInit.copyInto(data)
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(
+                    value = e1da9038.copy(
+                        filters = e1da9038.filters.toMutableList().apply {
+                            set(index, filter)
+                        }.toList()
+                    )
+                )
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setHardwareMute(e1da9038: E1da9038, hardwareMute: HardwareMute): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                e1da9038.setHardwareMute.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = hardwareMute.payload
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    data.fill(0)
+                    e1da9038.setInit.copyInto(data)
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(value = e1da9038.copy(hardwareMute = hardwareMute))
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setMasterClockDividerDsd(
+        e1da9038: E1da9038,
+        masterClockDivider: MasterClockDivider,
+        index: Int
+    ): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                e1da9038.setMasterClockDividerDsd.copyInto(data)
+                val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
+                    if (payloadIndex == index) {
+                        masterClockDivider.id
+                    } else {
+                        e1da9038.masterClockDividersDsd.getOrNull(payloadIndex)?.id ?: 0
+                    }
+                }
+                payload.copyInto(destination = data, destinationOffset = REQUEST_PAYLOAD_INDEX_SET)
+                Timber.e("PAYLOAD: " + payload.toList().fastJoinToString())
+                Timber.e("INDEX: " + index)
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    data.fill(0)
+                    e1da9038.setInit.copyInto(data)
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(
+                    value = e1da9038.copy(
+                        masterClockDividersDsd = e1da9038
+                            .masterClockDividersDsd
+                            .toMutableList()
+                            .apply { set(index, masterClockDivider) }
+                            .toList()
+                    )
+                )
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setMasterClockDividerPcm(
+        e1da9038: E1da9038,
+        masterClockDivider: MasterClockDivider,
+        index: Int
+    ): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                if (index < REQUEST_DATA_SIZE) {
+                    e1da9038.setMasterClockDividerPcm44To96.copyInto(data)
+                    val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
+                        if (payloadIndex == index) {
+                            masterClockDivider.id
+                        } else {
+                            e1da9038.masterClockDividersPcm[payloadIndex].id
+                        }
+                    }
+                    payload.copyInto(
+                        destination = data,
+                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
+                    )
+                } else {
+                    e1da9038.setMasterClockDividerPcm176To384.copyInto(data)
+                    val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
+                        if (payloadIndex == index - REQUEST_DATA_SIZE) {
+                            masterClockDivider.id
+                        } else {
+                            e1da9038.masterClockDividersPcm[payloadIndex + REQUEST_DATA_SIZE].id
+                        }
+                    }
+                    payload.copyInto(
+                        destination = data,
+                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
+                    )
+                }
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    data.fill(0)
+                    e1da9038.setInit.copyInto(data)
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(
+                    value = e1da9038.copy(
+                        masterClockDividersPcm = e1da9038
+                            .masterClockDividersPcm
+                            .toMutableList()
+                            .apply { set(index, masterClockDivider) }
+                            .toList()
+                    )
+                )
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setStandby(e1da9038: E1da9038, standby: Standby): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                e1da9038.setStandby.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = standby.payload
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(value = e1da9038.copy(standby = standby))
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setVolumeLevel(e1da9038: E1da9038, volumeLevel: VolumeLevel): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                e1da9038.setVolumeLevel.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.payload
+                data[REQUEST_PAYLOAD_INDEX_SET + 1] = volumeLevel.payload
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(value = e1da9038.copy(volumeLevel = volumeLevel))
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setVolumeLevelMin(
+        e1da9038: E1da9038,
+        volumeLevelMin: VolumeLevelMin
+    ): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                e1da9038.setVolumeLevelMin.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevelMin.payload
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(value = e1da9038.copy(volumeLevelMin = volumeLevelMin))
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+
+    suspend fun setVolumeLevelMax(
+        e1da9038: E1da9038,
+        volumeLevelMax: VolumeLevelMax
+    ): Result<E1da9038> {
+        return withContext(dispatcherIo) {
+            val (usbDevice, usbConnection) = coroutineContext.suspendRunCatching {
+                openFirstAttachedUsbDongleOrThrow()
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                return@withContext Result.failure(exception)
+            }
+            coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
+                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                e1da9038.setVolumeLevelMax.copyInto(data)
+                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevelMax.payload
+                mutex.withLock {
+                    val usbInterface = usbDevice.getInterface(USB_IF_ID)
+                    check(usbConnection.claimInterface(usbInterface, true))
+                    usbConnection.bulkWrite(
+                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
+                        payload = data,
+                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        transferTimeout = TIMEOUT_MS,
+                        delayInMillisecondsAfterTransfer = DELAY_MS
+                    )
+                    check(usbConnection.releaseInterface(usbInterface))
+                }
+                Result.success(value = e1da9038.copy(volumeLevelMax = volumeLevelMax))
+            }.getOrElse { exception ->
+                Timber.e(exception)
+                Result.failure(exception)
+            }
+        }
+    }
+}

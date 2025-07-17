@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -23,36 +23,25 @@ package io.github.tommygeenexus.usbdonglecontrol.control.domain
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.HardwareMute as HardwareMuteE1da9038
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.HardwareMute as HardwareMuteFiioKa5
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.MasterClockDivider
 import io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.data.E1da9038UsbRepository
-import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SetHardwareMuteEnabledUseCase @Inject constructor(
-    private val e1da9038UsbRepository: E1da9038UsbRepository,
-    private val fiioKa5UsbRepository: FiioKa5UsbRepository
+class SetMasterClockDividerPcmForSampleRateUseCase @Inject constructor(
+    private val e1da9038UsbRepository: E1da9038UsbRepository
 ) {
 
-    suspend operator fun invoke(
-        usbDongle: UsbDongle,
-        isHardwareMuteEnabled: Boolean
-    ): Result<UsbDongle> = when (usbDongle) {
-        is E1da9038 -> {
-            e1da9038UsbRepository.setHardwareMute(
-                e1da9038 = usbDongle,
-                hardwareMute = HardwareMuteE1da9038(isEnabled = isHardwareMuteEnabled)
-            )
+    suspend operator fun invoke(usbDongle: UsbDongle, id: Byte, index: Int): Result<UsbDongle> =
+        when (usbDongle) {
+            is E1da9038 -> {
+                e1da9038UsbRepository.setMasterClockDividerPcm(
+                    e1da9038 = usbDongle,
+                    masterClockDivider = MasterClockDivider.findByIdOrDefault(id),
+                    index = index
+                )
+            }
+            else -> Result.failure(UnsupportedUsbDongleException())
         }
-        is FiioKa5 -> {
-            fiioKa5UsbRepository.setHardwareMute(
-                fiioKa5 = usbDongle,
-                hardwareMute = HardwareMuteFiioKa5(isEnabled = isHardwareMuteEnabled)
-            )
-        }
-        else -> Result.failure(UnsupportedUsbDongleException())
-    }
 }

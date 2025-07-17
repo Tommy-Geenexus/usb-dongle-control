@@ -109,4 +109,21 @@
     <string name="volume_steps_60">60</string>
     <string name="volume_steps_up">Schrittgr. erhöhen</string>
     <string name="volume_up">Lautst. erhöhen</string>
+    <string name="linear_phase_fast">Linear phase fast</string>
+    <string name="linear_phase_slow">Linear phase slow</string>
+    <string name="min_phase_fast">Min phase fast</string>
+    <string name="min_phase_slow">Min phase slow</string>
+    <string name="apodizing_fast">Apodizing fast</string>
+    <string name="corrected_min_phase">Corrected min phase</string>
+    <string name="brick_wall">Brick wall</string>
+    <string name="pcm_sample_rate">PCM sample rate</string>
+    <string name="filter_for_selected_pcm_sample_rate">Filter for selected PCM sample rate</string>
+    <string name="standby">Standby</string>
+    <string name="_50_mhz">50 MHz</string>
+    <string name="_25_mhz">25 MHz</string>
+    <string name="_12_5_mhz">12.5 MHz</string>
+    <string name="master_clock_divider_for_selected_pcm_sample_rate">Master clock divider for selected PCM sample rate</string>
+    <string name="dsd_sample_rate">DSD sample rate</string>
+    <string name="master_clock_divider_for_selected_dsd_sample_rate">Master clock divider for selected DSD sample rate</string>
+    <string name="model_s">Model: %s</string>
 </resources>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- E1DA #9038 series -->
+    <usb-device vendor-id="12230" product-id="24595" />
     <!-- FiiO KA13 -->
     <usb-device vendor-id="10610" product-id="98" />
     <!-- FiiO KA5 -->
