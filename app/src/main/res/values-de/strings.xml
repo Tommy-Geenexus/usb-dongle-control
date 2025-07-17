@@ -1,13 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
+    <string name="_12_5_mhz">12.5 MHz</string>
+
+    <string name="_176_4_khz">176.4 KHz</string>
+
+    <string name="_192_khz">192 KHz</string>
+
+    <string name="_25_mhz">25 MHz</string>
+
+    <string name="_352_8_khz">352.8 KHz</string>
+
+    <string name="_384_khz">384 KHz</string>
+
+    <string name="_44_1_khz">44.1 KHz</string>
+
+    <string name="_48_khz">48 KHz</string>
+
+    <string name="_50_mhz">50 MHz</string>
+
+    <string name="_88_2_khz">88.2 KHz</string>
+
+    <string name="_96_khz">96 KHz</string>
+
+    <string name="apodizing_fast">Apodizing fast</string>
+
     <string name="apply">Anwenden</string>
 
     <string name="attach_device">Schließe ein USB-Dongle an und stelle sicher, dass das Kabel komplett eingesteckt ist</string>
 
     <string name="audio">Audio</string>
 
+    <string name="brick_wall">Brick wall</string>
+
     <string name="channel_balance">Kanal-Balance</string>
+    <string name="channel_balance_db">%1$s%2$s dB</string>
     <string name="channel_balance_offset">Offset: %1$s %2$s</string>
+
+    <string name="corrected_min_phase">Corrected min phase</string>
 
     <string name="dac_mode">Arbeitsmodus des Verstärkers</string>
     <string name="dac_mode_ab">Klasse AB</string>
@@ -24,6 +53,10 @@
     <string name="display_timeout">Display automatisch ausschalten</string>
     <string name="display_timeout_delay">Verzögerung: %1$.0fs</string>
 
+    <string name="dsd_128">DSD 128</string>
+    <string name="dsd_256">DSD 256</string>
+    <string name="dsd_64">DSD 64</string>
+
     <string name="enabled">Aktiviert</string>
 
     <string name="export">Exportieren</string>
@@ -31,6 +64,7 @@
     <string name="filter">Filter</string>
     <string name="filter_fast_roll_off_low_latency">Schnelles Abrollen, kurze Verzögerung</string>
     <string name="filter_fast_roll_off_phase_compensated">Schnelles Abrollen, phasenkompensiert</string>
+    <string name="filter_for_selected_pcm_sample_rate">Filter for selected PCM sample rate</string>
     <string name="filter_non_over_sampling">Keine Überabtastung</string>
     <string name="filter_slow_roll_off_low_latency">Langsames Abrollen, kurze Verzögerung</string>
     <string name="filter_slow_roll_off_phase_compensated">Langsames Abrollen, phasenkompensiert</string>
@@ -38,6 +72,8 @@
     <string name="fw_version">Firmware-Version: %s</string>
 
     <string name="gain">Gain</string>
+
+    <string name="generic_percent">%d %%</string>
 
     <string name="grant_permission">USB-Berechtigung erteilen</string>
 
@@ -53,11 +89,22 @@
 
     <string name="left">links</string>
 
+    <string name="linear_phase_fast">Linear phase fast</string>
+    <string name="linear_phase_slow">Linear phase slow</string>
+
     <string name="low">Niedrig</string>
+
+    <string name="master_clock_divider_for_selected_dsd_sample_rate">Master clock divider for selected DSD sample rate</string>
+    <string name="master_clock_divider_for_selected_pcm_sample_rate">Master clock divider for selected PCM sample rate</string>
 
     <string name="maximize_volume">Lautstärke maximieren</string>
     <string name="maximize_volume_description">Musiklautstärke maximieren nachdem Dongle verbunden wurde</string>
     <string name="maximize_volume_failed">Musiklautstärke nicht angepasst</string>
+
+    <string name="min_phase_fast">Min phase fast</string>
+    <string name="min_phase_slow">Min phase slow</string>
+
+    <string name="model_s">Model: %s</string>
 
     <string name="navigate_back">Navigiere rückwärts</string>
 
@@ -94,6 +141,8 @@
 
     <string name="spdif_out">S/PDIF-Ausgang</string>
 
+    <string name="standby">Standby</string>
+
     <string name="state">Zustand</string>
     <string name="state_reset">Werkszustand wiederherstellen</string>
 
@@ -101,9 +150,11 @@
     <string name="usb_comm_success">Zustand aktualisiert</string>
 
     <string name="volume">Lautstärke</string>
+    <string name="volume_db">%s dB</string>
     <string name="volume_down">Lautst. verringern</string>
     <string name="volume_level">Lautstärke: %s</string>
-    <string name="volume_level_steps">Lautstärke: %1$s, Schrittgröße: %2$d</string>
+    <string name="volume_level_db">Linker und rechter Kanal: %s dB</string>
+    <string name="volume_level_steps">Lautstärke: %1$s, Schrittgröße: %2$s</string>
     <string name="volume_steps">Lautstärke-Schritte</string>
     <string name="volume_steps_120">120</string>
     <string name="volume_steps_60">60</string>

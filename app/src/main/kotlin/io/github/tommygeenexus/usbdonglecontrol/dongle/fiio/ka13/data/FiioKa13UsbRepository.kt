@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -30,7 +30,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.Fi
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.IndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.SpdifOut
-import io.github.tommygeenexus.usbdonglecontrol.core.extension.claimInterface
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,8 +40,8 @@ import timber.log.Timber
 
 @Singleton
 class FiioKa13UsbRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+    @param:ApplicationContext private val context: Context,
+    @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) : UsbRepository(context, dispatcherIo) {
 
     private companion object {
@@ -95,7 +94,7 @@ class FiioKa13UsbRepository @Inject constructor(
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
                 val usbInterface = usbDevice.getInterface(0)
                 mutex.withLock {
-                    check(usbConnection.claimInterface(usbInterface))
+                    check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
                         requestId = REQUEST_ID,
@@ -144,7 +143,7 @@ class FiioKa13UsbRepository @Inject constructor(
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
                 val usbInterface = usbDevice.getInterface(0)
                 mutex.withLock {
-                    check(usbConnection.claimInterface(usbInterface))
+                    check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
                         requestId = REQUEST_ID,
@@ -179,7 +178,7 @@ class FiioKa13UsbRepository @Inject constructor(
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
                 val usbInterface = usbDevice.getInterface(0)
                 mutex.withLock {
-                    check(usbConnection.claimInterface(usbInterface))
+                    check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
                         requestId = REQUEST_ID,
@@ -213,9 +212,9 @@ class FiioKa13UsbRepository @Inject constructor(
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
                 val usbInterface = usbDevice.getInterface(0)
-                val payload = volumeLevel.displayValueAndPayload.toByte()
+                val payload = volumeLevel.displayValue.toByte()
                 mutex.withLock {
-                    check(usbConnection.claimInterface(usbInterface))
+                    check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
                         requestId = REQUEST_ID,

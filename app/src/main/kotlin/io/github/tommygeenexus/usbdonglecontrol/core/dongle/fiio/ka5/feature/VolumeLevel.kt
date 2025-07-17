@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -30,6 +30,7 @@ data class VolumeLevel(val displayValue: Int, val payload: Int) : Parcelable {
 
     companion object {
 
+        const val STEP_SIZE = 1f
         const val MIN = 0
         const val MAX_A = 120
         const val MAX_B = 60
@@ -55,31 +56,27 @@ fun VolumeLevel.Companion.createFromPayload(payload: Int, volumeMode: VolumeMode
         }
     )
 
-fun VolumeLevel.Companion.createFromDisplayValue(displayValue: Int, volumeMode: VolumeMode) =
-    VolumeLevel(
+fun VolumeLevel.Companion.createFromDisplayValue(
+    displayValue: Int,
+    volumeMode: VolumeMode
+): VolumeLevel {
+    val displayValue = displayValue.coerceIn(minimumValue = MIN, maximumValue = MAX_B)
+    return VolumeLevel(
         displayValue = when (volumeMode) {
-            VolumeMode.S60 -> displayValue.coerceIn(
-                minimumValue = MIN,
-                maximumValue = MAX_B
-            )
-            VolumeMode.S120 -> displayValue.coerceIn(
-                minimumValue = MIN,
-                maximumValue = MAX_A
-            )
+            VolumeMode.S60 -> displayValue
+            VolumeMode.S120 -> displayValue
         },
         payload = when (volumeMode) {
             VolumeMode.S60 -> volumeLevels60Steps.getOrElse(displayValue) { MIN }
             VolumeMode.S120 -> volumeLevels120Steps.getOrElse(displayValue) { MIN }
         }
     )
+}
 
 fun VolumeLevel.Companion.default() = VolumeLevel(
     displayValue = DEFAULT,
     payload = volumeLevels60Steps[DEFAULT]
 )
-
-fun VolumeLevel.displayValueToPercent(volumeMode: VolumeMode): String =
-    "${(displayValue * 100 / volumeMode.steps)}%"
 
 private val volumeLevels60Steps = listOf(
     255,

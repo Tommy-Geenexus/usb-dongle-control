@@ -1,0 +1,163 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "0cc50faef04536f2b196778ae5327167",
+    "entities": [
+      {
+        "tableName": "Profile",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `vendorId` INTEGER NOT NULL, `productId` INTEGER NOT NULL, `channelBalance` INTEGER NOT NULL, `dacModeId` INTEGER NOT NULL, `displayBrightness` INTEGER NOT NULL, `displayTimeout` INTEGER NOT NULL, `filterId` INTEGER NOT NULL, `filterIds` TEXT NOT NULL, `gainId` INTEGER NOT NULL, `hidModeId` INTEGER NOT NULL, `indicatorStateId` INTEGER NOT NULL, `isDisplayInvertEnabled` INTEGER NOT NULL, `isHardwareMuteEnabled` INTEGER NOT NULL, `isSpdifOutEnabled` INTEGER NOT NULL, `isStandbyEnabled` INTEGER NOT NULL, `masterClockDividersDsdIds` TEXT NOT NULL, `masterClockDividersPcmIds` TEXT NOT NULL, `volumeLevel` REAL NOT NULL, `volumeLevelMax` REAL NOT NULL, `volumeLevelMin` REAL NOT NULL, `volumeModeId` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vendorId",
+            "columnName": "vendorId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "channelBalance",
+            "columnName": "channelBalance",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dacModeId",
+            "columnName": "dacModeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayBrightness",
+            "columnName": "displayBrightness",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayTimeout",
+            "columnName": "displayTimeout",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filterId",
+            "columnName": "filterId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filterIds",
+            "columnName": "filterIds",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gainId",
+            "columnName": "gainId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hidModeId",
+            "columnName": "hidModeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "indicatorStateId",
+            "columnName": "indicatorStateId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDisplayInvertEnabled",
+            "columnName": "isDisplayInvertEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isHardwareMuteEnabled",
+            "columnName": "isHardwareMuteEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSpdifOutEnabled",
+            "columnName": "isSpdifOutEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isStandbyEnabled",
+            "columnName": "isStandbyEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "masterClockDividersDsdIds",
+            "columnName": "masterClockDividersDsdIds",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "masterClockDividersPcmIds",
+            "columnName": "masterClockDividersPcmIds",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volumeLevel",
+            "columnName": "volumeLevel",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volumeLevelMax",
+            "columnName": "volumeLevelMax",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volumeLevelMin",
+            "columnName": "volumeLevelMin",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volumeModeId",
+            "columnName": "volumeModeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0cc50faef04536f2b196778ae5327167')"
+    ]
+  }
+}

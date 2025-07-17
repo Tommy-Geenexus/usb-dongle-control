@@ -20,21 +20,15 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSwitchRow
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 
 @Composable
@@ -44,20 +38,10 @@ fun ItemMisc(
     onSpdifOutEnabledSwitched: (Boolean) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = cardPadding)
-                .clickable { onSpdifOutEnabledSwitched(!isSpdifOutEnabled) },
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(id = R.string.spdif_out),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Switch(
-                checked = isSpdifOutEnabled,
+        Column(modifier = Modifier.padding(all = cardPadding)) {
+            UsbDongleControlSwitchRow(
+                textRes = R.string.spdif_out,
+                isChecked = isSpdifOutEnabled,
                 onCheckedChange = onSpdifOutEnabledSwitched
             )
         }

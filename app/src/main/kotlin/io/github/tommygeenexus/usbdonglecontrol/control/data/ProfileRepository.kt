@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -40,8 +40,8 @@ import timber.log.Timber
 
 @Singleton
 class ProfileRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @DispatcherIo private val dispatcherIo: CoroutineDispatcher,
+    @param:ApplicationContext private val context: Context,
+    @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher,
     private val profileDao: ProfileDao
 ) {
 
@@ -52,10 +52,10 @@ class ProfileRepository @Inject constructor(
         coroutineContext.suspendRunCatching {
             profileDao.upsert(profile)
             Result.success(Unit)
+        }.getOrElse { exception ->
+            Timber.e(exception)
+            Result.failure(exception)
         }
-    }.getOrElse { exception ->
-        Timber.e(exception)
-        Result.failure(exception)
     }
 
     suspend fun deleteProfile(profile: Profile): Result<Unit> = withContext(dispatcherIo) {
@@ -75,7 +75,7 @@ class ProfileRepository @Inject constructor(
                     .packageManager
                     .getLaunchIntentForPackage(context.packageName)
                     ?.apply {
-                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         putExtra(INTENT_ACTION_SHORTCUT_PROFILE, profile.toPersistableBundle())
                     }
             )

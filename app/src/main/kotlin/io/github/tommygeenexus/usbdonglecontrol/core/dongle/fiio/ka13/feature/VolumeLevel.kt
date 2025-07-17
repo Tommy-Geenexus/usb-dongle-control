@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,7 +26,7 @@ import kotlinx.parcelize.Parcelize
 
 @Immutable
 @Parcelize
-data class VolumeLevel(val displayValueAndPayload: Int) : Parcelable {
+data class VolumeLevel(val displayValue: Int) : Parcelable {
 
     companion object {
         const val MIN = 100
@@ -36,13 +36,10 @@ data class VolumeLevel(val displayValueAndPayload: Int) : Parcelable {
 }
 
 fun VolumeLevel.Companion.createFromDisplayValue(displayValue: Int) = VolumeLevel(
-    displayValueAndPayload = displayValue.coerceIn(
+    displayValue = displayValue.coerceIn(
         minimumValue = MAX,
         maximumValue = MIN
     )
 )
 
-fun VolumeLevel.Companion.default() = VolumeLevel(displayValueAndPayload = DEFAULT)
-
-fun VolumeLevel.displayValueToPercent(): String =
-    "${(VolumeLevel.MIN - displayValueAndPayload) * 100 / VolumeLevel.MIN}%"
+fun VolumeLevel.Companion.default() = VolumeLevel(displayValue = DEFAULT)

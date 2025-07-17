@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,12 +26,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.createFromDisplayValue
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.ItemFilter
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.ItemInfo
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemAudio
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemIndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
@@ -44,7 +45,7 @@ fun FiioKa13Items(
     onFilterSelected: (Byte) -> Unit = {},
     onIndicatorStateSelected: (Byte) -> Unit = {},
     onSpdifOutSelected: (Boolean) -> Unit = {},
-    onVolumeLevelSelected: (Int) -> Unit = {}
+    onVolumeLevelSelected: (Float) -> Unit = {}
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
@@ -56,6 +57,7 @@ fun FiioKa13Items(
         item {
             ItemInfo(
                 firmwareVersion = fiioKa13.firmwareVersion.displayValue,
+                firmwareUri = FiioKa13.FIRMWARE_URL.toUri(),
                 sampleRate = fiioKa13.sampleRate.displayValue
             )
         }
@@ -74,16 +76,11 @@ fun FiioKa13Items(
         item {
             ItemAudio(
                 volumeLevel =
-                VolumeLevel.MIN - fiioKa13.volumeLevel.displayValueAndPayload.toFloat(),
-                volumeLevelInPercent = fiioKa13.displayVolumeLevel,
+                VolumeLevel.MIN - fiioKa13.volumeLevel.displayValue.toFloat(),
+                volumeLevelInPercent = fiioKa13.displayVolumeLevel(LocalContext.current),
                 volumeLevelStart = VolumeLevel.MAX.toFloat(),
                 volumeLevelEnd = VolumeLevel.MIN.toFloat(),
                 volumeLevelStepSize = 2f,
-                onVolumeLevelToPercent = { volumeLevel ->
-                    VolumeLevel
-                        .createFromDisplayValue(VolumeLevel.MIN - volumeLevel)
-                        .displayValueToPercent()
-                },
                 onVolumeLevelSelected = { volumeLevel ->
                     onVolumeLevelSelected(VolumeLevel.MIN - volumeLevel)
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,13 +26,14 @@ import android.content.Intent
 import androidx.core.content.IntentCompat
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
+import io.github.tommygeenexus.usbdonglecontrol.core.volume.incrementOrWrapVolumeStepSize
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.volumeDown
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.volumeUp
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbServiceNotification
 
 class UsbServiceVolumeLevelReceiver(
-    private val onSetVolumeLevel: (UsbDongle, Int, Int) -> Unit,
-    private val onSetVolumeStepSize: (UsbDongle, Int) -> Unit
+    private val onSetVolumeLevel: (UsbDongle, Float, Float) -> Unit,
+    private val onSetVolumeStepSize: (UsbDongle, Float) -> Unit
 ) : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -44,13 +45,13 @@ class UsbServiceVolumeLevelReceiver(
             UsbServiceNotification.INTENT_EXTRA_USB_DONGLE,
             UsbDongle::class.java
         ) ?: return
-        val volumeStepSize = intent.getIntExtra(
-            UsbServiceNotification.INTENT_EXTRA_VOLUME_STEP_SIZE,
-            UsbServiceNotification.VOLUME_STEP_SIZE_MIN
-        )
         if (usbDongle !is HardwareVolumeControl) {
             return
         }
+        val volumeStepSize = intent.getFloatExtra(
+            UsbServiceNotification.INTENT_EXTRA_VOLUME_STEP_SIZE,
+            usbDongle.volumeStepSizeMin
+        )
         when (intent.action) {
             UsbServiceNotification.INTENT_ACTION_VOLUME_DOWN -> {
                 onSetVolumeLevel(
@@ -69,26 +70,9 @@ class UsbServiceVolumeLevelReceiver(
             UsbServiceNotification.INTENT_ACTION_VOLUME_STEP_SIZE -> {
                 onSetVolumeStepSize(
                     usbDongle,
-                    incrementOrWrapVolumeStepSize(
-                        minVolumeStepSize = UsbServiceNotification.VOLUME_STEP_SIZE_MIN,
-                        maxVolumeStepSize = UsbServiceNotification.VOLUME_STEP_SIZE_MAX,
-                        currentVolumeStepSize = volumeStepSize
-                    )
+                    usbDongle.incrementOrWrapVolumeStepSize(volumeStepSize)
                 )
             }
         }
-    }
-
-    @Suppress("SameParameterValue")
-    private fun incrementOrWrapVolumeStepSize(
-        minVolumeStepSize: Int,
-        maxVolumeStepSize: Int,
-        currentVolumeStepSize: Int
-    ): Int {
-        var nextVolumeStepSize = currentVolumeStepSize.inc()
-        if (nextVolumeStepSize > maxVolumeStepSize) {
-            nextVolumeStepSize = minVolumeStepSize
-        }
-        return nextVolumeStepSize
     }
 }

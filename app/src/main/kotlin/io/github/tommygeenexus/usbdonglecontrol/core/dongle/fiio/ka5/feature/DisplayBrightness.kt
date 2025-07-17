@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -30,6 +30,7 @@ data class DisplayBrightness(val displayValue: Int, val payload: Int) : Parcelab
 
     companion object {
 
+        const val STEP_SIZE = 1f
         const val MIN = 1
         const val MAX = 10
         const val DEFAULT = 3
@@ -51,8 +52,5 @@ fun DisplayBrightness.Companion.default() = DisplayBrightness(
     displayValue = DEFAULT,
     payload = displayBrightness.getOrElse(DEFAULT - 1) { DEFAULT }
 )
-
-fun DisplayBrightness.displayValueToPercent(): String =
-    "${(payload * 100) / displayBrightness.last()}%"
 
 private val displayBrightness = listOf(0, 10, 25, 40, 60, 80, 105, 130, 160, 200)

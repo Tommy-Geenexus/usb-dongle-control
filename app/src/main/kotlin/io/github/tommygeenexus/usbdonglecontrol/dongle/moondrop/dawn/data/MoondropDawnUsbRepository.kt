@@ -32,7 +32,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.Moondr
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawnPro
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromPayload
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,18 +43,14 @@ import timber.log.Timber
 
 @Singleton
 class MoondropDawnUsbRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+    @param:ApplicationContext private val context: Context,
+    @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) : UsbRepository(context, dispatcherIo) {
 
     private companion object {
 
         const val DELAY_MS = 100L
         const val TIMEOUT_MS = 100
-
-        const val REQUEST_RESULT_INDEX_FILTER = 3
-        const val REQUEST_RESULT_INDEX_GAIN_VOLUME_LEVEL = 4
-        const val REQUEST_RESULT_INDEX_INDICATOR_STATE = 5
     }
 
     suspend fun getCurrentState(usbDongle: MoondropDawn): Result<MoondropDawn> {
@@ -66,7 +62,7 @@ class MoondropDawnUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 usbDongle.getAny.copyInto(data)
                 val filter: Filter
                 val gain: Gain
@@ -74,30 +70,30 @@ class MoondropDawnUsbRepository @Inject constructor(
                 mutex.withLock {
                     usbConnection.controlWriteAndRead(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     filter = Filter.findByIdOrDefault(
-                        id = data[REQUEST_RESULT_INDEX_FILTER]
+                        id = data[REQUEST_DATA_BYTE_1]
                     )
                     gain = Gain.findByIdOrDefault(
-                        id = data[REQUEST_RESULT_INDEX_GAIN_VOLUME_LEVEL]
+                        id = data[REQUEST_DATA_BYTE_2]
                     )
                     indicatorState = IndicatorState.findByIdOrDefault(
-                        id = data[REQUEST_RESULT_INDEX_INDICATOR_STATE]
+                        id = data[REQUEST_DATA_BYTE_3]
                     )
                     data.fill(0)
                     usbDongle.getVolumeLevel.copyInto(data)
                     usbConnection.controlWriteAndRead(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                 }
-                val volumeLevel = VolumeLevel.createFromPayload(
-                    payload = data[REQUEST_RESULT_INDEX_GAIN_VOLUME_LEVEL].toInt()
+                val volumeLevel = VolumeLevel.createFromDisplayValue(
+                    displayValue = data[REQUEST_DATA_BYTE_2].toInt()
                 )
                 when (usbDongle) {
                     is MoondropDawn35 -> {
@@ -147,13 +143,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 moondropDawn.setFilter.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
+                data[REQUEST_DATA_BYTE_1] = filter.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -185,13 +181,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 moondropDawn.setGain.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
+                data[REQUEST_DATA_BYTE_1] = gain.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -226,13 +222,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 moondropDawn.setIndicatorState.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = indicatorState.id
+                data[REQUEST_DATA_BYTE_1] = indicatorState.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -267,13 +263,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 moondropDawn.setVolumeLevel.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.displayValueAndPayload.toByte()
+                data[REQUEST_DATA_BYTE_1] = volumeLevel.displayValue.toByte()
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -311,40 +307,40 @@ class MoondropDawnUsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 moondropDawn.setFilter.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
+                data[REQUEST_DATA_BYTE_1] = filter.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     moondropDawn.setGain.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
+                    data[REQUEST_DATA_BYTE_1] = gain.id
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     moondropDawn.setIndicatorState.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = indicatorState.id
+                    data[REQUEST_DATA_BYTE_1] = indicatorState.id
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     moondropDawn.setVolumeLevel.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.displayValueAndPayload.toByte()
+                    data[REQUEST_DATA_BYTE_1] = volumeLevel.displayValue.toByte()
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )

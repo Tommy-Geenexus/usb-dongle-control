@@ -1,0 +1,98 @@
+/*
+ * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY,WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import io.github.tommygeenexus.usbdonglecontrol.R
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.AvailableFilters
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.Filters
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlRadioGroup
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlTitleText
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlToggleButtonGroup
+import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
+import kotlinx.collections.immutable.persistentListOf
+
+@Composable
+fun ItemFilter(
+    modifier: Modifier = Modifier,
+    availableFilters: AvailableFilters = AvailableFilters(),
+    currentFilters: Filters = Filters(),
+    onFilterSelected: (Byte, Int) -> Unit = { _, _ -> }
+) {
+    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(all = cardPadding)) {
+            UsbDongleControlTitleText(
+                textRes = R.string.filter_for_selected_pcm_sample_rate,
+                modifier = Modifier.padding(bottom = cardPadding)
+            )
+            var selectedToggleButtonIndex by remember { mutableIntStateOf(0) }
+            UsbDongleControlToggleButtonGroup(
+                selectedIndex = selectedToggleButtonIndex,
+                items = persistentListOf(
+                    stringResource(R.string._44_1_khz),
+                    stringResource(R.string._48_khz),
+                    stringResource(R.string._88_2_khz),
+                    stringResource(R.string._96_khz),
+                    stringResource(R.string._176_4_khz),
+                    stringResource(R.string._192_khz),
+                    stringResource(R.string._352_8_khz),
+                    stringResource(R.string._384_khz)
+                ),
+                onCheckedChange = { index -> selectedToggleButtonIndex = index }
+            )
+            UsbDongleControlRadioGroup(
+                selectedIndex = currentFilters.items[selectedToggleButtonIndex].first,
+                items = persistentListOf(
+                    stringResource(id = R.string.linear_phase_fast),
+                    stringResource(id = R.string.linear_phase_slow),
+                    stringResource(id = R.string.min_phase_fast),
+                    stringResource(id = R.string.min_phase_slow),
+                    stringResource(id = R.string.apodizing_fast),
+                    stringResource(id = R.string.corrected_min_phase),
+                    stringResource(id = R.string.brick_wall)
+                ),
+                onItemSelected = { index ->
+                    onFilterSelected(
+                        availableFilters.items[index],
+                        selectedToggleButtonIndex
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ItemFilterPreview() {
+    ItemFilter()
+}

@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -52,7 +51,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -70,6 +68,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.control.ControlTabs
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
@@ -79,6 +78,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.consumeProfileShortcut
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbDeviceAttachDetachPermissionReceiver
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbServiceVolumeLevelChangedReceiver
+import io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui.E1da9038Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui.FiioKa13Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
@@ -187,7 +187,6 @@ fun ControlScreen(
                 context.startService(Intent(context, UsbService::class.java))
             }
             ControlSideEffect.Service.Stop -> {
-                @Suppress("ImplicitSamInstance")
                 context.stopService(Intent(context, UsbService::class.java))
             }
             ControlSideEffect.Shortcut.Add.Failure -> {
@@ -278,8 +277,8 @@ fun ControlScreen(
             }
         )
         val usbServiceVolumeLevelChangedReceiver = UsbServiceVolumeLevelChangedReceiver(
-            onVolumeLevelChanged = { usbDongle ->
-                viewModel.synchronizeVolumeLevel(usbDongle)
+            onVolumeLevelChanged = { volumeLevel ->
+                viewModel.synchronizeVolumeLevel(volumeLevel)
             }
         )
         ContextCompat.registerReceiver(
@@ -301,14 +300,22 @@ fun ControlScreen(
     }
     val profileListState = rememberLazyStaggeredGridState()
     val state by viewModel.collectAsState()
+    var selectedTabIndex by remember { mutableIntStateOf(ControlTabs.State.index) }
     ControlScreen(
         windowSizeClass = windowSizeClass,
-        bottomScrollBehavior = bottomScrollBehavior,
         profileListState = profileListState,
         snackBarHostState = snackBarHostState,
         profiles = profiles,
         usbDongle = state.usbDongle,
+        selectedTabIndex = selectedTabIndex,
         isLoading = state.loadingTasks > 0.toUInt(),
+        onTabSelected = { index ->
+            val prev = selectedTabIndex
+            selectedTabIndex = index
+            if (prev == ControlTabs.Profiles.index && selectedTabIndex == ControlTabs.State.index) {
+                viewModel.getCurrentStateForUsbDongle(state.usbDongle)
+            }
+        },
         onNavigateToSettings = onNavigateToSettings,
         onRefresh = { viewModel.getCurrentStateForUsbDongle(state.usbDongle) },
         onReset = {
@@ -352,6 +359,9 @@ fun ControlScreen(
         onFilterSelected = { filterId ->
             viewModel.setDacFilter(filterId)
         },
+        onFilterForSampleRateSelected = { filterId, index ->
+            viewModel.setDacFilterForSampleRate(filterId, index)
+        },
         onGainSelected = { gainId ->
             viewModel.setGain(gainId)
         },
@@ -364,8 +374,17 @@ fun ControlScreen(
         onIndicatorStateSelected = { indicatorStateId ->
             viewModel.setIndicatorState(indicatorStateId)
         },
+        onMasterClockDividerDsdSelected = { masterClockId, index ->
+            viewModel.setMasterClockDividerDsdForSampleRate(masterClockId, index)
+        },
+        onMasterClockDividerPcmSelected = { masterClockId, index ->
+            viewModel.setMasterClockDividerPcmForSampleRate(masterClockId, index)
+        },
         onSpdifOutEnabledSelected = { isSpdifOutEnabled ->
             viewModel.setSpdifOutEnabled(isSpdifOutEnabled)
+        },
+        onStandbyEnabledSelected = { isStandbyEnabled ->
+            viewModel.setStandbyEnabled(isStandbyEnabled)
         },
         onVolumeLevelSelected = { volumeLevel ->
             viewModel.setVolumeLevel(volumeLevel)
@@ -380,18 +399,18 @@ fun ControlScreen(
 fun ControlScreen(
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
-    bottomScrollBehavior: BottomAppBarScrollBehavior =
-        BottomAppBarDefaults.exitAlwaysScrollBehavior(),
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     profiles: LazyPagingItems<Profile> =
         UnsupportedUsbDongle.profileFlow().collectAsLazyPagingItems(),
     usbDongle: UsbDongle = UnsupportedUsbDongle,
+    selectedTabIndex: Int = 0,
     isLoading: Boolean = false,
+    onTabSelected: (Int) -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onReset: () -> Unit = {},
-    onScrollToProfileIndex: (Int) -> Unit = {},
+    onScrollToProfileIndex: suspend (Int) -> Unit = {},
     onProfileShortcutAdd: (Profile) -> Unit = {},
     onProfileShortcutRemove: (Profile) -> Unit = {},
     onProfileDelete: (Profile) -> Unit = { _ -> },
@@ -403,16 +422,20 @@ fun ControlScreen(
     onDisplayTimeoutSelected: (Int) -> Unit = { _ -> },
     onDisplayInvertChange: (Boolean) -> Unit = { _ -> },
     onFilterSelected: (Byte) -> Unit = { _ -> },
+    onFilterForSampleRateSelected: (Byte, Int) -> Unit = { _, _ -> },
     onGainSelected: (Byte) -> Unit = { _ -> },
     onHardwareMuteEnabledSelected: (Boolean) -> Unit = { _ -> },
     onHidModeSelected: (Byte) -> Unit = { _ -> },
     onIndicatorStateSelected: (Byte) -> Unit = { _ -> },
+    onMasterClockDividerDsdSelected: (Byte, Int) -> Unit = { _, _ -> },
+    onMasterClockDividerPcmSelected: (Byte, Int) -> Unit = { _, _ -> },
     onSpdifOutEnabledSelected: (Boolean) -> Unit = { _ -> },
-    onVolumeLevelSelected: (Int) -> Unit = { _ -> },
+    onStandbyEnabledSelected: (Boolean) -> Unit = { _ -> },
+    onVolumeLevelSelected: (Float) -> Unit = { _ -> },
     onVolumeModeSelected: (Byte) -> Unit = { _ -> }
 ) {
     Scaffold(
-        modifier = modifier.nestedScroll(bottomScrollBehavior.nestedScrollConnection),
+        modifier = modifier,
         topBar = {
             ControlTopAppBar(
                 windowInsets = WindowInsets.statusBars,
@@ -422,7 +445,6 @@ fun ControlScreen(
         bottomBar = {
             ControlBottomAppBar(
                 windowSizeClass = windowSizeClass,
-                scrollBehavior = bottomScrollBehavior,
                 onRefresh = onRefresh,
                 onReset = onReset,
                 onProfileExport = onProfileExport,
@@ -446,21 +468,26 @@ fun ControlScreen(
             AnimatedVisibility(visible = isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            var selectedTabIndex by remember { mutableIntStateOf(ControlTabs.State.index) }
             ControlTabRow(
                 selectedTabIndex = selectedTabIndex,
-                onTabSelected = { index ->
-                    val prev = selectedTabIndex
-                    selectedTabIndex = index
-                    if (prev == ControlTabs.Profiles.index &&
-                        selectedTabIndex == ControlTabs.State.index
-                    ) {
-                        onRefresh()
-                    }
-                }
+                onTabSelected = onTabSelected
             )
             if (selectedTabIndex == ControlTabs.State.index) {
                 when (usbDongle) {
+                    is E1da9038 -> {
+                        E1da9038Items(
+                            modifier = Modifier.padding(
+                                horizontal = windowSizeClass.getHorizontalCardPadding()
+                            ),
+                            e1da9038 = usbDongle,
+                            onFilterSelected = onFilterForSampleRateSelected,
+                            onHardwareMuteEnabledSelected = onHardwareMuteEnabledSelected,
+                            onMasterClockDividerDsdSelected = onMasterClockDividerDsdSelected,
+                            onMasterClockDividerPcmSelected = onMasterClockDividerPcmSelected,
+                            onStandbyEnabledSelected = onStandbyEnabledSelected,
+                            onVolumeLevelSelected = onVolumeLevelSelected
+                        )
+                    }
                     is FiioKa13 -> {
                         FiioKa13Items(
                             modifier = Modifier.padding(
@@ -586,11 +613,11 @@ fun ControlScreen(
             val activity = LocalActivity.current
             if (activity != null) {
                 val profileItems = profiles.itemSnapshotList.items
-                LaunchedEffect(profileItems) {
-                    if (profileItems.isNotEmpty()) {
-                        val profileShortcut = activity.intent.consumeProfileShortcut()
-                        if (profileShortcut != null) {
-                            selectedTabIndex = ControlTabs.Profiles.index
+                if (profileItems.isNotEmpty()) {
+                    val profileShortcut = activity.intent.consumeProfileShortcut()
+                    if (profileShortcut != null) {
+                        LaunchedEffect(Unit) {
+                            onTabSelected(ControlTabs.Profiles.index)
                             val index = profileItems.indexOf(profileShortcut)
                             onScrollToProfileIndex(
                                 if (index >= 0) {

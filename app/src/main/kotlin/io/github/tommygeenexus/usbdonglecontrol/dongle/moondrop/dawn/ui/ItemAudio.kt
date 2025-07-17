@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -24,69 +24,42 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.material.slider.Slider
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlBodyText
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSlider
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlTitleText
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
-import kotlin.math.roundToInt
 
 @Composable
 fun ItemAudio(
     modifier: Modifier = Modifier,
-    volumeLevel: Float = VolumeLevel.default().displayValueAndPayload.toFloat(),
-    volumeLevelInPercent: String = VolumeLevel.default().displayValueToPercent(),
+    volumeLevel: Float = VolumeLevel.default().displayValue.toFloat(),
+    volumeLevelInPercent: String = "",
     volumeLevelStart: Float = VolumeLevel.MAX.toFloat(),
     volumeLevelEnd: Float = VolumeLevel.MIN.toFloat(),
-    volumeLevelStepSize: Float = 0f,
-    onVolumeLevelToPercent: (Int) -> String = { _ -> volumeLevelInPercent },
-    onVolumeLevelSelected: (Int) -> Unit = {}
+    volumeLevelStepSize: Float = VolumeLevel.STEP_SIZE,
+    onVolumeLevelSelected: (Float) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
-            Text(
-                text = stringResource(id = R.string.volume),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
+            UsbDongleControlTitleText(textRes = R.string.volume)
+            UsbDongleControlBodyText(
                 text = stringResource(id = R.string.volume_level, volumeLevelInPercent),
-                modifier = Modifier.padding(top = cardPadding),
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.padding(top = cardPadding)
             )
-            AndroidView(
-                factory = { context ->
-                    Slider(context).apply {
-                        stepSize = volumeLevelStepSize
-                        setLabelFormatter { value ->
-                            onVolumeLevelToPercent(value.roundToInt())
-                        }
-                        addOnSliderTouchListener(
-                            object : Slider.OnSliderTouchListener {
-
-                                override fun onStartTrackingTouch(slider: Slider) {
-                                }
-
-                                override fun onStopTrackingTouch(slider: Slider) {
-                                    onVolumeLevelSelected(slider.value.roundToInt())
-                                }
-                            }
-                        )
-                    }
-                },
-                modifier = Modifier.padding(top = cardPadding),
-                update = { slider ->
-                    slider.value = volumeLevel
-                    slider.valueFrom = volumeLevelStart
-                    slider.valueTo = volumeLevelEnd
-                }
+            UsbDongleControlSlider(
+                stepSize = volumeLevelStepSize,
+                value = volumeLevel,
+                valueFrom = volumeLevelStart,
+                valueTo = volumeLevelEnd,
+                onValueChangeFinished = onVolumeLevelSelected,
+                modifier = Modifier.padding(top = cardPadding)
             )
         }
     }

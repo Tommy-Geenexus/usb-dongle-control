@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -25,10 +25,12 @@ import android.os.PersistableBundle
 import androidx.core.os.persistableBundleOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import io.github.tommygeenexus.usbdonglecontrol.core.util.TOP_LEVEL_PACKAGE_NAME
 import kotlinx.parcelize.Parcelize
 
 @Entity
+@TypeConverters(ListTypeConverter::class)
 @Parcelize
 data class Profile(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -40,15 +42,19 @@ data class Profile(
     val displayBrightness: Int = 0,
     val displayTimeout: Int = 0,
     val filterId: Byte = 0,
-    val firmwareVersion: String = "",
+    val filterIds: List<Byte> = emptyList(),
     val gainId: Byte = 0,
     val hidModeId: Byte = 0,
     val indicatorStateId: Byte = 0,
     val isDisplayInvertEnabled: Boolean = false,
     val isHardwareMuteEnabled: Boolean = false,
     val isSpdifOutEnabled: Boolean = false,
-    val sampleRate: String = "",
-    val volumeLevel: Int = 0,
+    val isStandbyEnabled: Boolean = false,
+    val masterClockDividersDsdIds: List<Byte> = emptyList(),
+    val masterClockDividersPcmIds: List<Byte> = emptyList(),
+    val volumeLevel: Float = 0f,
+    val volumeLevelMax: Float = 0f,
+    val volumeLevelMin: Float = 0f,
     val volumeModeId: Byte = 0
 ) : Parcelable {
 
@@ -64,13 +70,22 @@ data class Profile(
         private const val KEY_DISPLAY_INVERT = TOP_LEVEL_PACKAGE_NAME + "DISPLAY_INVERT"
         private const val KEY_DISPLAY_TIMEOUT = TOP_LEVEL_PACKAGE_NAME + "DISPLAY_TIMEOUT"
         private const val KEY_FILTER = TOP_LEVEL_PACKAGE_NAME + "FILTER"
-        private const val KEY_FW_VERSION = TOP_LEVEL_PACKAGE_NAME + "FW_VERSION"
+        private const val KEY_FILTERS = TOP_LEVEL_PACKAGE_NAME + "FILTERS"
+
         private const val KEY_GAIN = TOP_LEVEL_PACKAGE_NAME + "GAIN"
         private const val KEY_HW_MUTE = TOP_LEVEL_PACKAGE_NAME + "HW_MUTE"
         private const val KEY_HID_MODE = TOP_LEVEL_PACKAGE_NAME + "HID_MODE"
-        private const val KEY_SAMPLE_RATE = TOP_LEVEL_PACKAGE_NAME + "SAMPLE_RATE"
+        private const val KEY_MASTER_CLOCK_DIVIDERS_DSD =
+            TOP_LEVEL_PACKAGE_NAME + "MASTER_CLOCK_DIVIDERS_DSD"
+        private const val KEY_MASTER_CLOCK_DIVIDERS_PCM =
+            TOP_LEVEL_PACKAGE_NAME + "MASTER_CLOCK_DIVIDERS_PCM"
+
         private const val KEY_SPDIF_OUT = TOP_LEVEL_PACKAGE_NAME + "SPDIF_OUT"
+        private const val KEY_STANDBY = TOP_LEVEL_PACKAGE_NAME + "STANDBY"
+
         private const val KEY_VOLUME_LEVEL = TOP_LEVEL_PACKAGE_NAME + "VOLUME_LEVEL"
+        private const val KEY_VOLUME_LEVEL_MAX = TOP_LEVEL_PACKAGE_NAME + "VOLUME_LEVEL_MAX"
+        private const val KEY_VOLUME_LEVEL_MIN = TOP_LEVEL_PACKAGE_NAME + "VOLUME_LEVEL_MIN"
         private const val KEY_VOLUME_MODE = TOP_LEVEL_PACKAGE_NAME + "VOLUME_MODE"
         private const val KEY_INDICATOR_STATE = TOP_LEVEL_PACKAGE_NAME + "INDICATOR_STATE"
 
@@ -84,15 +99,23 @@ data class Profile(
             displayBrightness = bundle.getInt(KEY_DISPLAY_BRIGHTNESS),
             displayTimeout = bundle.getInt(KEY_DISPLAY_TIMEOUT),
             filterId = bundle.getInt(KEY_FILTER).toByte(),
-            firmwareVersion = bundle.getString(KEY_FW_VERSION).orEmpty(),
+            filterIds = bundle.getIntArray(KEY_FILTERS)?.map { it.toByte() }?.toList().orEmpty(),
             gainId = bundle.getInt(KEY_GAIN).toByte(),
             hidModeId = bundle.getInt(KEY_HID_MODE).toByte(),
             indicatorStateId = bundle.getInt(KEY_INDICATOR_STATE).toByte(),
             isDisplayInvertEnabled = bundle.getBoolean(KEY_DISPLAY_INVERT),
             isHardwareMuteEnabled = bundle.getBoolean(KEY_HW_MUTE),
             isSpdifOutEnabled = bundle.getBoolean(KEY_SPDIF_OUT),
-            sampleRate = bundle.getString(KEY_SAMPLE_RATE).orEmpty(),
-            volumeLevel = bundle.getInt(KEY_VOLUME_LEVEL),
+            isStandbyEnabled = bundle.getBoolean(KEY_STANDBY),
+            masterClockDividersDsdIds = bundle.getIntArray(KEY_MASTER_CLOCK_DIVIDERS_DSD)?.map {
+                it.toByte()
+            }?.toList().orEmpty(),
+            masterClockDividersPcmIds = bundle.getIntArray(KEY_MASTER_CLOCK_DIVIDERS_PCM)?.map {
+                it.toByte()
+            }?.toList().orEmpty(),
+            volumeLevel = bundle.getDouble(KEY_VOLUME_LEVEL).toFloat(),
+            volumeLevelMax = bundle.getDouble(KEY_VOLUME_LEVEL_MAX).toFloat(),
+            volumeLevelMin = bundle.getDouble(KEY_VOLUME_LEVEL_MIN).toFloat(),
             volumeModeId = bundle.getInt(KEY_VOLUME_MODE).toByte()
         )
     }
@@ -108,14 +131,20 @@ data class Profile(
         KEY_DISPLAY_INVERT to isDisplayInvertEnabled,
         KEY_DISPLAY_TIMEOUT to displayTimeout,
         KEY_FILTER to filterId.toInt(),
-        KEY_FW_VERSION to firmwareVersion,
+        KEY_FILTERS to IntArray(filterIds.size) { filterIds[it].toInt() },
         KEY_GAIN to gainId.toInt(),
         KEY_HW_MUTE to isHardwareMuteEnabled,
         KEY_HID_MODE to hidModeId.toInt(),
         KEY_INDICATOR_STATE to indicatorStateId.toInt(),
-        KEY_SAMPLE_RATE to sampleRate,
+        KEY_MASTER_CLOCK_DIVIDERS_DSD to
+            IntArray(masterClockDividersDsdIds.size) { masterClockDividersDsdIds[it].toInt() },
+        KEY_MASTER_CLOCK_DIVIDERS_PCM to
+            IntArray(masterClockDividersPcmIds.size) { masterClockDividersPcmIds[it].toInt() },
         KEY_SPDIF_OUT to isSpdifOutEnabled,
-        KEY_VOLUME_LEVEL to volumeLevel,
+        KEY_STANDBY to isStandbyEnabled,
+        KEY_VOLUME_LEVEL to volumeLevel.toDouble(),
+        KEY_VOLUME_LEVEL_MAX to volumeLevelMax.toDouble(),
+        KEY_VOLUME_LEVEL_MIN to volumeLevelMin.toDouble(),
         KEY_VOLUME_MODE to volumeModeId.toInt()
     )
 }

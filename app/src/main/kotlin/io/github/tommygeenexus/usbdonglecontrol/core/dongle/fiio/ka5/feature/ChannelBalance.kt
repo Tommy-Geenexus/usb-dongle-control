@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,12 +20,9 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature
 
-import android.content.Context
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
-import io.github.tommygeenexus.usbdonglecontrol.R
 import kotlin.math.abs
-import kotlin.math.absoluteValue
 import kotlinx.parcelize.Parcelize
 
 @Immutable
@@ -34,6 +31,7 @@ data class ChannelBalance(val displayValue: Int, val payload: Pair<Int, Int>) : 
 
     companion object {
 
+        const val STEP_SIZE = 1f
         const val MIN = -12
         const val MAX = 12
         const val DEFAULT = 0
@@ -84,27 +82,3 @@ fun ChannelBalance.Companion.default() = ChannelBalance(
     displayValue = DEFAULT,
     payload = DEFAULT to DEFAULT
 )
-
-fun ChannelBalance.displayValueToDecibel(isSignShown: Boolean = false): String {
-    val offsetDb = if (displayValue != 0) {
-        displayValue.absoluteValue / 2f
-    } else {
-        0f
-    }
-    val sign = if (isSignShown && displayValue < 0) {
-        "-"
-    } else if (isSignShown && displayValue > 0) {
-        "+"
-    } else {
-        ""
-    }
-    return "${sign}$offsetDb dB"
-}
-
-fun ChannelBalance.displayValueToDirection(context: Context) = if (displayValue > 0) {
-    context.getString(R.string.right)
-} else if (displayValue < 0) {
-    context.getString(R.string.left)
-} else {
-    ""
-}

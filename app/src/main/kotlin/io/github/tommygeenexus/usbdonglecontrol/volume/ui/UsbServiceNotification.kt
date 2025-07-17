@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -39,15 +39,13 @@ internal object UsbServiceNotification {
 
     private const val REQUEST_CODE = 0
     private const val ID_NOTIFICATION_CHANNEL = TOP_LEVEL_PACKAGE_NAME + "NOTIFICATION_CHANNEL"
+
     const val ID_NOTIFICATION = 1
-
-    const val VOLUME_STEP_SIZE_MIN = 1
-    const val VOLUME_STEP_SIZE_MAX = 4
-
     const val INTENT_ACTION_VOLUME_UP = TOP_LEVEL_PACKAGE_NAME + "VOLUME_UP"
     const val INTENT_ACTION_VOLUME_DOWN = TOP_LEVEL_PACKAGE_NAME + "VOLUME_DOWN"
     const val INTENT_ACTION_VOLUME_STEP_SIZE = TOP_LEVEL_PACKAGE_NAME + "VOLUME_STEP_SIZE"
     const val INTENT_EXTRA_USB_DONGLE = TOP_LEVEL_PACKAGE_NAME + "EXTRA_USB_DONGLE"
+    const val INTENT_EXTRA_VOLUME_LEVEL = TOP_LEVEL_PACKAGE_NAME + "EXTRA_VOLUME_LEVEL"
     const val INTENT_EXTRA_VOLUME_STEP_SIZE = TOP_LEVEL_PACKAGE_NAME + "EXTRA_VOLUME_STEP_SIZE"
 
     fun createNotificationChannel(context: Context): NotificationChannel? {
@@ -75,7 +73,7 @@ internal object UsbServiceNotification {
     fun <D> buildAndShow(
         context: Context,
         usbDongle: D,
-        volumeStepSize: Int
+        volumeStepSize: Float
     ) where D : UsbDongle, D : HardwareVolumeControl {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         try {
@@ -88,7 +86,7 @@ internal object UsbServiceNotification {
     fun <D> build(
         context: Context,
         usbDongle: D,
-        volumeStepSize: Int
+        volumeStepSize: Float
     ): Notification where D : UsbDongle, D : HardwareVolumeControl = Notification
         .Builder(context, ID_NOTIFICATION_CHANNEL)
         .setSmallIcon(R.drawable.ic_logo)
@@ -96,8 +94,8 @@ internal object UsbServiceNotification {
         .setContentText(
             context.getString(
                 R.string.volume_level_steps,
-                usbDongle.displayVolumeLevel,
-                volumeStepSize
+                usbDongle.displayVolumeLevel(context),
+                volumeStepSize.toString()
             )
         )
         .setContentIntent(
@@ -165,7 +163,7 @@ internal object UsbServiceNotification {
 internal fun <D> UsbService.startForeground(
     context: Context,
     usbDongle: D,
-    volumeStepSize: Int
+    volumeStepSize: Float
 ) where D : UsbDongle, D : HardwareVolumeControl {
     startForeground(
         UsbServiceNotification.ID_NOTIFICATION,

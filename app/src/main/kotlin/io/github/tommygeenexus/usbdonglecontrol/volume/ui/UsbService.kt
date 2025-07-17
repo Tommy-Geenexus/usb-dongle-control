@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -118,12 +118,12 @@ class UsbService : Service() {
             startForeground(
                 context = applicationContext,
                 usbDongle = currentUsbDongle,
-                volumeStepSize = UsbServiceNotification.VOLUME_STEP_SIZE_MIN
+                volumeStepSize = currentUsbDongle.volumeStepSizeMin
             )
         }
     }
 
-    private fun setVolumeLevel(usbDongle: UsbDongle, volumeLevel: Int, volumeStepSize: Int) {
+    private fun setVolumeLevel(usbDongle: UsbDongle, volumeLevel: Float, volumeStepSize: Float) {
         coroutineScope.launch {
             var currentUsbDongle = getVolumeLevelUseCase(usbDongle)
                 .getOrNull()
@@ -142,13 +142,16 @@ class UsbService : Service() {
             sendBroadcast(
                 Intent(INTENT_ACTION_VOLUME_CHANGED).apply {
                     setPackage(packageName)
-                    putExtra(UsbServiceNotification.INTENT_EXTRA_USB_DONGLE, currentUsbDongle)
+                    putExtra(
+                        UsbServiceNotification.INTENT_EXTRA_VOLUME_LEVEL,
+                        currentUsbDongle.currentVolumeLevel
+                    )
                 }
             )
         }
     }
 
-    private fun setVolumeStepSize(usbDongle: UsbDongle, volumeStepSize: Int) {
+    private fun setVolumeStepSize(usbDongle: UsbDongle, volumeStepSize: Float) {
         if (usbDongle !is HardwareVolumeControl) {
             return
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -23,6 +23,13 @@ package io.github.tommygeenexus.usbdonglecontrol.control.domain
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.Filter as FilterE1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.HardwareMute as HardwareMuteE1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.MasterClockDivider
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.Standby
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.VolumeLevel as VolumeLevelE1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.createFromDisplayValue
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.Filter as FilterFiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.IndicatorState as IndicatorStateFiioKa13
@@ -47,6 +54,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.featur
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel as VolumeLevelMoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
+import io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.data.E1da9038UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
@@ -56,6 +64,7 @@ import javax.inject.Singleton
 
 @Singleton
 class SetProfileUseCase @Inject constructor(
+    private val e1da9038UsbRepository: E1da9038UsbRepository,
     private val fiioKa13UsbRepository: FiioKa13UsbRepository,
     private val fiioKa5UsbRepository: FiioKa5UsbRepository,
     private val moondropDawnUsbRepository: MoondropDawnUsbRepository,
@@ -64,30 +73,49 @@ class SetProfileUseCase @Inject constructor(
 
     suspend operator fun invoke(usbDongle: UsbDongle, profile: Profile): Result<UsbDongle> =
         when (usbDongle) {
+            is E1da9038 -> {
+                e1da9038UsbRepository.setAll(
+                    e1da9038 = usbDongle,
+                    filters = profile.filterIds.map { FilterE1da9038.findByIdOrDefault(it) },
+                    hardwareMute = HardwareMuteE1da9038(isEnabled = profile.isHardwareMuteEnabled),
+                    masterClockDividersDsd = profile.masterClockDividersDsdIds.map {
+                        MasterClockDivider.findByIdOrDefault(it)
+                    },
+                    masterClockDividersPcm = profile.masterClockDividersPcmIds.map {
+                        MasterClockDivider.findByIdOrDefault(it)
+                    },
+                    standby = Standby(isEnabled = profile.isStandbyEnabled),
+                    volumeLevel = VolumeLevelE1da9038.createFromDisplayValue(
+                        displayValue = profile.volumeLevel
+                    )
+                )
+            }
             is FiioKa13 -> {
                 fiioKa13UsbRepository.setAll(
                     fiioKa13 = usbDongle,
-                    filter = FilterFiioKa13.findByIdOrDefault(profile.filterId),
+                    filter = FilterFiioKa13.findByIdOrDefault(id = profile.filterId),
                     indicatorState = IndicatorStateFiioKa13.findByIdOrDefault(
-                        profile.indicatorStateId
+                        id = profile.indicatorStateId
                     ),
                     spdifOut = SpdifOut(isEnabled = profile.isSpdifOutEnabled),
-                    volumeLevel = VolumeLevelFiioKa13.createFromDisplayValue(profile.volumeLevel)
+                    volumeLevel = VolumeLevelFiioKa13.createFromDisplayValue(
+                        displayValue = profile.volumeLevel.toInt()
+                    )
                 )
             }
             is FiioKa5 -> {
                 fiioKa5UsbRepository.setAll(
                     fiioKa5 = usbDongle,
                     channelBalance = ChannelBalance.createFromDisplayValue(
-                        profile.channelBalance
+                        displayValue = profile.channelBalance
                     ),
-                    dacMode = DacMode.findByIdOrDefault(profile.dacModeId),
+                    dacMode = DacMode.findByIdOrDefault(id = profile.dacModeId),
                     displayBrightness = DisplayBrightness.createFromDisplayValue(
                         displayValue = profile.displayBrightness
                     ),
                     displayInvert = DisplayInvert(isEnabled = profile.isDisplayInvertEnabled),
                     displayTimeout = DisplayTimeout.createFromDisplayValue(
-                        profile.displayTimeout
+                        displayValue = profile.displayTimeout
                     ),
                     filter = FilterFiioKa5.findByIdOrDefault(id = profile.filterId),
                     gain = Gain.findByIdOrDefault(id = profile.gainId),
@@ -95,7 +123,7 @@ class SetProfileUseCase @Inject constructor(
                     hidMode = HidMode.findByIdOrDefault(id = profile.hidModeId),
                     spdifOut = SpdifOut(isEnabled = profile.isSpdifOutEnabled),
                     volumeLevel = VolumeLevelFiioKa5.createFromDisplayValue(
-                        displayValue = profile.volumeLevel,
+                        displayValue = profile.volumeLevel.toInt(),
                         volumeMode = VolumeMode.findByIdOrDefault(
                             id = profile.volumeModeId
                         )
@@ -112,7 +140,7 @@ class SetProfileUseCase @Inject constructor(
                         id = profile.indicatorStateId
                     ),
                     volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
-                        displayValue = profile.volumeLevel
+                        displayValue = profile.volumeLevel.toInt()
                     )
                 )
             }
@@ -125,7 +153,7 @@ class SetProfileUseCase @Inject constructor(
                         id = profile.indicatorStateId
                     ),
                     volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
-                        displayValue = profile.volumeLevel
+                        displayValue = profile.volumeLevel.toInt()
                     )
                 )
             }

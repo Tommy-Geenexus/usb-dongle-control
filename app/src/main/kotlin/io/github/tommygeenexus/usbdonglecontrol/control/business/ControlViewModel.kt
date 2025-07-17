@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -30,6 +30,7 @@ import io.github.tommygeenexus.usbdonglecontrol.control.data.ProfileRepository
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetCurrentStateUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.GetVolumeLevelUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetChannelBalanceUseCase
+import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetDacFilterForSampleRateUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetDacFilterUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetDacModeUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetDisplayBrightnessUseCase
@@ -39,10 +40,14 @@ import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetGainUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetHardwareMuteEnabledUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetHidModeUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetIndicatorStateUseCase
+import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetMasterClockDividerDsdForSampleRateUseCase
+import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetMasterClockDividerPcmForSampleRateUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetProfileUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetSpdifOutEnabledUseCase
+import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetStandbyEnabledUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeLevelUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeModeUseCase
+import io.github.tommygeenexus.usbdonglecontrol.control.domain.SynchronizeVolumeLevelUseCase
 import io.github.tommygeenexus.usbdonglecontrol.core.data.UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
@@ -65,6 +70,7 @@ class ControlViewModel @Inject constructor(
     private val getCurrentStateUseCase: GetCurrentStateUseCase,
     private val getVolumeLevelUseCase: GetVolumeLevelUseCase,
     private val setChannelBalanceUseCase: SetChannelBalanceUseCase,
+    private val setDacFilterForSampleRateUseCase: SetDacFilterForSampleRateUseCase,
     private val setDacFilterUseCase: SetDacFilterUseCase,
     private val setDacModeUseCase: SetDacModeUseCase,
     private val setDisplayBrightnessUseCase: SetDisplayBrightnessUseCase,
@@ -74,9 +80,15 @@ class ControlViewModel @Inject constructor(
     private val setHardwareMuteEnabledUseCase: SetHardwareMuteEnabledUseCase,
     private val setHidModeUseCase: SetHidModeUseCase,
     private val setIndicatorStateUseCase: SetIndicatorStateUseCase,
+    private val setMasterClockDividerDsdForSampleRateUseCase:
+    SetMasterClockDividerDsdForSampleRateUseCase,
+    private val setMasterClockDividerPcmForSampleRateUseCase:
+    SetMasterClockDividerPcmForSampleRateUseCase,
     private val setSpdifOutEnabledUseCase: SetSpdifOutEnabledUseCase,
+    private val setStandbyEnabledUseCase: SetStandbyEnabledUseCase,
     private val setVolumeLevelUseCase: SetVolumeLevelUseCase,
-    private val setVolumeModeUseCase: SetVolumeModeUseCase
+    private val setVolumeModeUseCase: SetVolumeModeUseCase,
+    private val synchronizeVolumeLevelUseCase: SynchronizeVolumeLevelUseCase
 ) : ViewModel(),
     ContainerHost<ControlState, ControlSideEffect> {
 
@@ -84,13 +96,15 @@ class ControlViewModel @Inject constructor(
         initialState = ControlState(),
         savedStateHandle = savedStateHandle,
         onCreate = {
-            if (settingsRepository.isMaximizeVolumeEnabled()) {
-                val result = audioRepository.maximizeMusicVolume()
-                if (result.isFailure) {
-                    postSideEffect(ControlSideEffect.MaximizeVolume.Failure)
+            intent {
+                if (settingsRepository.isMaximizeVolumeEnabled()) {
+                    val result = audioRepository.maximizeMusicVolume()
+                    if (result.isFailure) {
+                        postSideEffect(ControlSideEffect.MaximizeVolume.Failure)
+                    }
                 }
+                getCurrentStateForFirstAttachedUsbDongle()
             }
-            getCurrentStateForFirstAttachedUsbDongle()
         }
     )
 
@@ -104,9 +118,9 @@ class ControlViewModel @Inject constructor(
         }
     ).flow
 
-    fun synchronizeVolumeLevel(usbDongle: UsbDongle) = intent {
+    fun synchronizeVolumeLevel(volumeLevel: Float) = intent {
         reduce {
-            state.copy(usbDongle = usbDongle)
+            state.copy(usbDongle = synchronizeVolumeLevelUseCase(state.usbDongle, volumeLevel))
         }
     }
 
@@ -290,6 +304,26 @@ class ControlViewModel @Inject constructor(
         )
     }
 
+    fun setDacFilterForSampleRate(dacFilterId: Byte, index: Int) = intent {
+        reduce {
+            state.copy(loadingTasks = state.plusLoadingTask())
+        }
+        val result = setDacFilterForSampleRateUseCase(state.usbDongle, dacFilterId, index)
+        reduce {
+            state.copy(
+                usbDongle = result.getOrDefault(state.usbDongle),
+                loadingTasks = state.minusLoadingTask()
+            )
+        }
+        postSideEffect(
+            if (result.isSuccess) {
+                ControlSideEffect.UsbCommunication.Rw.Success
+            } else {
+                ControlSideEffect.UsbCommunication.Rw.Failure
+            }
+        )
+    }
+
     fun setDacMode(dacModeId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
@@ -450,6 +484,54 @@ class ControlViewModel @Inject constructor(
         )
     }
 
+    fun setMasterClockDividerDsdForSampleRate(masterClockId: Byte, index: Int) = intent {
+        reduce {
+            state.copy(loadingTasks = state.plusLoadingTask())
+        }
+        val result = setMasterClockDividerDsdForSampleRateUseCase(
+            state.usbDongle,
+            masterClockId,
+            index
+        )
+        reduce {
+            state.copy(
+                usbDongle = result.getOrDefault(state.usbDongle),
+                loadingTasks = state.minusLoadingTask()
+            )
+        }
+        postSideEffect(
+            if (result.isSuccess) {
+                ControlSideEffect.UsbCommunication.Rw.Success
+            } else {
+                ControlSideEffect.UsbCommunication.Rw.Failure
+            }
+        )
+    }
+
+    fun setMasterClockDividerPcmForSampleRate(masterClockId: Byte, index: Int) = intent {
+        reduce {
+            state.copy(loadingTasks = state.plusLoadingTask())
+        }
+        val result = setMasterClockDividerPcmForSampleRateUseCase(
+            state.usbDongle,
+            masterClockId,
+            index
+        )
+        reduce {
+            state.copy(
+                usbDongle = result.getOrDefault(state.usbDongle),
+                loadingTasks = state.minusLoadingTask()
+            )
+        }
+        postSideEffect(
+            if (result.isSuccess) {
+                ControlSideEffect.UsbCommunication.Rw.Success
+            } else {
+                ControlSideEffect.UsbCommunication.Rw.Failure
+            }
+        )
+    }
+
     fun setSpdifOutEnabled(isSpdifOutEnabled: Boolean) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
@@ -470,7 +552,27 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setVolumeLevel(volumeLevel: Int) = intent {
+    fun setStandbyEnabled(isStandbyEnabled: Boolean) = intent {
+        reduce {
+            state.copy(loadingTasks = state.plusLoadingTask())
+        }
+        val result = setStandbyEnabledUseCase(state.usbDongle, isStandbyEnabled)
+        reduce {
+            state.copy(
+                usbDongle = result.getOrDefault(state.usbDongle),
+                loadingTasks = state.minusLoadingTask()
+            )
+        }
+        postSideEffect(
+            if (result.isSuccess) {
+                ControlSideEffect.UsbCommunication.Rw.Success
+            } else {
+                ControlSideEffect.UsbCommunication.Rw.Failure
+            }
+        )
+    }
+
+    fun setVolumeLevel(volumeLevel: Float) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
@@ -496,23 +598,31 @@ class ControlViewModel @Inject constructor(
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        var result = setVolumeModeUseCase(state.usbDongle, volumeModeId)
+        val result = setVolumeModeUseCase(state.usbDongle, volumeModeId)
         if (result.isSuccess) {
-            result = getVolumeLevelUseCase(state.usbDongle)
-        }
-        reduce {
-            state.copy(
-                usbDongle = result.getOrDefault(state.usbDongle),
-                loadingTasks = state.minusLoadingTask()
-            )
-        }
-        if (result.isSuccess) {
-            postSideEffect(ControlSideEffect.UsbCommunication.Rw.Success)
-            if (state.usbDongle is HardwareVolumeControl) {
-                postSideEffect(ControlSideEffect.Service.Stop)
-                postSideEffect(ControlSideEffect.Service.Start)
+            val usbDongle = result.getOrThrow()
+            if (usbDongle is HardwareVolumeControl) {
+                val getVolumeLevelResult = getVolumeLevelUseCase(usbDongle)
+                reduce {
+                    state.copy(
+                        usbDongle = getVolumeLevelResult.getOrDefault(usbDongle),
+                        loadingTasks = state.minusLoadingTask()
+                    )
+                }
+                if (getVolumeLevelResult.isSuccess) {
+                    postSideEffect(ControlSideEffect.Service.Stop)
+                    postSideEffect(ControlSideEffect.Service.Start)
+                    postSideEffect(ControlSideEffect.UsbCommunication.Rw.Success)
+                } else {
+                    postSideEffect(ControlSideEffect.UsbCommunication.Rw.Failure)
+                }
+            } else {
+                postSideEffect(ControlSideEffect.UsbCommunication.Rw.Success)
             }
         } else {
+            reduce {
+                state.copy(loadingTasks = state.minusLoadingTask())
+            }
             postSideEffect(ControlSideEffect.UsbCommunication.Rw.Failure)
         }
     }

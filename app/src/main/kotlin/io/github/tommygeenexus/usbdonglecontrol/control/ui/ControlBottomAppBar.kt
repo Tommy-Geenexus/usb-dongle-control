@@ -35,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
@@ -90,7 +91,9 @@ fun ControlBottomAppBar(
             }
             TooltipBox(
                 modifier = Modifier,
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(text = factoryReset) } },
                 state = rememberTooltipState()
             ) {
@@ -103,7 +106,9 @@ fun ControlBottomAppBar(
             }
             TooltipBox(
                 modifier = Modifier,
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(text = exportProfile) } },
                 state = rememberTooltipState()
             ) {
@@ -116,7 +121,9 @@ fun ControlBottomAppBar(
             }
             TooltipBox(
                 modifier = Modifier,
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(text = settings) } },
                 state = rememberTooltipState()
             ) {
@@ -129,7 +136,9 @@ fun ControlBottomAppBar(
             }
             TooltipBox(
                 modifier = Modifier,
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above
+                ),
                 tooltip = { PlainTooltip { Text(text = refresh) } },
                 state = rememberTooltipState()
             ) {

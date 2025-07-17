@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,14 +26,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
+import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.ItemGain
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemAudio
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemFilter
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemGain
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemIndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
@@ -45,7 +44,7 @@ fun MoondropMoonriver2TiItems(
     onFilterSelected: (Byte) -> Unit = {},
     onGainSelected: (Byte) -> Unit = {},
     onIndicatorStateSelected: (Byte) -> Unit = {},
-    onVolumeLevelSelected: (Int) -> Unit = {}
+    onVolumeLevelSelected: (Float) -> Unit = {}
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
@@ -75,13 +74,11 @@ fun MoondropMoonriver2TiItems(
         item {
             ItemAudio(
                 volumeLevel =
-                VolumeLevel.MIN - moondropMoonriver2Ti.volumeLevel.displayValueAndPayload.toFloat(),
-                volumeLevelInPercent = moondropMoonriver2Ti.volumeLevel.displayValueToPercent(),
-                onVolumeLevelToPercent = { volumeLevel ->
-                    VolumeLevel
-                        .createFromDisplayValue(VolumeLevel.MIN - volumeLevel)
-                        .displayValueToPercent()
-                },
+                VolumeLevel.MIN -
+                    moondropMoonriver2Ti.volumeLevel.displayValue.toFloat(),
+                volumeLevelInPercent = moondropMoonriver2Ti.displayVolumeLevel(
+                    LocalContext.current
+                ),
                 onVolumeLevelSelected = { volumeLevel ->
                     onVolumeLevelSelected(VolumeLevel.MIN - volumeLevel)
                 }

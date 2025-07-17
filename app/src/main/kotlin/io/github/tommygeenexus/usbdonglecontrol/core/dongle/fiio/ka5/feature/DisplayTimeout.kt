@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -30,6 +30,7 @@ data class DisplayTimeout(val displayValue: Int, val payload: Int) : Parcelable 
 
     companion object {
 
+        const val STEP_SIZE = 1f
         const val MIN = 0
         const val MAX = 60
         const val DEFAULT = 15
@@ -62,5 +63,3 @@ fun DisplayTimeout.Companion.default() = DisplayTimeout(
     displayValue = DEFAULT,
     payload = DEFAULT
 )
-
-fun DisplayTimeout.displayValueToSeconds() = "${displayValue}s"

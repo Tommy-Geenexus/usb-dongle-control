@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,23 +20,20 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlRadioGroup
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlTitleText
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun ItemGain(
@@ -46,34 +43,20 @@ fun ItemGain(
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
-            Text(
-                text = stringResource(id = R.string.gain),
-                modifier = Modifier.padding(bottom = cardPadding),
-                style = MaterialTheme.typography.titleMedium
+            UsbDongleControlTitleText(
+                textRes = R.string.gain,
+                modifier = Modifier.padding(bottom = cardPadding)
             )
-            val gains = listOf(
-                stringResource(id = R.string.low),
-                stringResource(id = R.string.high)
-            )
-            gains.forEachIndexed { index, g ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onGainSelected(index.toByte()) },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = index.toByte() == gainId,
-                        onClick = {
-                            onGainSelected(index.toByte())
-                        }
-                    )
-                    Text(
-                        text = g,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+            UsbDongleControlRadioGroup(
+                selectedIndex = gainId.toInt(),
+                items = persistentListOf(
+                    stringResource(id = R.string.low),
+                    stringResource(id = R.string.high)
+                ),
+                onItemSelected = { index ->
+                    onGainSelected(index.toByte())
                 }
-            }
+            )
         }
     }
 }

@@ -52,30 +52,14 @@ import timber.log.Timber
 
 @Singleton
 class FiioKa5UsbRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+    @param:ApplicationContext private val context: Context,
+    @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) : UsbRepository(context, dispatcherIo) {
 
     private companion object {
 
         const val DELAY_MS = 100L
         const val TIMEOUT_MS = 1000
-
-        const val REQUEST_RESULT_INDEX_FILTER = 3
-        const val REQUEST_RESULT_INDEX_SPDIF_OUT = 3
-        const val REQUEST_RESULT_INDEX_VERSION = 3
-        const val REQUEST_RESULT_INDEX_SAMPLE_RATE = 3
-        const val REQUEST_RESULT_INDEX_GAIN = 4
-        const val REQUEST_RESULT_INDEX_VOLUME_LEVEL = 4
-        const val REQUEST_RESULT_INDEX_DISPLAY_TIMEOUT = 4
-        const val REQUEST_RESULT_INDEX_DISPLAY_BRIGHTNESS = 5
-        const val REQUEST_RESULT_INDEX_DAC_MODE = 5
-        const val REQUEST_RESULT_INDEX_VOLUME_MODE = 5
-        const val REQUEST_RESULT_INDEX_CHANNEL_BAL_R = 5
-        const val REQUEST_RESULT_INDEX_CHANNEL_BAL_L = 6
-        const val REQUEST_RESULT_INDEX_HW_MUTE = 6
-        const val REQUEST_RESULT_INDEX_HID_MODE = 6
-        const val REQUEST_RESULT_INDEX_DISPLAY_INVERT = 6
     }
 
     suspend fun getCurrentState(usbDongle: FiioKa5): Result<FiioKa5> {
@@ -87,7 +71,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 val commands = listOf(
                     usbDongle.getVersion,
                     usbDongle.getSampleRate,
@@ -112,53 +96,53 @@ class FiioKa5UsbRepository @Inject constructor(
                         command.copyInto(data)
                         usbConnection.controlWriteAndRead(
                             payload = data,
-                            payloadSize = REQUEST_PAYLOAD_SIZE,
+                            payloadSize = REQUEST_PACKET_SIZE,
                             transferTimeout = TIMEOUT_MS,
                             delayInMillisecondsAfterTransfer = DELAY_MS
                         )
                         if (command.contentEquals(usbDongle.getVersion)) {
                             hidMode = HidMode.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_HID_MODE]
+                                id = data[REQUEST_DATA_BYTE_4]
                             )
                             firmwareVersion = FirmwareVersion.createFromPayload(
-                                payload = data[REQUEST_RESULT_INDEX_VERSION]
+                                payload = data[REQUEST_DATA_BYTE_1]
                             )
                         } else if (command.contentEquals(usbDongle.getSampleRate)) {
                             sampleRate = SampleRate.create(
-                                key = data[REQUEST_RESULT_INDEX_SAMPLE_RATE].toInt()
+                                key = data[REQUEST_DATA_BYTE_1].toInt()
                             )
                         } else if (command.contentEquals(usbDongle.getVolumeLevel)) {
                             channelBalance = ChannelBalance.createFromPayload(
-                                channelRight = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_R].toInt(),
-                                channelLeft = data[REQUEST_RESULT_INDEX_CHANNEL_BAL_L].toInt()
+                                channelRight = data[REQUEST_DATA_BYTE_3].toInt(),
+                                channelLeft = data[REQUEST_DATA_BYTE_4].toInt()
                             )
                         } else if (command.contentEquals(usbDongle.getFilter)) {
                             dacMode = DacMode.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_DAC_MODE]
+                                id = data[REQUEST_DATA_BYTE_3]
                             )
                             gain = Gain.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_GAIN]
+                                id = data[REQUEST_DATA_BYTE_2]
                             )
                             filter = Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_FILTER]
+                                id = data[REQUEST_DATA_BYTE_1]
                             )
                             hardwareMute = HardwareMute(
-                                isEnabled = data[REQUEST_RESULT_INDEX_HW_MUTE].toInt() == 1
+                                isEnabled = data[REQUEST_DATA_BYTE_4].toInt() == 1
                             )
                         } else if (command.contentEquals(usbDongle.getOtherState)) {
                             spdifOut = SpdifOut(
-                                isEnabled = data[REQUEST_RESULT_INDEX_SPDIF_OUT].toInt() == 1
+                                isEnabled = data[REQUEST_DATA_BYTE_1].toInt() == 1
                             )
                             displayTimeout = DisplayTimeout.createFromPayload(
-                                payload = data[REQUEST_RESULT_INDEX_DISPLAY_TIMEOUT].toInt()
+                                payload = data[REQUEST_DATA_BYTE_2].toInt()
                             )
                             displayBrightness = DisplayBrightness.createFromPayload(
-                                payload = data[REQUEST_RESULT_INDEX_DISPLAY_BRIGHTNESS]
+                                payload = data[REQUEST_DATA_BYTE_3]
                                     .toUByte()
                                     .toInt()
                             )
                             displayInvert = DisplayInvert(
-                                isEnabled = data[REQUEST_RESULT_INDEX_DISPLAY_INVERT].toInt() == 1
+                                isEnabled = data[REQUEST_DATA_BYTE_4].toInt() == 1
                             )
                         }
                     }
@@ -195,7 +179,7 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 val commands = listOf(
                     usbDongle.getVersion,
                     usbDongle.getVolumeLevel
@@ -208,17 +192,17 @@ class FiioKa5UsbRepository @Inject constructor(
                         command.copyInto(data)
                         usbConnection.controlWriteAndRead(
                             payload = data,
-                            payloadSize = REQUEST_PAYLOAD_SIZE,
+                            payloadSize = REQUEST_PACKET_SIZE,
                             transferTimeout = TIMEOUT_MS,
                             delayInMillisecondsAfterTransfer = DELAY_MS
                         )
                         if (command.contentEquals(usbDongle.getVersion)) {
                             volumeMode = VolumeMode.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_VOLUME_MODE]
+                                id = data[REQUEST_DATA_BYTE_3]
                             )
                         } else if (command.contentEquals(usbDongle.getVolumeLevel)) {
                             volumeLevel = VolumeLevel.createFromPayload(
-                                payload = data[REQUEST_RESULT_INDEX_VOLUME_LEVEL].toUByte().toInt(),
+                                payload = data[REQUEST_DATA_BYTE_2].toUByte().toInt(),
                                 volumeMode = volumeMode
                             )
                         }
@@ -249,14 +233,14 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setChannelBalance.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = channelBalance.payload.first.toByte()
-                data[REQUEST_PAYLOAD_INDEX_SET + 1] = channelBalance.payload.second.toByte()
+                data[REQUEST_DATA_BYTE_1] = channelBalance.payload.first.toByte()
+                data[REQUEST_DATA_BYTE_2] = channelBalance.payload.second.toByte()
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -278,13 +262,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setDacMode.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = dacMode.id
+                data[REQUEST_DATA_BYTE_1] = dacMode.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -309,13 +293,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setDisplayBrightness.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = displayBrightness.payload.toByte()
+                data[REQUEST_DATA_BYTE_1] = displayBrightness.payload.toByte()
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -337,13 +321,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setDisplayInvert.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = displayInvert.payload
+                data[REQUEST_DATA_BYTE_1] = displayInvert.payload
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -368,13 +352,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setDisplayTimeout.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = displayTimeout.payload.toByte()
+                data[REQUEST_DATA_BYTE_1] = displayTimeout.payload.toByte()
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -396,13 +380,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setFilter.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
+                data[REQUEST_DATA_BYTE_1] = filter.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -424,13 +408,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setGain.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
+                data[REQUEST_DATA_BYTE_1] = gain.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -452,13 +436,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setHardwareMute.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = hardwareMute.payload
+                data[REQUEST_DATA_BYTE_1] = hardwareMute.payload
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -480,13 +464,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setHidMode.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = hidMode.id
+                data[REQUEST_DATA_BYTE_1] = hidMode.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -508,13 +492,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setSpdifOut.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = spdifOut.payload
+                data[REQUEST_DATA_BYTE_1] = spdifOut.payload
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -536,13 +520,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setVolumeMode.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = volumeMode.id
+                data[REQUEST_DATA_BYTE_1] = volumeMode.id
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -564,13 +548,13 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setVolumeLevel.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.payload.toByte()
+                data[REQUEST_DATA_BYTE_1] = volumeLevel.payload.toByte()
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -606,113 +590,113 @@ class FiioKa5UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 fiioKa5.setChannelBalance.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = channelBalance.payload.first.toByte()
-                data[REQUEST_PAYLOAD_INDEX_SET + 1] = channelBalance.payload.second.toByte()
+                data[REQUEST_DATA_BYTE_1] = channelBalance.payload.first.toByte()
+                data[REQUEST_DATA_BYTE_2] = channelBalance.payload.second.toByte()
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setDacMode.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = dacMode.id
+                    data[REQUEST_DATA_BYTE_1] = dacMode.id
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setDisplayBrightness.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = displayBrightness.payload.toByte()
+                    data[REQUEST_DATA_BYTE_1] = displayBrightness.payload.toByte()
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setDisplayInvert.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = displayInvert.payload
+                    data[REQUEST_DATA_BYTE_1] = displayInvert.payload
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setDisplayTimeout.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = displayTimeout.payload.toByte()
+                    data[REQUEST_DATA_BYTE_1] = displayTimeout.payload.toByte()
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setFilter.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = filter.id
+                    data[REQUEST_DATA_BYTE_1] = filter.id
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setGain.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = gain.id
+                    data[REQUEST_DATA_BYTE_1] = gain.id
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setHardwareMute.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = hardwareMute.payload
+                    data[REQUEST_DATA_BYTE_1] = hardwareMute.payload
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setHidMode.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = hidMode.id
+                    data[REQUEST_DATA_BYTE_1] = hidMode.id
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setSpdifOut.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = spdifOut.payload
+                    data[REQUEST_DATA_BYTE_1] = spdifOut.payload
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setVolumeLevel.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.payload.toByte()
+                    data[REQUEST_DATA_BYTE_1] = volumeLevel.payload.toByte()
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     data.fill(0)
                     fiioKa5.setVolumeMode.copyInto(data)
-                    data[REQUEST_PAYLOAD_INDEX_SET] = volumeMode.id
+                    data[REQUEST_DATA_BYTE_1] = volumeMode.id
                     usbConnection.controlWrite(
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )

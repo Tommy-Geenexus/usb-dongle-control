@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,29 +20,22 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.material.slider.Slider
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayBrightness
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayTimeout
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToPercent
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToSeconds
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlBodyText
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSlider
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSwitchRow
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlTitleText
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 import kotlin.math.roundToInt
 
@@ -50,115 +43,59 @@ import kotlin.math.roundToInt
 fun ItemDisplay(
     modifier: Modifier = Modifier,
     displayBrightness: Float = DisplayBrightness.default().displayValue.toFloat(),
-    displayBrightnessInPercent: String = DisplayBrightness.default().displayValueToPercent(),
     displayBrightnessStart: Float = DisplayBrightness.MIN.toFloat(),
     displayBrightnessEnd: Float = DisplayBrightness.MAX.toFloat(),
-    displayBrightnessStepSize: Float = 1f,
+    displayBrightnessStepSize: Float = DisplayBrightness.STEP_SIZE,
     displayTimeout: Float = DisplayTimeout.default().displayValue.toFloat(),
-    displayTimeoutInSeconds: String = DisplayTimeout.default().displayValueToSeconds(),
     displayTimeoutStart: Float = DisplayTimeout.MIN.toFloat(),
     displayTimeoutEnd: Float = DisplayTimeout.MAX.toFloat(),
+    displayTimeoutStepSize: Float = DisplayTimeout.STEP_SIZE,
     isDisplayInvertEnabled: Boolean = false,
-    onDisplayBrightnessToPercent: (Int) -> String = { _ -> displayBrightnessInPercent },
     onDisplayBrightnessSelected: (Int) -> Unit = {},
-    onDisplayTimeoutToSeconds: (Int) -> String = { _ -> displayTimeoutInSeconds },
     onDisplayTimeoutSelected: (Int) -> Unit = {},
     onDisplayInvertSwitched: (Boolean) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
-            Text(
-                text = stringResource(id = R.string.display_brightness),
-                style = MaterialTheme.typography.titleMedium
+            UsbDongleControlTitleText(textRes = R.string.display_brightness)
+            UsbDongleControlBodyText(
+                text = stringResource(id = R.string.display_brightness_level, displayBrightness),
+                modifier = Modifier.padding(top = cardPadding)
             )
-            Text(
-                text = stringResource(
-                    id = R.string.display_brightness_level,
-                    displayBrightnessInPercent
-                ),
-                modifier = Modifier.padding(top = cardPadding),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            AndroidView(
-                factory = { context ->
-                    Slider(context).apply {
-                        setLabelFormatter { value ->
-                            onDisplayBrightnessToPercent(value.roundToInt())
-                        }
-                        addOnSliderTouchListener(
-                            object : Slider.OnSliderTouchListener {
-
-                                override fun onStartTrackingTouch(slider: Slider) {
-                                }
-
-                                override fun onStopTrackingTouch(slider: Slider) {
-                                    onDisplayBrightnessSelected(slider.value.roundToInt())
-                                }
-                            }
-                        )
-                    }
+            UsbDongleControlSlider(
+                stepSize = displayBrightnessStepSize,
+                value = displayBrightness,
+                valueFrom = displayBrightnessStart,
+                valueTo = displayBrightnessEnd,
+                onValueChangeFinished = { value ->
+                    onDisplayBrightnessSelected(value.roundToInt())
                 },
-                modifier = Modifier.padding(top = cardPadding),
-                update = { slider ->
-                    slider.stepSize = displayBrightnessStepSize
-                    slider.value = displayBrightness
-                    slider.valueFrom = displayBrightnessStart
-                    slider.valueTo = displayBrightnessEnd
-                }
+                modifier = Modifier.padding(top = cardPadding)
             )
-            Text(
-                text = stringResource(id = R.string.display_timeout),
-                modifier = Modifier.padding(top = cardPadding),
-                style = MaterialTheme.typography.titleMedium
+            UsbDongleControlTitleText(
+                textRes = R.string.display_timeout,
+                modifier = Modifier.padding(top = cardPadding)
             )
-            Text(
+            UsbDongleControlBodyText(
                 text = stringResource(id = R.string.display_timeout_delay, displayTimeout),
-                modifier = Modifier.padding(top = cardPadding),
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.padding(top = cardPadding)
             )
-            AndroidView(
-                factory = { context ->
-                    Slider(context).apply {
-                        setLabelFormatter { value ->
-                            onDisplayTimeoutToSeconds(value.roundToInt())
-                        }
-                        addOnSliderTouchListener(
-                            object : Slider.OnSliderTouchListener {
-
-                                override fun onStartTrackingTouch(slider: Slider) {
-                                }
-
-                                override fun onStopTrackingTouch(slider: Slider) {
-                                    onDisplayTimeoutSelected(slider.value.roundToInt())
-                                }
-                            }
-                        )
-                    }
+            UsbDongleControlSlider(
+                stepSize = displayTimeoutStepSize,
+                value = displayTimeout,
+                valueFrom = displayTimeoutStart,
+                valueTo = displayTimeoutEnd,
+                onValueChangeFinished = { value ->
+                    onDisplayTimeoutSelected(value.roundToInt())
                 },
-                modifier = Modifier.padding(top = cardPadding),
-                update = { slider ->
-                    slider.value = displayTimeout
-                    slider.valueFrom = displayTimeoutStart
-                    slider.valueTo = displayTimeoutEnd
-                }
+                modifier = Modifier.padding(top = cardPadding)
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = cardPadding)
-                    .clickable { onDisplayInvertSwitched(!isDisplayInvertEnabled) },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(id = R.string.display_invert),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Switch(
-                    checked = isDisplayInvertEnabled,
-                    onCheckedChange = onDisplayInvertSwitched
-                )
-            }
+            UsbDongleControlSwitchRow(
+                textRes = R.string.display_invert,
+                isChecked = isDisplayInvertEnabled,
+                modifier = Modifier.padding(top = cardPadding),
+                onCheckedChange = onDisplayInvertSwitched
+            )
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -21,6 +21,7 @@
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle
 
 import android.hardware.usb.UsbDevice
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn35
@@ -29,6 +30,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.Moondr
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 
 val supportedDongles = listOf<UsbDongle>(
+    E1da9038(),
     FiioKa13(),
     FiioKa5(),
     MoondropDawn35(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
+import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.tommygeenexus.usbdonglecontrol.core.di.DispatcherIo
@@ -45,14 +46,25 @@ import timber.log.Timber
 
 @Singleton
 open class UsbRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+    @param:ApplicationContext private val context: Context,
+    @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) {
 
     protected companion object {
 
-        const val REQUEST_PAYLOAD_SIZE = 7
-        const val REQUEST_PAYLOAD_INDEX_SET = 3
+        /*
+         *  Default packet structure
+         *  -------------------------------------------------------
+         *  Position    1   | 2   | 3   | 4    | 5    | 6    | 7
+         *  Type        CMD | CMD | CMD | DATA | DATA | DATA | DATA
+         *  -------------------------------------------------------
+         */
+        const val REQUEST_PACKET_SIZE = 7
+        const val REQUEST_DATA_SIZE = 4
+        const val REQUEST_DATA_BYTE_1 = 3
+        const val REQUEST_DATA_BYTE_2 = 4
+        const val REQUEST_DATA_BYTE_3 = 5
+        const val REQUEST_DATA_BYTE_4 = 6
 
         private const val REQUEST_TYPE_WRITE = 67
         private const val REQUEST_TYPE_READ = 195
@@ -190,6 +202,57 @@ open class UsbRepository @Inject constructor(
         )
         if (result != payloadSize) {
             error("USB control transfer $REQUEST_TYPE_WRITE failed")
+        }
+        delay(delayInMillisecondsAfterTransfer)
+    }
+
+    @Throws(IllegalStateException::class)
+    suspend fun UsbDeviceConnection.bulkWrite(
+        usbEndpoint: UsbEndpoint,
+        payload: ByteArray,
+        payloadSize: Int,
+        transferTimeout: Int,
+        delayInMillisecondsAfterTransfer: Long
+    ) = withContext(dispatcherIo) {
+        val result = bulkTransfer(
+            usbEndpoint,
+            payload,
+            payloadSize,
+            transferTimeout
+        )
+        if (result != payloadSize) {
+            error("USB bulk transfer ${usbEndpoint.direction} failed")
+        }
+        delay(delayInMillisecondsAfterTransfer)
+    }
+
+    @Throws(IllegalStateException::class)
+    suspend fun UsbDeviceConnection.bulkWriteAndRead(
+        usbEndpointRead: UsbEndpoint,
+        usbEndpointWrite: UsbEndpoint,
+        payload: ByteArray,
+        payloadSize: Int,
+        transferTimeout: Int,
+        delayInMillisecondsAfterTransfer: Long
+    ) = withContext(dispatcherIo) {
+        var result = bulkTransfer(
+            usbEndpointWrite,
+            payload,
+            payloadSize,
+            transferTimeout
+        )
+        if (result != payloadSize) {
+            error("USB bulk transfer ${usbEndpointRead.direction} failed")
+        }
+        delay(delayInMillisecondsAfterTransfer)
+        result = bulkTransfer(
+            usbEndpointRead,
+            payload,
+            payloadSize,
+            transferTimeout
+        )
+        if (result != payloadSize) {
+            error("USB bulk transfer ${usbEndpointWrite.direction} failed")
         }
         delay(delayInMillisecondsAfterTransfer)
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,6 +20,8 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13
 
+import android.content.Context
+import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.FiioUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.Filter
@@ -28,7 +30,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.In
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.SampleRate
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.SpdifOut
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.default
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
@@ -58,6 +59,14 @@ data class FiioKa13(
     }
 
     @IgnoredOnParcel
+    override val currentVolumeLevel
+        get() = volumeLevel.displayValue.toFloat()
+
+    @IgnoredOnParcel
+    override val isVolumeControlInverted
+        get() = false
+
+    @IgnoredOnParcel
     override val setFilter
         get() = listOf(
             byteArrayOf(0, 17, -96, -94, 2, 2, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -84,25 +93,17 @@ data class FiioKa13(
         )
 
     @IgnoredOnParcel
-    override val isVolumeControlAsc
-        get() = false
-
-    override val currentVolumeLevel
-        get() = volumeLevel.displayValueAndPayload
-
-    override val displayVolumeLevel: String
-        get() = volumeLevel.displayValueToPercent()
+    override val volumeStepSizeMin: Float
+        get() = 1f
 
     override fun currentStateAsProfile(profileName: String) = Profile(
         name = profileName,
         vendorId = vendorId,
         productId = productId,
         filterId = filter.id,
-        firmwareVersion = firmwareVersion.displayValue,
         indicatorStateId = indicatorState.id,
         isSpdifOutEnabled = spdifOut.isEnabled,
-        sampleRate = sampleRate.displayValue,
-        volumeLevel = volumeLevel.displayValueAndPayload
+        volumeLevel = volumeLevel.displayValue.toFloat()
     )
 
     override fun defaultStateAsProfile() = Profile(
@@ -110,10 +111,13 @@ data class FiioKa13(
         vendorId = vendorId,
         productId = productId,
         filterId = Filter.default().id,
-        firmwareVersion = FirmwareVersion.default().displayValue,
         indicatorStateId = IndicatorState.default().id,
         isSpdifOutEnabled = SpdifOut.default().isEnabled,
-        sampleRate = SampleRate.default().displayValue,
-        volumeLevel = VolumeLevel.default().displayValueAndPayload
+        volumeLevel = VolumeLevel.default().displayValue.toFloat()
+    )
+
+    override fun displayVolumeLevel(context: Context): String = context.getString(
+        R.string.generic_percent,
+        (VolumeLevel.MIN - volumeLevel.displayValue) * 100 / VolumeLevel.MIN
     )
 }
