@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,15 +20,13 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.db
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
+import androidx.room.TypeConverter
 
-@Database(
-    entities = [Profile::class],
-    version = 5,
-    exportSchema = true
-)
-abstract class ProfileDatabase : RoomDatabase() {
+class ListTypeConverter {
 
-    abstract fun profileDao(): ProfileDao
+    @TypeConverter
+    fun fromListOfBytes(list: List<Byte>) = list.joinToString()
+
+    @TypeConverter
+    fun toListOfBytes(str: String) = str.split(",").map { it.toByte() }
 }

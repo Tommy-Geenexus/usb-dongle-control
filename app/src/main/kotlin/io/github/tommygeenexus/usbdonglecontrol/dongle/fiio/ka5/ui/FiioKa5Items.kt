@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -41,13 +41,14 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.dis
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemGain
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
+import kotlin.math.roundToInt
 
 @Composable
 fun FiioKa5Items(
     modifier: Modifier = Modifier,
     fiioKa5: FiioKa5 = FiioKa5(),
     onChannelBalanceSelected: (Int) -> Unit = {},
-    onVolumeLevelSelected: (Int) -> Unit = {},
+    onVolumeLevelSelected: (Float) -> Unit = {},
     onVolumeModeSelected: (Byte) -> Unit = {},
     onDisplayBrightnessSelected: (Int) -> Unit = {},
     onDisplayTimeoutSelected: (Int) -> Unit = {},
@@ -89,7 +90,7 @@ fun FiioKa5Items(
                 onChannelBalanceSelected = onChannelBalanceSelected,
                 onVolumeLevelToPercent = { volumeLevel ->
                     VolumeLevel
-                        .createFromDisplayValue(volumeLevel, fiioKa5.volumeMode)
+                        .createFromDisplayValue(volumeLevel.roundToInt(), fiioKa5.volumeMode)
                         .displayValueToPercent(fiioKa5.volumeMode)
                 },
                 onVolumeLevelSelected = onVolumeLevelSelected,

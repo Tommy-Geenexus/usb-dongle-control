@@ -30,6 +30,7 @@ import kotlinx.parcelize.Parcelize
 data class VolumeLevel(val displayValue: Float, val payload: Byte) : Parcelable {
 
     companion object {
+        const val STEP_SIZE = 0.5f
         const val MIN_DB = -127.5f
         const val MAX_DB = 0f
         const val DEFAULT = MAX_DB

@@ -61,7 +61,7 @@ fun ItemFilter(
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
             Text(
-                text = stringResource(R.string.pcm_sample_rate),
+                text = stringResource(R.string.filter_for_selected_pcm_sample_rate),
                 modifier = Modifier.padding(bottom = cardPadding),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -107,11 +107,6 @@ fun ItemFilter(
                     }
                 }
             }
-            Text(
-                text = stringResource(R.string.filter_for_selected_pcm_sample_rate),
-                modifier = Modifier.padding(vertical = cardPadding),
-                style = MaterialTheme.typography.titleMedium
-            )
             val filters = listOf(
                 stringResource(id = R.string.linear_phase_fast),
                 stringResource(id = R.string.linear_phase_slow),

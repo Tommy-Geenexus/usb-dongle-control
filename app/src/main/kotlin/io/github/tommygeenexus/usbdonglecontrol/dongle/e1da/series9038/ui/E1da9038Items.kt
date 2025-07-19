@@ -42,7 +42,10 @@ fun E1da9038Items(
     onHardwareMuteEnabledSelected: (Boolean) -> Unit = {},
     onMasterClockDividerDsdSelected: (Byte, Int) -> Unit = { _, _ -> },
     onMasterClockDividerPcmSelected: (Byte, Int) -> Unit = { _, _ -> },
-    onStandbyEnabledSelected: (Boolean) -> Unit = {}
+    onStandbyEnabledSelected: (Boolean) -> Unit = {},
+    onVolumeLevelSelected: (Float) -> Unit = {},
+    onVolumeLevelMaxSelected: (Float) -> Unit = { _ -> },
+    onVolumeLevelMinSelected: (Float) -> Unit = { _ -> }
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
@@ -59,11 +62,25 @@ fun E1da9038Items(
             )
         }
         item {
+            ItemAudio(
+                volumeLevel = e1da9038.volumeLevel.displayValue,
+                volumeLevelMin = e1da9038.volumeLevelMin.displayValue,
+                volumeLevelMax = e1da9038.volumeLevelMax.displayValue,
+                onVolumeLevelSelected = onVolumeLevelSelected,
+                onVolumeLevelMaxSelected = onVolumeLevelMaxSelected,
+                onVolumeLevelMinSelected = onVolumeLevelMinSelected
+            )
+        }
+        item {
+            ItemFilter(
+                currentFilters = Filters(items = e1da9038.filters.map { it.index to it.id }),
+                onFilterSelected = onFilterSelected
+            )
+        }
+        item {
             ItemMasterClockPcm(
                 currentMasterClockDividers = MasterClockDividersPcm(
-                    items = e1da9038.masterClockDividersPcm.map {
-                        it.index to it.id
-                    }
+                    items = e1da9038.masterClockDividersPcm.map { it.index to it.id }
                 ),
                 onMasterClockDividerPcmSelected = onMasterClockDividerPcmSelected
             )
@@ -71,17 +88,9 @@ fun E1da9038Items(
         item {
             ItemMasterClockDsd(
                 currentMasterClockDividers = MasterClockDividersDsd(
-                    items = e1da9038.masterClockDividersDsd.map {
-                        it.index to it.id
-                    }
+                    items = e1da9038.masterClockDividersDsd.map { it.index to it.id }
                 ),
                 onMasterClockDividerDsdSelected = onMasterClockDividerDsdSelected
-            )
-        }
-        item {
-            ItemFilter(
-                currentFilters = Filters(items = e1da9038.filters.map { it.index to it.id }),
-                onFilterSelected = onFilterSelected
             )
         }
         item {

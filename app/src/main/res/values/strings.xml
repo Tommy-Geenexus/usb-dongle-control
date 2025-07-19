@@ -105,11 +105,10 @@
     <string name="volume">Volume</string>
     <string name="volume_down">Volume down</string>
     <string name="volume_level">Volume level: %s</string>
-    <string name="volume_level_channel_left">Left channel: %s dB</string>
-    <string name="volume_level_channel_right">Right channel: %s dB</string>
+    <string name="volume_level_db">Left and right channel: %s dB</string>
     <string name="volume_level_steps">Volume level: %1$s, step size: %2$d</string>
     <string name="volume_range">Volume range</string>
-    <string name="volume_range_min_max">From %s dB to %s dB</string>
+    <string name="volume_range_min_max" formatted="false">From %s dB to %s dB</string>
     <string name="volume_steps">Volume steps</string>
     <string name="volume_steps_120">120</string>
     <string name="volume_steps_60">60</string>

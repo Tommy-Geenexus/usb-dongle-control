@@ -45,6 +45,8 @@ import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetMasterClockDiv
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetProfileUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetSpdifOutEnabledUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetStandbyEnabledUseCase
+import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeLevelMaxUseCase
+import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeLevelMinUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeLevelUseCase
 import io.github.tommygeenexus.usbdonglecontrol.control.domain.SetVolumeModeUseCase
 import io.github.tommygeenexus.usbdonglecontrol.core.data.UsbRepository
@@ -86,6 +88,8 @@ class ControlViewModel @Inject constructor(
     private val setSpdifOutEnabledUseCase: SetSpdifOutEnabledUseCase,
     private val setStandbyEnabledUseCase: SetStandbyEnabledUseCase,
     private val setVolumeLevelUseCase: SetVolumeLevelUseCase,
+    private val setVolumeLevelMaxUseCase: SetVolumeLevelMaxUseCase,
+    private val setVolumeLevelMinUseCase: SetVolumeLevelMinUseCase,
     private val setVolumeModeUseCase: SetVolumeModeUseCase
 ) : ViewModel(),
     ContainerHost<ControlState, ControlSideEffect> {
@@ -570,7 +574,7 @@ class ControlViewModel @Inject constructor(
         )
     }
 
-    fun setVolumeLevel(volumeLevel: Int) = intent {
+    fun setVolumeLevel(volumeLevel: Float) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
@@ -592,14 +596,51 @@ class ControlViewModel @Inject constructor(
         }
     }
 
+    fun setVolumeLevelMax(volumeLevelMax: Float) = intent {
+        reduce {
+            state.copy(loadingTasks = state.plusLoadingTask())
+        }
+        val result = setVolumeLevelMaxUseCase(state.usbDongle, volumeLevelMax)
+        reduce {
+            state.copy(
+                usbDongle = result.getOrDefault(state.usbDongle),
+                loadingTasks = state.minusLoadingTask()
+            )
+        }
+        postSideEffect(
+            if (result.isSuccess) {
+                ControlSideEffect.UsbCommunication.Rw.Success
+            } else {
+                ControlSideEffect.UsbCommunication.Rw.Failure
+            }
+        )
+    }
+
+    fun setVolumeLevelMin(volumeLevelMin: Float) = intent {
+        reduce {
+            state.copy(loadingTasks = state.plusLoadingTask())
+        }
+        val result = setVolumeLevelMinUseCase(state.usbDongle, volumeLevelMin)
+        reduce {
+            state.copy(
+                usbDongle = result.getOrDefault(state.usbDongle),
+                loadingTasks = state.minusLoadingTask()
+            )
+        }
+        postSideEffect(
+            if (result.isSuccess) {
+                ControlSideEffect.UsbCommunication.Rw.Success
+            } else {
+                ControlSideEffect.UsbCommunication.Rw.Failure
+            }
+        )
+    }
+
     fun setVolumeMode(volumeModeId: Byte) = intent {
         reduce {
             state.copy(loadingTasks = state.plusLoadingTask())
         }
-        var result = setVolumeModeUseCase(state.usbDongle, volumeModeId)
-        if (result.isSuccess) {
-            result = getVolumeLevelUseCase(state.usbDongle)
-        }
+        val result = setVolumeModeUseCase(state.usbDongle, volumeModeId)
         reduce {
             state.copy(
                 usbDongle = result.getOrDefault(state.usbDongle),
@@ -609,8 +650,22 @@ class ControlViewModel @Inject constructor(
         if (result.isSuccess) {
             postSideEffect(ControlSideEffect.UsbCommunication.Rw.Success)
             if (state.usbDongle is HardwareVolumeControl) {
-                postSideEffect(ControlSideEffect.Service.Stop)
-                postSideEffect(ControlSideEffect.Service.Start)
+                reduce {
+                    state.copy(loadingTasks = state.plusLoadingTask())
+                }
+                val getVolumeLevelResult = getVolumeLevelUseCase(state.usbDongle)
+                reduce {
+                    state.copy(
+                        usbDongle = getVolumeLevelResult.getOrDefault(state.usbDongle),
+                        loadingTasks = state.minusLoadingTask()
+                    )
+                }
+                if (getVolumeLevelResult.isSuccess) {
+                    postSideEffect(ControlSideEffect.Service.Stop)
+                    postSideEffect(ControlSideEffect.Service.Start)
+                } else {
+                    postSideEffect(ControlSideEffect.UsbCommunication.Rw.Failure)
+                }
             }
         } else {
             postSideEffect(ControlSideEffect.UsbCommunication.Rw.Failure)

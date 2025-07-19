@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -37,6 +37,7 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemGain
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemIndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
+import kotlin.math.roundToInt
 
 @Composable
 fun MoondropMoonriver2TiItems(
@@ -45,7 +46,7 @@ fun MoondropMoonriver2TiItems(
     onFilterSelected: (Byte) -> Unit = {},
     onGainSelected: (Byte) -> Unit = {},
     onIndicatorStateSelected: (Byte) -> Unit = {},
-    onVolumeLevelSelected: (Int) -> Unit = {}
+    onVolumeLevelSelected: (Float) -> Unit = {}
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
@@ -79,7 +80,7 @@ fun MoondropMoonriver2TiItems(
                 volumeLevelInPercent = moondropMoonriver2Ti.volumeLevel.displayValueToPercent(),
                 onVolumeLevelToPercent = { volumeLevel ->
                     VolumeLevel
-                        .createFromDisplayValue(VolumeLevel.MIN - volumeLevel)
+                        .createFromDisplayValue(VolumeLevel.MIN - volumeLevel.roundToInt())
                         .displayValueToPercent()
                 },
                 onVolumeLevelSelected = { volumeLevel ->

@@ -52,9 +52,19 @@ open class UsbRepository @Inject constructor(
 
     protected companion object {
 
+        /*
+         *  Default packet structure
+         *  -------------------------------------------------------
+         *  Position    1   | 2   | 3   | 4    | 5    | 6    | 7
+         *  Type        CMD | CMD | CMD | DATA | DATA | DATA | DATA
+         *  -------------------------------------------------------
+         */
+        const val REQUEST_PACKET_SIZE = 7
         const val REQUEST_DATA_SIZE = 4
-        const val REQUEST_PAYLOAD_SIZE = 7
-        const val REQUEST_PAYLOAD_INDEX_SET = REQUEST_PAYLOAD_SIZE - REQUEST_DATA_SIZE
+        const val REQUEST_DATA_BYTE_1 = 3
+        const val REQUEST_DATA_BYTE_2 = 4
+        const val REQUEST_DATA_BYTE_3 = 5
+        const val REQUEST_DATA_BYTE_4 = 6
 
         private const val REQUEST_TYPE_WRITE = 67
         private const val REQUEST_TYPE_READ = 195

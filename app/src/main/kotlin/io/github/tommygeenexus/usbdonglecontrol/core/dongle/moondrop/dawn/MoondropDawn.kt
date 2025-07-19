@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2023-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -59,13 +59,13 @@ sealed class MoondropDawn(
     override val setVolumeLevel
         get() = byteArrayOf(-64, -91, 4)
 
-    override val isVolumeControlAsc: Boolean
+    override val isVolumeControlAsc
         get() = false
 
-    override val currentVolumeLevel: Int
-        get() = volumeLevel.displayValueAndPayload
+    override val currentVolumeLevel
+        get() = volumeLevel.displayValueAndPayload.toFloat()
 
-    override val displayVolumeLevel: String
+    override val displayVolumeLevel
         get() = volumeLevel.displayValueToPercent()
 
     override fun currentStateAsProfile(profileName: String) = Profile(
@@ -75,7 +75,7 @@ sealed class MoondropDawn(
         filterId = filter.id,
         gainId = gain.id,
         indicatorStateId = indicatorState.id,
-        volumeLevel = volumeLevel.displayValueAndPayload
+        volumeLevel = volumeLevel.displayValueAndPayload.toFloat()
     )
 
     override fun defaultStateAsProfile() = Profile(
@@ -85,6 +85,6 @@ sealed class MoondropDawn(
         filterId = Filter.default().id,
         gainId = Gain.default().id,
         indicatorStateId = IndicatorState.default().id,
-        volumeLevel = VolumeLevel.default().displayValueAndPayload
+        volumeLevel = VolumeLevel.default().displayValueAndPayload.toFloat()
     )
 }

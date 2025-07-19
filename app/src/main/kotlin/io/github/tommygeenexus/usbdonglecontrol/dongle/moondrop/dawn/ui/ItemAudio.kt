@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -37,7 +37,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.featur
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
-import kotlin.math.roundToInt
 
 @Composable
 fun ItemAudio(
@@ -47,8 +46,8 @@ fun ItemAudio(
     volumeLevelStart: Float = VolumeLevel.MAX.toFloat(),
     volumeLevelEnd: Float = VolumeLevel.MIN.toFloat(),
     volumeLevelStepSize: Float = 0f,
-    onVolumeLevelToPercent: (Int) -> String = { _ -> volumeLevelInPercent },
-    onVolumeLevelSelected: (Int) -> Unit = {}
+    onVolumeLevelToPercent: (Float) -> String = { _ -> volumeLevelInPercent },
+    onVolumeLevelSelected: (Float) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
@@ -66,7 +65,7 @@ fun ItemAudio(
                     Slider(context).apply {
                         stepSize = volumeLevelStepSize
                         setLabelFormatter { value ->
-                            onVolumeLevelToPercent(value.roundToInt())
+                            onVolumeLevelToPercent(value)
                         }
                         addOnSliderTouchListener(
                             object : Slider.OnSliderTouchListener {
@@ -75,7 +74,7 @@ fun ItemAudio(
                                 }
 
                                 override fun onStopTrackingTouch(slider: Slider) {
-                                    onVolumeLevelSelected(slider.value.roundToInt())
+                                    onVolumeLevelSelected(slider.value)
                                 }
                             }
                         )

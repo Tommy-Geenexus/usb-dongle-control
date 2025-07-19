@@ -172,21 +172,39 @@ data class E1da9038(
     override val isVolumeControlAsc
         get() = false
 
+    @IgnoredOnParcel
     override val currentVolumeLevel
-        get() = 0
+        get() = volumeLevel.displayValue
 
-    override val displayVolumeLevel: String
-        get() = ""
+    @IgnoredOnParcel
+    override val displayVolumeLevel
+        get() = volumeLevel.displayValue.toString()
 
     override fun currentStateAsProfile(profileName: String) = Profile(
-        name = "",
+        name = profileName,
         vendorId = vendorId,
-        productId = productId
+        productId = productId,
+        filterIds = filters.map { it.id },
+        isHardwareMuteEnabled = hardwareMute.isEnabled,
+        isStandbyEnabled = standby.isEnabled,
+        masterClockDividersDsd = masterClockDividersDsd.map { it.id },
+        masterClockDividersPcm = masterClockDividersPcm.map { it.id },
+        volumeLevel = volumeLevel.displayValue,
+        volumeLevelMax = volumeLevelMax.displayValue,
+        volumeLevelMin = volumeLevelMin.displayValue
     )
 
     override fun defaultStateAsProfile() = Profile(
         name = "",
         vendorId = vendorId,
-        productId = productId
+        productId = productId,
+        filterIds = Filter.defaults().map { it.id },
+        isHardwareMuteEnabled = HardwareMute.default().isEnabled,
+        isStandbyEnabled = Standby.default().isEnabled,
+        masterClockDividersDsd = MasterClockDivider.dsdDefaults().map { it.id },
+        masterClockDividersPcm = MasterClockDivider.pcmDefaults().map { it.id },
+        volumeLevel = VolumeLevel.default().displayValue,
+        volumeLevelMax = VolumeLevelMin.default().displayValue,
+        volumeLevelMin = VolumeLevelMax.default().displayValue
     )
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -144,9 +144,11 @@ data class FiioKa5(
     override val isVolumeControlAsc
         get() = true
 
+    @IgnoredOnParcel
     override val currentVolumeLevel
-        get() = volumeLevel.displayValue
+        get() = volumeLevel.displayValue.toFloat()
 
+    @IgnoredOnParcel
     override val displayVolumeLevel: String
         get() = volumeLevel.displayValueToPercent(volumeMode)
 
@@ -159,14 +161,12 @@ data class FiioKa5(
         displayBrightness = displayBrightness.displayValue,
         displayTimeout = displayTimeout.displayValue,
         filterId = filter.id,
-        firmwareVersion = firmwareVersion.displayValue,
         gainId = gain.id,
         hidModeId = hidMode.id,
         isDisplayInvertEnabled = displayInvert.isEnabled,
         isHardwareMuteEnabled = hardwareMute.isEnabled,
         isSpdifOutEnabled = spdifOut.isEnabled,
-        sampleRate = sampleRate.displayValue,
-        volumeLevel = volumeLevel.displayValue,
+        volumeLevel = volumeLevel.displayValue.toFloat(),
         volumeModeId = volumeMode.id
     )
 
@@ -179,14 +179,12 @@ data class FiioKa5(
         displayBrightness = DisplayBrightness.default().displayValue,
         displayTimeout = DisplayTimeout.default().displayValue,
         filterId = Filter.default().id,
-        firmwareVersion = FirmwareVersion.default().displayValue,
         gainId = Gain.default().id,
         hidModeId = HidMode.default().id,
         isDisplayInvertEnabled = DisplayInvert.default().isEnabled,
         isHardwareMuteEnabled = HardwareMute.default().isEnabled,
         isSpdifOutEnabled = SpdifOut.default().isEnabled,
-        sampleRate = SampleRate.default().displayValue,
-        volumeLevel = VolumeLevel.default().displayValue,
+        volumeLevel = VolumeLevel.default().displayValue.toFloat(),
         volumeModeId = VolumeMode.default().id
     )
 }

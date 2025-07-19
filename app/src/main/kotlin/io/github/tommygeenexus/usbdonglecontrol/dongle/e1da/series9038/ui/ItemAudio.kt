@@ -27,6 +27,8 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,16 +43,15 @@ import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 @Composable
 fun ItemAudio(
     modifier: Modifier = Modifier,
-    volumeLevelChannelLeft: Float = VolumeLevel.default().displayValue,
-    volumeLevelChannelRight: Float = VolumeLevel.default().displayValue,
+    volumeLevel: Float = VolumeLevel.default().displayValue,
     volumeLevelMin: Float = VolumeLevel.MIN_DB.toFloat(),
     volumeLevelMax: Float = VolumeLevel.MAX_DB.toFloat(),
     volumeLevelStart: Float = VolumeLevel.MIN_DB.toFloat(),
     volumeLevelEnd: Float = VolumeLevel.MAX_DB.toFloat(),
-    volumeLevelStepSize: Float = 0.5f,
-    onVolumeLevelChannelLeftSelected: (Float) -> Unit = {},
-    onVolumeLevelChannelRightSelected: (Float) -> Unit = {},
-    onVolumeLevelMinMaxSelected: (Float, Float) -> Unit = { _, _ -> }
+    volumeLevelStepSize: Float = VolumeLevel.STEP_SIZE,
+    onVolumeLevelSelected: (Float) -> Unit = {},
+    onVolumeLevelMaxSelected: (Float) -> Unit = { _ -> },
+    onVolumeLevelMinSelected: (Float) -> Unit = { _ -> }
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
@@ -59,19 +60,14 @@ fun ItemAudio(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = stringResource(
-                    id = R.string.volume_level_channel_left,
-                    volumeLevelChannelLeft
-                ),
+                text = stringResource(id = R.string.volume_level_db, volumeLevel),
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
             AndroidView(
                 factory = { context ->
                     Slider(context).apply {
-                        setLabelFormatter { value ->
-                            value.toString()
-                        }
+                        setLabelFormatter { value -> value.toString() }
                         addOnSliderTouchListener(
                             object : Slider.OnSliderTouchListener {
 
@@ -79,7 +75,7 @@ fun ItemAudio(
                                 }
 
                                 override fun onStopTrackingTouch(slider: Slider) {
-                                    onVolumeLevelChannelLeftSelected(slider.value)
+                                    onVolumeLevelSelected(slider.value)
                                 }
                             }
                         )
@@ -88,48 +84,9 @@ fun ItemAudio(
                 modifier = Modifier.padding(top = cardPadding),
                 update = { slider ->
                     slider.stepSize = volumeLevelStepSize
-                    slider.value = volumeLevelChannelLeft
-                    slider.valueFrom = volumeLevelMin
-                    slider.valueTo = volumeLevelMax
-                }
-            )
-            Text(
-                text = stringResource(id = R.string.volume),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = stringResource(
-                    id = R.string.volume_level_channel_right,
-                    volumeLevelChannelRight
-                ),
-                modifier = Modifier.padding(top = cardPadding),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            AndroidView(
-                factory = { context ->
-                    Slider(context).apply {
-                        setLabelFormatter { value ->
-                            value.toString()
-                        }
-                        addOnSliderTouchListener(
-                            object : Slider.OnSliderTouchListener {
-
-                                override fun onStartTrackingTouch(slider: Slider) {
-                                }
-
-                                override fun onStopTrackingTouch(slider: Slider) {
-                                    onVolumeLevelChannelRightSelected(slider.value)
-                                }
-                            }
-                        )
-                    }
-                },
-                modifier = Modifier.padding(top = cardPadding),
-                update = { slider ->
-                    slider.stepSize = volumeLevelStepSize
-                    slider.value = volumeLevelChannelRight
-                    slider.valueFrom = volumeLevelMin
-                    slider.valueTo = volumeLevelMax
+                    slider.value = volumeLevel
+                    slider.valueFrom = volumeLevelStart
+                    slider.valueTo = volumeLevelEnd
                 }
             )
             Text(
@@ -145,6 +102,7 @@ fun ItemAudio(
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
             )
+            val volumeLevelMinMax by rememberUpdatedState((listOf(volumeLevelMin, volumeLevelMax)))
             AndroidView(
                 factory = { context ->
                     RangeSlider(context).apply {
@@ -158,10 +116,11 @@ fun ItemAudio(
                                 }
 
                                 override fun onStopTrackingTouch(slider: RangeSlider) {
-                                    onVolumeLevelMinMaxSelected(
-                                        slider.values.first(),
-                                        slider.values.last()
-                                    )
+                                    if (slider.values.first() != volumeLevelMinMax.first()) {
+                                        onVolumeLevelMinSelected(slider.values.first())
+                                    } else if (slider.values.last() != volumeLevelMinMax.last()) {
+                                        onVolumeLevelMaxSelected(slider.values.last())
+                                    }
                                 }
                             }
                         )
@@ -172,7 +131,7 @@ fun ItemAudio(
                     slider.stepSize = volumeLevelStepSize
                     slider.valueFrom = volumeLevelStart
                     slider.valueTo = volumeLevelEnd
-                    slider.values = listOf(volumeLevelMin, volumeLevelMax)
+                    slider.values = volumeLevelMinMax
                 }
             )
         }

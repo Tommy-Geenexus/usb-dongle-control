@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -31,7 +31,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.volume.volumeUp
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbServiceNotification
 
 class UsbServiceVolumeLevelReceiver(
-    private val onSetVolumeLevel: (UsbDongle, Int, Int) -> Unit,
+    private val onSetVolumeLevel: (UsbDongle, Float, Int) -> Unit,
     private val onSetVolumeStepSize: (UsbDongle, Int) -> Unit
 ) : BroadcastReceiver() {
 

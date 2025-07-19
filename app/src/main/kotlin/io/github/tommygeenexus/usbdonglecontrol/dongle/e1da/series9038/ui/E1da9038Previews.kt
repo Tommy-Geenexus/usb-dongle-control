@@ -20,4 +20,49 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui
 
-class E1da9038Previews
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import io.github.tommygeenexus.usbdonglecontrol.control.ui.ControlScreen
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
+
+private val usbDongle = E1da9038()
+
+@Preview(name = "Loading")
+@Composable
+private fun ControlScreenPreview1() {
+    ControlScreen(
+        windowSizeClass = windowWidthSizeClassCompact,
+        usbDongle = usbDongle,
+        isLoading = true
+    )
+}
+
+@Preview(name = "Compact")
+@Composable
+private fun ControlScreenPreview2() {
+    ControlScreen(
+        windowSizeClass = windowWidthSizeClassCompact,
+        usbDongle = usbDongle
+    )
+}
+
+@Preview(name = "Medium")
+@Composable
+private fun ControlScreenPreview3() {
+    ControlScreen(
+        windowSizeClass = windowWidthSizeClassMedium,
+        usbDongle = usbDongle
+    )
+}
+
+@Preview(name = "Expanded")
+@Composable
+private fun ControlScreenPreview4() {
+    ControlScreen(
+        windowSizeClass = windowWidthSizeClassExpanded,
+        usbDongle = usbDongle
+    )
+}

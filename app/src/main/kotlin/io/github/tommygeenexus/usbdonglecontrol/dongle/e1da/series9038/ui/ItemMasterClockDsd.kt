@@ -61,7 +61,7 @@ fun ItemMasterClockDsd(
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
             Text(
-                text = stringResource(R.string.dsd_sample_rate),
+                text = stringResource(R.string.master_clock_divider_for_selected_dsd_sample_rate),
                 modifier = Modifier.padding(bottom = cardPadding),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -102,11 +102,6 @@ fun ItemMasterClockDsd(
                     }
                 }
             }
-            Text(
-                text = stringResource(R.string.master_clock_divider_for_selected_dsd_sample_rate),
-                modifier = Modifier.padding(vertical = cardPadding),
-                style = MaterialTheme.typography.titleMedium
-            )
             val dsdDividerClocks = listOf(
                 stringResource(R.string._50_mhz),
                 stringResource(R.string._25_mhz),

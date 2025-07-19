@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -65,8 +65,8 @@ fun ItemAudio(
     volumeLevelEndModeB: Float = VolumeLevel.MAX_B.toFloat(),
     onChannelBalanceToDb: (Int) -> String = { channelBalanceInDb },
     onChannelBalanceSelected: (Int) -> Unit = {},
-    onVolumeLevelToPercent: (Int) -> String = { volumeLevelInPercent },
-    onVolumeLevelSelected: (Int) -> Unit = {},
+    onVolumeLevelToPercent: (Float) -> String = { volumeLevelInPercent },
+    onVolumeLevelSelected: (Float) -> Unit = {},
     onVolumeModeSelected: (Byte) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
@@ -136,7 +136,7 @@ fun ItemAudio(
                     factory = { context ->
                         Slider(context).apply {
                             setLabelFormatter { value ->
-                                onVolumeLevelToPercent(value.roundToInt())
+                                onVolumeLevelToPercent(value)
                             }
                             addOnSliderTouchListener(
                                 object : Slider.OnSliderTouchListener {
@@ -145,7 +145,7 @@ fun ItemAudio(
                                     }
 
                                     override fun onStopTrackingTouch(slider: Slider) {
-                                        onVolumeLevelSelected(slider.value.roundToInt())
+                                        onVolumeLevelSelected(slider.value)
                                     }
                                 }
                             )
@@ -164,7 +164,7 @@ fun ItemAudio(
                     factory = { context ->
                         Slider(context).apply {
                             setLabelFormatter { value ->
-                                onVolumeLevelToPercent(value.roundToInt())
+                                onVolumeLevelToPercent(value)
                             }
                             addOnSliderTouchListener(
                                 object : Slider.OnSliderTouchListener {
@@ -173,7 +173,7 @@ fun ItemAudio(
                                     }
 
                                     override fun onStopTrackingTouch(slider: Slider) {
-                                        onVolumeLevelSelected(slider.value.roundToInt())
+                                        onVolumeLevelSelected(slider.value)
                                     }
                                 }
                             )

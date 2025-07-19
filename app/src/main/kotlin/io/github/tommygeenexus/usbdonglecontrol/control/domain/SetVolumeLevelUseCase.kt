@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -22,6 +22,9 @@ package io.github.tommygeenexus.usbdonglecontrol.control.domain
 
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongleException
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.VolumeLevel as VolumeLevelE1da9038
+import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.createFromDisplayValue
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel as VolumeLevelFiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.createFromDisplayValue
@@ -32,28 +35,39 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.Moondr
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel as VolumeLevelMoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
+import io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.data.E1da9038UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.data.MoondropMoonriver2TiUsbRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.roundToInt
 
 @Singleton
 class SetVolumeLevelUseCase @Inject constructor(
+    private val e1da9038UsbRepository: E1da9038UsbRepository,
     private val fiioKa13UsbRepository: FiioKa13UsbRepository,
     private val fiioKa5UsbRepository: FiioKa5UsbRepository,
     private val moondropDawnUsbRepository: MoondropDawnUsbRepository,
     private val moondropMoonriver2TiUsbRepository: MoondropMoonriver2TiUsbRepository
 ) {
 
-    suspend operator fun invoke(usbDongle: UsbDongle, volumeLevel: Int): Result<UsbDongle> =
+    suspend operator fun invoke(usbDongle: UsbDongle, volumeLevel: Float): Result<UsbDongle> =
         when (usbDongle) {
+            is E1da9038 -> {
+                e1da9038UsbRepository.setVolumeLevel(
+                    e1da9038 = usbDongle,
+                    volumeLevel = VolumeLevelE1da9038.createFromDisplayValue(
+                        displayValue = volumeLevel
+                    )
+                )
+            }
             is FiioKa13 -> {
                 fiioKa13UsbRepository.setVolumeLevel(
                     fiioKa13 = usbDongle,
                     volumeLevel = VolumeLevelFiioKa13.createFromDisplayValue(
-                        displayValue = volumeLevel
+                        displayValue = volumeLevel.roundToInt()
                     )
                 )
             }
@@ -61,7 +75,7 @@ class SetVolumeLevelUseCase @Inject constructor(
                 fiioKa5UsbRepository.setVolumeLevel(
                     fiioKa5 = usbDongle,
                     volumeLevel = VolumeLevelFiioKa5.createFromDisplayValue(
-                        displayValue = volumeLevel,
+                        displayValue = volumeLevel.roundToInt(),
                         volumeMode = usbDongle.volumeMode
                     )
                 )
@@ -70,7 +84,7 @@ class SetVolumeLevelUseCase @Inject constructor(
                 moondropDawnUsbRepository.setVolumeLevel(
                     moondropDawn = usbDongle,
                     volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
-                        displayValue = volumeLevel
+                        displayValue = volumeLevel.roundToInt()
                     )
                 )
             }
@@ -78,7 +92,7 @@ class SetVolumeLevelUseCase @Inject constructor(
                 moondropMoonriver2TiUsbRepository.setVolumeLevel(
                     moondropMoonriver2Ti = usbDongle,
                     volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
-                        displayValue = volumeLevel
+                        displayValue = volumeLevel.roundToInt()
                     )
                 )
             }

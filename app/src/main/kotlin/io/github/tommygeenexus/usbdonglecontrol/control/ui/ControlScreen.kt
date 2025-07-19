@@ -91,7 +91,6 @@ import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
-import timber.log.Timber
 
 @Composable
 fun ControlScreen(
@@ -385,20 +384,11 @@ fun ControlScreen(
         onVolumeLevelSelected = { volumeLevel ->
             viewModel.setVolumeLevel(volumeLevel)
         },
-        onVolumeLevelsSelected = {
-                volumeLevelChannelLeft: Float,
-                volumeLevelChannelRight: Float,
-                volumeLevelMin: Float,
-                volumeLevelMax: Float
-            ->
-            Timber.e("LEFT: " + volumeLevelChannelLeft)
-            Timber.e("RIGHT: " + volumeLevelChannelRight)
-            /*viewModel.setVolumeLevels(
-                volumeLevelChannelLeft,
-                volumeLevelChannelRight,
-                volumeLevelMin,
-                volumeLevelMax
-            )*/
+        onVolumeLevelMaxSelected = { volumeLevelMax ->
+            viewModel.setVolumeLevelMax(volumeLevelMax)
+        },
+        onVolumeLevelMinSelected = { volumeLevelMin ->
+            viewModel.setVolumeLevelMin(volumeLevelMin)
         },
         onVolumeModeSelected = { volumeModeId ->
             viewModel.setVolumeMode(volumeModeId)
@@ -442,8 +432,9 @@ fun ControlScreen(
     onMasterClockDividerPcmSelected: (Byte, Int) -> Unit = { _, _ -> },
     onSpdifOutEnabledSelected: (Boolean) -> Unit = { _ -> },
     onStandbyEnabledSelected: (Boolean) -> Unit = { _ -> },
-    onVolumeLevelSelected: (Int) -> Unit = { _ -> },
-    onVolumeLevelsSelected: (Float, Float, Float, Float) -> Unit = { _, _, _, _ -> },
+    onVolumeLevelSelected: (Float) -> Unit = { _ -> },
+    onVolumeLevelMaxSelected: (Float) -> Unit = { _ -> },
+    onVolumeLevelMinSelected: (Float) -> Unit = { _ -> },
     onVolumeModeSelected: (Byte) -> Unit = { _ -> }
 ) {
     Scaffold(
@@ -506,7 +497,10 @@ fun ControlScreen(
                             onHardwareMuteEnabledSelected = onHardwareMuteEnabledSelected,
                             onMasterClockDividerDsdSelected = onMasterClockDividerDsdSelected,
                             onMasterClockDividerPcmSelected = onMasterClockDividerPcmSelected,
-                            onStandbyEnabledSelected = onStandbyEnabledSelected
+                            onStandbyEnabledSelected = onStandbyEnabledSelected,
+                            onVolumeLevelSelected = onVolumeLevelSelected,
+                            onVolumeLevelMaxSelected = onVolumeLevelMaxSelected,
+                            onVolumeLevelMinSelected = onVolumeLevelMinSelected
                         )
                     }
                     is FiioKa13 -> {

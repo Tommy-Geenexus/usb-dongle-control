@@ -21,7 +21,6 @@
 package io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.data
 
 import android.content.Context
-import androidx.compose.ui.util.fastJoinToString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.tommygeenexus.usbdonglecontrol.core.data.UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.core.di.DispatcherIo
@@ -60,23 +59,6 @@ class E1da9038UsbRepository @Inject constructor(
 
         const val DELAY_MS = 100L
         const val TIMEOUT_MS = 1000
-
-        const val REQUEST_RESULT_INDEX_1 = 3
-        const val REQUEST_RESULT_INDEX_2 = 4
-        const val REQUEST_RESULT_INDEX_3 = 5
-        const val REQUEST_RESULT_INDEX_4 = 6
-
-        const val REQUEST_RESULT_INDEX_HW_TYPE = 3
-        const val REQUEST_RESULT_INDEX_SAMPLE_RATE = 3
-        const val REQUEST_RESULT_INDEX_VERSION = 4
-        const val REQUEST_RESULT_INDEX_HARDWARE_MUTE = 5
-        const val REQUEST_RESULT_INDEX_STANDBY = 6
-
-        const val REQUEST_RESULT_INDEX_VOL_L = 3
-
-        // const val REQUEST_RESULT_INDEX_VOL_R = 4
-        const val REQUEST_RESULT_INDEX_VOL_MAX = 5
-        const val REQUEST_RESULT_INDEX_VOL_MIN = 6
     }
 
     suspend fun getCurrentState(usbDongle: E1da9038): Result<E1da9038> {
@@ -88,7 +70,7 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 val filters: MutableList<Filter> = mutableListOf()
                 val hardwareType: HardwareType
                 val firmwareVersion: FirmwareVersion
@@ -108,21 +90,21 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     hardwareType = HardwareType.findByIdOrDefault(
-                        id = data[REQUEST_RESULT_INDEX_HW_TYPE]
+                        id = data[REQUEST_DATA_BYTE_1]
                     )
                     firmwareVersion = FirmwareVersion.createFromPayload(
-                        payload = data[REQUEST_RESULT_INDEX_VERSION]
+                        payload = data[REQUEST_DATA_BYTE_2]
                     )
                     hardwareMute = HardwareMute(
-                        isEnabled = data[REQUEST_RESULT_INDEX_HARDWARE_MUTE].toInt() == 1
+                        isEnabled = data[REQUEST_DATA_BYTE_3].toInt() == 1
                     )
                     standby = Standby(
-                        isEnabled = data[REQUEST_RESULT_INDEX_STANDBY].toInt() == 1
+                        isEnabled = data[REQUEST_DATA_BYTE_4].toInt() == 1
                     )
                     data.fill(0)
                     usbDongle.getAudioFormat.copyInto(data)
@@ -130,12 +112,12 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     sampleRate = SampleRate.create(
-                        key = data[REQUEST_RESULT_INDEX_SAMPLE_RATE].toInt()
+                        key = data[REQUEST_DATA_BYTE_1].toInt()
                     )
                     data.fill(0)
                     usbDongle.getVolumeLeftRightMinMax.copyInto(data)
@@ -143,18 +125,18 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     volumeLevel = VolumeLevel.createFromPayload(
-                        payload = data[REQUEST_RESULT_INDEX_VOL_L]
+                        payload = data[REQUEST_DATA_BYTE_1]
                     )
                     volumeLevelMax = VolumeLevelMax.createFromPayload(
-                        payload = data[REQUEST_RESULT_INDEX_VOL_MAX]
+                        payload = data[REQUEST_DATA_BYTE_3]
                     )
                     volumeLevelMin = VolumeLevelMin.createFromPayload(
-                        payload = data[REQUEST_RESULT_INDEX_VOL_MIN]
+                        payload = data[REQUEST_DATA_BYTE_4]
                     )
                     data.fill(0)
                     usbDongle.getFilterPcm44To96.copyInto(data)
@@ -162,23 +144,23 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     filters.addAll(
                         elements = listOf(
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_1]
+                                id = data[REQUEST_DATA_BYTE_1]
                             ),
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_2]
+                                id = data[REQUEST_DATA_BYTE_2]
                             ),
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_3]
+                                id = data[REQUEST_DATA_BYTE_3]
                             ),
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_4]
+                                id = data[REQUEST_DATA_BYTE_4]
                             )
                         )
                     )
@@ -188,23 +170,23 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     filters.addAll(
                         elements = listOf(
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_1]
+                                id = data[REQUEST_DATA_BYTE_1]
                             ),
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_2]
+                                id = data[REQUEST_DATA_BYTE_2]
                             ),
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_3]
+                                id = data[REQUEST_DATA_BYTE_3]
                             ),
                             Filter.findByIdOrDefault(
-                                id = data[REQUEST_RESULT_INDEX_4]
+                                id = data[REQUEST_DATA_BYTE_4]
                             )
                         )
                     )
@@ -214,16 +196,16 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     masterClockDividersPcm.addAll(
                         elements = listOf(
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_1]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_2]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_3]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_4])
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_1]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_2]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_3]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_4])
                         )
                     )
                     data.fill(0)
@@ -232,16 +214,16 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     masterClockDividersPcm.addAll(
                         elements = listOf(
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_1]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_2]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_3]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_4])
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_1]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_2]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_3]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_4])
                         )
                     )
                     data.fill(0)
@@ -250,25 +232,16 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     masterClockDividersDsd.addAll(
                         elements = listOf(
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_1]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_2]),
-                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_RESULT_INDEX_3])
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_1]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_2]),
+                            MasterClockDivider.findByIdOrDefault(id = data[REQUEST_DATA_BYTE_3])
                         )
-                    )
-                    data.fill(0)
-                    usbDongle.setInit.copyInto(data)
-                    usbConnection.bulkWrite(
-                        usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
-                        payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -303,7 +276,7 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 usbDongle.getVolumeLeftRightMinMax.copyInto(data)
                 val volumeLevel: VolumeLevel
                 val volumeLevelMin: VolumeLevelMin
@@ -316,18 +289,18 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointRead = usbInterface.getEndpoint(USB_EP_IN),
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                     volumeLevel = VolumeLevel.createFromPayload(
-                        payload = data[REQUEST_RESULT_INDEX_VOL_L]
+                        payload = data[REQUEST_DATA_BYTE_1]
                     )
                     volumeLevelMax = VolumeLevelMax.createFromPayload(
-                        payload = data[REQUEST_RESULT_INDEX_VOL_MAX]
+                        payload = data[REQUEST_DATA_BYTE_3]
                     )
                     volumeLevelMin = VolumeLevelMin.createFromPayload(
-                        payload = data[REQUEST_RESULT_INDEX_VOL_MIN]
+                        payload = data[REQUEST_DATA_BYTE_4]
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -348,7 +321,7 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 if (index < REQUEST_DATA_SIZE) {
                     e1da9038.setFilterPcm44To96.copyInto(data)
                     val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
@@ -358,10 +331,7 @@ class E1da9038UsbRepository @Inject constructor(
                             e1da9038.filters[payloadIndex].id
                         }
                     }
-                    payload.copyInto(
-                        destination = data,
-                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
-                    )
+                    payload.copyInto(destination = data, destinationOffset = REQUEST_DATA_BYTE_1)
                 } else {
                     e1da9038.setFilterPcm176To384.copyInto(data)
                     val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
@@ -371,10 +341,7 @@ class E1da9038UsbRepository @Inject constructor(
                             e1da9038.filters[payloadIndex + REQUEST_DATA_SIZE].id
                         }
                     }
-                    payload.copyInto(
-                        destination = data,
-                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
-                    )
+                    payload.copyInto(destination = data, destinationOffset = REQUEST_DATA_BYTE_1)
                 }
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
@@ -382,7 +349,7 @@ class E1da9038UsbRepository @Inject constructor(
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -391,7 +358,7 @@ class E1da9038UsbRepository @Inject constructor(
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -420,16 +387,16 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 e1da9038.setHardwareMute.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = hardwareMute.payload
+                data[REQUEST_DATA_BYTE_1] = hardwareMute.payload
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
                     check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -438,7 +405,7 @@ class E1da9038UsbRepository @Inject constructor(
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -465,7 +432,7 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 e1da9038.setMasterClockDividerDsd.copyInto(data)
                 val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
                     if (payloadIndex == index) {
@@ -474,16 +441,14 @@ class E1da9038UsbRepository @Inject constructor(
                         e1da9038.masterClockDividersDsd.getOrNull(payloadIndex)?.id ?: 0
                     }
                 }
-                payload.copyInto(destination = data, destinationOffset = REQUEST_PAYLOAD_INDEX_SET)
-                Timber.e("PAYLOAD: " + payload.toList().fastJoinToString())
-                Timber.e("INDEX: " + index)
+                payload.copyInto(destination = data, destinationOffset = REQUEST_DATA_BYTE_1)
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
                     check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -492,7 +457,7 @@ class E1da9038UsbRepository @Inject constructor(
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -527,7 +492,7 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 if (index < REQUEST_DATA_SIZE) {
                     e1da9038.setMasterClockDividerPcm44To96.copyInto(data)
                     val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
@@ -537,10 +502,7 @@ class E1da9038UsbRepository @Inject constructor(
                             e1da9038.masterClockDividersPcm[payloadIndex].id
                         }
                     }
-                    payload.copyInto(
-                        destination = data,
-                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
-                    )
+                    payload.copyInto(destination = data, destinationOffset = REQUEST_DATA_BYTE_1)
                 } else {
                     e1da9038.setMasterClockDividerPcm176To384.copyInto(data)
                     val payload = ByteArray(size = REQUEST_DATA_SIZE) { payloadIndex ->
@@ -550,10 +512,7 @@ class E1da9038UsbRepository @Inject constructor(
                             e1da9038.masterClockDividersPcm[payloadIndex + REQUEST_DATA_SIZE].id
                         }
                     }
-                    payload.copyInto(
-                        destination = data,
-                        destinationOffset = REQUEST_PAYLOAD_INDEX_SET
-                    )
+                    payload.copyInto(destination = data, destinationOffset = REQUEST_DATA_BYTE_1)
                 }
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
@@ -561,7 +520,7 @@ class E1da9038UsbRepository @Inject constructor(
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -570,7 +529,7 @@ class E1da9038UsbRepository @Inject constructor(
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -601,16 +560,16 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 e1da9038.setStandby.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = standby.payload
+                data[REQUEST_DATA_BYTE_1] = standby.payload
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
                     check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -633,17 +592,17 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 e1da9038.setVolumeLevel.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevel.payload
-                data[REQUEST_PAYLOAD_INDEX_SET + 1] = volumeLevel.payload
+                data[REQUEST_DATA_BYTE_1] = volumeLevel.payload
+                data[REQUEST_DATA_BYTE_2] = volumeLevel.payload
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
                     check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -669,16 +628,16 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 e1da9038.setVolumeLevelMin.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevelMin.payload
+                data[REQUEST_DATA_BYTE_1] = volumeLevelMin.payload
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
                     check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
@@ -704,16 +663,16 @@ class E1da9038UsbRepository @Inject constructor(
                 return@withContext Result.failure(exception)
             }
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
-                val data = ByteArray(REQUEST_PAYLOAD_SIZE)
+                val data = ByteArray(REQUEST_PACKET_SIZE)
                 e1da9038.setVolumeLevelMax.copyInto(data)
-                data[REQUEST_PAYLOAD_INDEX_SET] = volumeLevelMax.payload
+                data[REQUEST_DATA_BYTE_1] = volumeLevelMax.payload
                 mutex.withLock {
                     val usbInterface = usbDevice.getInterface(USB_IF_ID)
                     check(usbConnection.claimInterface(usbInterface, true))
                     usbConnection.bulkWrite(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
-                        payloadSize = REQUEST_PAYLOAD_SIZE,
+                        payloadSize = REQUEST_PACKET_SIZE,
                         transferTimeout = TIMEOUT_MS,
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )

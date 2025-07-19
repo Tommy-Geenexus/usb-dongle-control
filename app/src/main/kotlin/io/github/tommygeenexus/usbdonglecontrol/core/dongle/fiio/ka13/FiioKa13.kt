@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -87,10 +87,12 @@ data class FiioKa13(
     override val isVolumeControlAsc
         get() = false
 
+    @IgnoredOnParcel
     override val currentVolumeLevel
-        get() = volumeLevel.displayValueAndPayload
+        get() = volumeLevel.displayValueAndPayload.toFloat()
 
-    override val displayVolumeLevel: String
+    @IgnoredOnParcel
+    override val displayVolumeLevel
         get() = volumeLevel.displayValueToPercent()
 
     override fun currentStateAsProfile(profileName: String) = Profile(
@@ -98,11 +100,9 @@ data class FiioKa13(
         vendorId = vendorId,
         productId = productId,
         filterId = filter.id,
-        firmwareVersion = firmwareVersion.displayValue,
         indicatorStateId = indicatorState.id,
         isSpdifOutEnabled = spdifOut.isEnabled,
-        sampleRate = sampleRate.displayValue,
-        volumeLevel = volumeLevel.displayValueAndPayload
+        volumeLevel = volumeLevel.displayValueAndPayload.toFloat()
     )
 
     override fun defaultStateAsProfile() = Profile(
@@ -110,10 +110,8 @@ data class FiioKa13(
         vendorId = vendorId,
         productId = productId,
         filterId = Filter.default().id,
-        firmwareVersion = FirmwareVersion.default().displayValue,
         indicatorStateId = IndicatorState.default().id,
         isSpdifOutEnabled = SpdifOut.default().isEnabled,
-        sampleRate = SampleRate.default().displayValue,
-        volumeLevel = VolumeLevel.default().displayValueAndPayload
+        volumeLevel = VolumeLevel.default().displayValueAndPayload.toFloat()
     )
 }
