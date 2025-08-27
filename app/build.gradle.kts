@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -22,12 +23,12 @@ plugins {
 
 android {
     namespace = "io.github.tommygeenexus.usbdonglecontrol"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.tommygeenexus.usbdonglecontrol"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 7
         versionName = "3.1.0"
     }
@@ -82,10 +83,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
 }
 
 tasks.withType<DependencyUpdatesTask>().configureEach {
@@ -125,6 +122,7 @@ kotlin {
             "-opt-in=androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi",
             "-opt-in=com.google.accompanist.permissions.ExperimentalPermissionsApi"
         )
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
