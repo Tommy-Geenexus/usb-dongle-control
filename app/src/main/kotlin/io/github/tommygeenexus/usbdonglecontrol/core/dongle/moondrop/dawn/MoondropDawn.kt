@@ -20,6 +20,8 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn
 
+import android.content.Context
+import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
@@ -27,8 +29,8 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.MoondropUsb
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
+import kotlinx.parcelize.IgnoredOnParcel
 
 sealed class MoondropDawn(
     override val modelName: String,
@@ -41,32 +43,41 @@ sealed class MoondropDawn(
     HardwareVolumeControl,
     MoondropDawnUsbCommand {
 
-    override val getAny
-        get() = byteArrayOf(-64, -91, -93)
-
-    override val getVolumeLevel
-        get() = byteArrayOf(-64, -91, -94)
-
-    override val setFilter
-        get() = byteArrayOf(-64, -91, 1)
-
-    override val setGain
-        get() = byteArrayOf(-64, -91, 2)
-
-    override val setIndicatorState
-        get() = byteArrayOf(-64, -91, 6)
-
-    override val setVolumeLevel
-        get() = byteArrayOf(-64, -91, 4)
-
-    override val isVolumeControlAsc
-        get() = false
-
+    @IgnoredOnParcel
     override val currentVolumeLevel
         get() = volumeLevel.displayValueAndPayload.toFloat()
 
-    override val displayVolumeLevel
-        get() = volumeLevel.displayValueToPercent()
+    @IgnoredOnParcel
+    override val isVolumeControlInverted
+        get() = true
+
+    @IgnoredOnParcel
+    override val getAny
+        get() = byteArrayOf(-64, -91, -93)
+
+    @IgnoredOnParcel
+    override val getVolumeLevel
+        get() = byteArrayOf(-64, -91, -94)
+
+    @IgnoredOnParcel
+    override val setFilter
+        get() = byteArrayOf(-64, -91, 1)
+
+    @IgnoredOnParcel
+    override val setGain
+        get() = byteArrayOf(-64, -91, 2)
+
+    @IgnoredOnParcel
+    override val setIndicatorState
+        get() = byteArrayOf(-64, -91, 6)
+
+    @IgnoredOnParcel
+    override val setVolumeLevel
+        get() = byteArrayOf(-64, -91, 4)
+
+    @IgnoredOnParcel
+    override val volumeStepSizeMin: Float
+        get() = 1f
 
     override fun currentStateAsProfile(profileName: String) = Profile(
         name = profileName,
@@ -86,5 +97,10 @@ sealed class MoondropDawn(
         gainId = Gain.default().id,
         indicatorStateId = IndicatorState.default().id,
         volumeLevel = VolumeLevel.default().displayValueAndPayload.toFloat()
+    )
+
+    override fun displayVolumeLevel(context: Context): String = context.getString(
+        R.string.generic_percent,
+        ((VolumeLevel.MIN - volumeLevel.displayValueAndPayload) * 100) / VolumeLevel.MIN
     )
 }

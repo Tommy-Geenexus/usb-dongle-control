@@ -29,7 +29,7 @@ sealed class MasterClockDivider(val id: Byte, val index: Int) : Parcelable {
 
     companion object {
 
-        fun pcmDefaults() = listOf<MasterClockDivider>(
+        fun pcmDefaults() = listOf(
             S12Mhz,
             S12Mhz,
             S12Mhz,
@@ -40,7 +40,7 @@ sealed class MasterClockDivider(val id: Byte, val index: Int) : Parcelable {
             S50Mhz
         )
 
-        fun dsdDefaults() = listOf<MasterClockDivider>(
+        fun dsdDefaults() = listOf(
             S12Mhz,
             S50Mhz,
             S50Mhz
@@ -75,7 +75,7 @@ data class MasterClockDividersPcm(
 
 @Immutable
 data class AvailableMasterClockDividers(
-    val items: List<Byte> = listOf<MasterClockDivider>(
+    val items: List<Byte> = listOf(
         MasterClockDivider.S50Mhz,
         MasterClockDivider.S25Mhz,
         MasterClockDivider.S12Mhz

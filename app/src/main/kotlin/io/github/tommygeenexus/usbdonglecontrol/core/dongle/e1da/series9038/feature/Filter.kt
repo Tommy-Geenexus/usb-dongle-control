@@ -29,7 +29,7 @@ sealed class Filter(val id: Byte, val index: Int) : Parcelable {
 
     companion object {
 
-        fun defaults() = listOf<Filter>(
+        fun defaults() = listOf(
             LinearPhaseSlow,
             LinearPhaseSlow,
             LinearPhaseSlow,
@@ -79,7 +79,7 @@ data class Filters(val items: List<Pair<Int, Byte>> = Filter.defaults().map { it
 
 @Immutable
 data class AvailableFilters(
-    val items: List<Byte> = listOf<Filter>(
+    val items: List<Byte> = listOf(
         Filter.LinearPhaseFast,
         Filter.LinearPhaseSlow,
         Filter.MinPhaseFast,

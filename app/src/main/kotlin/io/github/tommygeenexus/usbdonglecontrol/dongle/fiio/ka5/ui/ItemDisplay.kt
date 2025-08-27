@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -41,8 +41,6 @@ import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayBrightness
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayTimeout
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToPercent
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToSeconds
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 import kotlin.math.roundToInt
 
@@ -50,18 +48,14 @@ import kotlin.math.roundToInt
 fun ItemDisplay(
     modifier: Modifier = Modifier,
     displayBrightness: Float = DisplayBrightness.default().displayValue.toFloat(),
-    displayBrightnessInPercent: String = DisplayBrightness.default().displayValueToPercent(),
     displayBrightnessStart: Float = DisplayBrightness.MIN.toFloat(),
     displayBrightnessEnd: Float = DisplayBrightness.MAX.toFloat(),
     displayBrightnessStepSize: Float = 1f,
     displayTimeout: Float = DisplayTimeout.default().displayValue.toFloat(),
-    displayTimeoutInSeconds: String = DisplayTimeout.default().displayValueToSeconds(),
     displayTimeoutStart: Float = DisplayTimeout.MIN.toFloat(),
     displayTimeoutEnd: Float = DisplayTimeout.MAX.toFloat(),
     isDisplayInvertEnabled: Boolean = false,
-    onDisplayBrightnessToPercent: (Int) -> String = { _ -> displayBrightnessInPercent },
     onDisplayBrightnessSelected: (Int) -> Unit = {},
-    onDisplayTimeoutToSeconds: (Int) -> String = { _ -> displayTimeoutInSeconds },
     onDisplayTimeoutSelected: (Int) -> Unit = {},
     onDisplayInvertSwitched: (Boolean) -> Unit = {}
 ) {
@@ -74,7 +68,7 @@ fun ItemDisplay(
             Text(
                 text = stringResource(
                     id = R.string.display_brightness_level,
-                    displayBrightnessInPercent
+                    displayBrightness
                 ),
                 modifier = Modifier.padding(top = cardPadding),
                 style = MaterialTheme.typography.bodyMedium
@@ -82,9 +76,7 @@ fun ItemDisplay(
             AndroidView(
                 factory = { context ->
                     Slider(context).apply {
-                        setLabelFormatter { value ->
-                            onDisplayBrightnessToPercent(value.roundToInt())
-                        }
+                        setLabelFormatter { value -> value.toString() }
                         addOnSliderTouchListener(
                             object : Slider.OnSliderTouchListener {
 
@@ -119,9 +111,7 @@ fun ItemDisplay(
             AndroidView(
                 factory = { context ->
                     Slider(context).apply {
-                        setLabelFormatter { value ->
-                            onDisplayTimeoutToSeconds(value.roundToInt())
-                        }
+                        setLabelFormatter { value -> value.toString() }
                         addOnSliderTouchListener(
                             object : Slider.OnSliderTouchListener {
 

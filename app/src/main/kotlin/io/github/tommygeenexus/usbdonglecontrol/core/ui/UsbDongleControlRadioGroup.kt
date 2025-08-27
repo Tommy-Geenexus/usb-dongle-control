@@ -18,50 +18,50 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui
+package io.github.tommygeenexus.usbdonglecontrol.core.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSwitchRow
-import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
-fun ItemMisc(
+fun UsbDongleControlRadioGroup(
+    selectedIndex: Int,
+    items: ImmutableList<String>,
     modifier: Modifier = Modifier,
-    isStandbyEnabled: Boolean = false,
-    isHardwareMuteEnabled: Boolean = false,
-    onStandbyEnabledSwitched: (Boolean) -> Unit = {},
-    onHardwareMuteEnabledSwitched: (Boolean) -> Unit = {}
+    onItemSelected: (Int) -> Unit = {}
 ) {
-    ElevatedCard(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(all = cardPadding)) {
-            UsbDongleControlSwitchRow(
-                textRes = R.string.standby,
-                isChecked = isStandbyEnabled,
-                modifier = Modifier.clickable { onStandbyEnabledSwitched(!isStandbyEnabled) },
-                onCheckedChange = onStandbyEnabledSwitched
+    items.forEachIndexed { index, item ->
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable { onItemSelected(index) },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(
+                selected = selectedIndex == index,
+                onClick = { onItemSelected(index) }
             )
-            UsbDongleControlSwitchRow(
-                textRes = R.string.hw_mute,
-                isChecked = isHardwareMuteEnabled,
-                modifier = Modifier
-                    .padding(top = cardPadding)
-                    .clickable { onHardwareMuteEnabledSwitched(!isHardwareMuteEnabled) },
-                onCheckedChange = onHardwareMuteEnabledSwitched
-            )
+            UsbDongleControlBodyText(text = item)
         }
     }
 }
 
 @Preview
 @Composable
-private fun ItemMiscPreview() {
-    ItemMisc()
+private fun UsbDongleControlRadioGroupPreview() {
+    UsbDongleControlRadioGroup(
+        selectedIndex = 0,
+        items = persistentListOf("A", "B", "C"),
+        modifier = Modifier.background(Color.White)
+    )
 }

@@ -22,30 +22,23 @@ package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.ChannelBalance
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayBrightness
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.DisplayTimeout
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.createFromDisplayValue
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToDecibel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToDirection
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToPercent
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToSeconds
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemGain
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
-import kotlin.math.roundToInt
 
 @Composable
 fun FiioKa5Items(
     modifier: Modifier = Modifier,
+    scrollState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     fiioKa5: FiioKa5 = FiioKa5(),
     onChannelBalanceSelected: (Int) -> Unit = {},
     onVolumeLevelSelected: (Float) -> Unit = {},
@@ -63,6 +56,7 @@ fun FiioKa5Items(
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
         modifier = modifier,
+        state = scrollState,
         contentPadding = PaddingValues(all = cardPaddingBetween),
         verticalItemSpacing = cardPaddingBetween,
         horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
@@ -74,25 +68,14 @@ fun FiioKa5Items(
             )
         }
         item {
-            val context = LocalContext.current
             ItemAudio(
                 channelBalance = fiioKa5.channelBalance.displayValue.toFloat(),
-                channelBalanceInDb = fiioKa5.channelBalance.displayValueToDecibel(),
-                channelBalanceDirection = fiioKa5.channelBalance.displayValueToDirection(context),
+                channelBalanceInDb = fiioKa5.channelBalanceToDecibel(LocalContext.current),
+                channelBalanceDirection = fiioKa5.channelBalanceToDirection(LocalContext.current),
                 volumeLevel = fiioKa5.volumeLevel.displayValue.toFloat(),
-                volumeLevelInPercent = fiioKa5.displayVolumeLevel,
+                volumeLevelInPercent = fiioKa5.displayVolumeLevel(LocalContext.current),
                 volumeMode = fiioKa5.volumeMode,
-                onChannelBalanceToDb = { channelBalance ->
-                    ChannelBalance
-                        .createFromDisplayValue(channelBalance)
-                        .displayValueToDecibel(isSignShown = true)
-                },
                 onChannelBalanceSelected = onChannelBalanceSelected,
-                onVolumeLevelToPercent = { volumeLevel ->
-                    VolumeLevel
-                        .createFromDisplayValue(volumeLevel.roundToInt(), fiioKa5.volumeMode)
-                        .displayValueToPercent(fiioKa5.volumeMode)
-                },
                 onVolumeLevelSelected = onVolumeLevelSelected,
                 onVolumeModeSelected = onVolumeModeSelected
             )
@@ -100,21 +83,9 @@ fun FiioKa5Items(
         item {
             ItemDisplay(
                 displayBrightness = fiioKa5.displayBrightness.displayValue.toFloat(),
-                displayBrightnessInPercent = fiioKa5.displayBrightness.displayValueToPercent(),
                 displayTimeout = fiioKa5.displayTimeout.displayValue.toFloat(),
-                displayTimeoutInSeconds = fiioKa5.displayTimeout.displayValueToSeconds(),
                 isDisplayInvertEnabled = fiioKa5.displayInvert.isEnabled,
-                onDisplayBrightnessToPercent = { displayBrightness ->
-                    DisplayBrightness
-                        .createFromDisplayValue(displayBrightness)
-                        .displayValueToPercent()
-                },
                 onDisplayBrightnessSelected = onDisplayBrightnessSelected,
-                onDisplayTimeoutToSeconds = { displayTimeout ->
-                    DisplayTimeout
-                        .createFromDisplayValue(displayTimeout)
-                        .displayValueToSeconds()
-                },
                 onDisplayTimeoutSelected = onDisplayTimeoutSelected,
                 onDisplayInvertSwitched = onDisplayInvertSelected
             )

@@ -43,8 +43,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Cha
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeMode
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToDecibel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 import kotlin.math.roundToInt
 
@@ -52,20 +50,18 @@ import kotlin.math.roundToInt
 fun ItemAudio(
     modifier: Modifier = Modifier,
     channelBalance: Float = ChannelBalance.default().displayValue.toFloat(),
-    channelBalanceInDb: String = ChannelBalance.default().displayValueToDecibel(),
+    channelBalanceInDb: String = "",
     channelBalanceDirection: String = "",
     channelBalanceStart: Float = ChannelBalance.MIN.toFloat(),
     channelBalanceEnd: Float = ChannelBalance.MAX.toFloat(),
     channelBalanceStepSize: Float = 1f,
     volumeMode: VolumeMode = VolumeMode.default(),
     volumeLevel: Float = VolumeLevel.default().displayValue.toFloat(),
-    volumeLevelInPercent: String = VolumeLevel.default().displayValueToPercent(volumeMode),
+    volumeLevelInPercent: String = "",
     volumeLevelStart: Float = VolumeLevel.MIN.toFloat(),
     volumeLevelEndModeA: Float = VolumeLevel.MAX_A.toFloat(),
     volumeLevelEndModeB: Float = VolumeLevel.MAX_B.toFloat(),
-    onChannelBalanceToDb: (Int) -> String = { channelBalanceInDb },
     onChannelBalanceSelected: (Int) -> Unit = {},
-    onVolumeLevelToPercent: (Float) -> String = { volumeLevelInPercent },
     onVolumeLevelSelected: (Float) -> Unit = {},
     onVolumeModeSelected: (Byte) -> Unit = {}
 ) {
@@ -90,9 +86,7 @@ fun ItemAudio(
             AndroidView(
                 factory = { context ->
                     Slider(context).apply {
-                        setLabelFormatter { value ->
-                            onChannelBalanceToDb(value.roundToInt())
-                        }
+                        setLabelFormatter { value -> value.toString() }
                         addOnSliderTouchListener(
                             object : Slider.OnSliderTouchListener {
 
@@ -135,9 +129,7 @@ fun ItemAudio(
                 AndroidView(
                     factory = { context ->
                         Slider(context).apply {
-                            setLabelFormatter { value ->
-                                onVolumeLevelToPercent(value)
-                            }
+                            setLabelFormatter { value -> value.toString() }
                             addOnSliderTouchListener(
                                 object : Slider.OnSliderTouchListener {
 
@@ -163,9 +155,7 @@ fun ItemAudio(
                 AndroidView(
                     factory = { context ->
                         Slider(context).apply {
-                            setLabelFormatter { value ->
-                                onVolumeLevelToPercent(value)
-                            }
+                            setLabelFormatter { value -> value.toString() }
                             addOnSliderTouchListener(
                                 object : Slider.OnSliderTouchListener {
 

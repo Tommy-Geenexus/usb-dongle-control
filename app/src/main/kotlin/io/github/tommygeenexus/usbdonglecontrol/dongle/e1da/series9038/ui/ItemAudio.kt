@@ -24,30 +24,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.material.slider.RangeSlider
-import com.google.android.material.slider.Slider
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.default
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlBodyText
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlRangeSlider
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSlider
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlTitleText
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun ItemAudio(
     modifier: Modifier = Modifier,
     volumeLevel: Float = VolumeLevel.default().displayValue,
-    volumeLevelMin: Float = VolumeLevel.MIN_DB.toFloat(),
-    volumeLevelMax: Float = VolumeLevel.MAX_DB.toFloat(),
-    volumeLevelStart: Float = VolumeLevel.MIN_DB.toFloat(),
-    volumeLevelEnd: Float = VolumeLevel.MAX_DB.toFloat(),
+    volumeLevelMin: Float = VolumeLevel.MIN_DB,
+    volumeLevelMax: Float = VolumeLevel.MAX_DB,
+    volumeLevelStart: Float = VolumeLevel.MIN_DB,
+    volumeLevelEnd: Float = VolumeLevel.MAX_DB,
     volumeLevelStepSize: Float = VolumeLevel.STEP_SIZE,
     onVolumeLevelSelected: (Float) -> Unit = {},
     onVolumeLevelMaxSelected: (Float) -> Unit = { _ -> },
@@ -55,84 +53,36 @@ fun ItemAudio(
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(all = cardPadding)) {
-            Text(
-                text = stringResource(id = R.string.volume),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
+            UsbDongleControlTitleText(textRes = R.string.volume)
+            UsbDongleControlBodyText(
                 text = stringResource(id = R.string.volume_level_db, volumeLevel),
-                modifier = Modifier.padding(top = cardPadding),
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.padding(top = cardPadding)
             )
-            AndroidView(
-                factory = { context ->
-                    Slider(context).apply {
-                        setLabelFormatter { value -> value.toString() }
-                        addOnSliderTouchListener(
-                            object : Slider.OnSliderTouchListener {
-
-                                override fun onStartTrackingTouch(slider: Slider) {
-                                }
-
-                                override fun onStopTrackingTouch(slider: Slider) {
-                                    onVolumeLevelSelected(slider.value)
-                                }
-                            }
-                        )
-                    }
-                },
-                modifier = Modifier.padding(top = cardPadding),
-                update = { slider ->
-                    slider.stepSize = volumeLevelStepSize
-                    slider.value = volumeLevel
-                    slider.valueFrom = volumeLevelStart
-                    slider.valueTo = volumeLevelEnd
-                }
+            UsbDongleControlSlider(
+                stepSize = volumeLevelStepSize,
+                value = volumeLevel,
+                valueFrom = volumeLevelStart,
+                valueTo = volumeLevelEnd,
+                onValueChangeFinished = onVolumeLevelSelected,
+                modifier = Modifier.padding(top = cardPadding)
             )
-            Text(
-                text = stringResource(id = R.string.volume_range),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
+            UsbDongleControlTitleText(text = stringResource(id = R.string.volume_range))
+            UsbDongleControlBodyText(
                 text = stringResource(
                     id = R.string.volume_range_min_max,
                     volumeLevelMin,
                     volumeLevelMax
                 ),
-                modifier = Modifier.padding(top = cardPadding),
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.padding(top = cardPadding)
             )
-            val volumeLevelMinMax by rememberUpdatedState((listOf(volumeLevelMin, volumeLevelMax)))
-            AndroidView(
-                factory = { context ->
-                    RangeSlider(context).apply {
-                        setLabelFormatter { value ->
-                            value.toString()
-                        }
-                        addOnSliderTouchListener(
-                            object : RangeSlider.OnSliderTouchListener {
-
-                                override fun onStartTrackingTouch(slider: RangeSlider) {
-                                }
-
-                                override fun onStopTrackingTouch(slider: RangeSlider) {
-                                    if (slider.values.first() != volumeLevelMinMax.first()) {
-                                        onVolumeLevelMinSelected(slider.values.first())
-                                    } else if (slider.values.last() != volumeLevelMinMax.last()) {
-                                        onVolumeLevelMaxSelected(slider.values.last())
-                                    }
-                                }
-                            }
-                        )
-                    }
-                },
-                modifier = Modifier.padding(top = cardPadding),
-                update = { slider ->
-                    slider.stepSize = volumeLevelStepSize
-                    slider.valueFrom = volumeLevelStart
-                    slider.valueTo = volumeLevelEnd
-                    slider.values = volumeLevelMinMax
-                }
+            UsbDongleControlRangeSlider(
+                stepSize = volumeLevelStepSize,
+                values = persistentListOf(volumeLevelMin, volumeLevelMax),
+                valueFrom = volumeLevelStart,
+                valueTo = volumeLevelEnd,
+                onFirstValueChangeFinished = onVolumeLevelMinSelected,
+                onLastValueChangeFinished = onVolumeLevelMaxSelected,
+                modifier = Modifier.padding(top = cardPadding)
             )
         }
     }

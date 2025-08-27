@@ -304,7 +304,13 @@ class E1da9038UsbRepository @Inject constructor(
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
-                Result.success(value = usbDongle.copy(volumeLevel = volumeLevel))
+                Result.success(
+                    value = usbDongle.copy(
+                        volumeLevel = volumeLevel,
+                        volumeLevelMax = volumeLevelMax,
+                        volumeLevelMin = volumeLevelMin
+                    )
+                )
             }.getOrElse { exception ->
                 Timber.e(exception)
                 Result.failure(exception)

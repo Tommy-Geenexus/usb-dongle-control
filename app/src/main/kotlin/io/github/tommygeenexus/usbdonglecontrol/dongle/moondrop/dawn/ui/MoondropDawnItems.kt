@@ -22,23 +22,24 @@ package io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn44
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
-import kotlin.math.roundToInt
 
 @Composable
 fun MoondropDawnItems(
     modifier: Modifier = Modifier,
+    scrollState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     moondropDawn: MoondropDawn = MoondropDawn44(),
     onFilterSelected: (Byte) -> Unit = {},
     onGainSelected: (Byte) -> Unit = {},
@@ -48,6 +49,7 @@ fun MoondropDawnItems(
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
         modifier = modifier,
+        state = scrollState,
         contentPadding = PaddingValues(all = cardPaddingBetween),
         verticalItemSpacing = cardPaddingBetween,
         horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
@@ -74,12 +76,7 @@ fun MoondropDawnItems(
             ItemAudio(
                 volumeLevel =
                 VolumeLevel.MIN - moondropDawn.volumeLevel.displayValueAndPayload.toFloat(),
-                volumeLevelInPercent = moondropDawn.volumeLevel.displayValueToPercent(),
-                onVolumeLevelToPercent = { volumeLevel ->
-                    VolumeLevel
-                        .createFromDisplayValue(VolumeLevel.MIN - volumeLevel.roundToInt())
-                        .displayValueToPercent()
-                },
+                volumeLevelInPercent = moondropDawn.displayVolumeLevel(LocalContext.current),
                 onVolumeLevelSelected = { volumeLevel ->
                     onVolumeLevelSelected(VolumeLevel.MIN - volumeLevel)
                 }

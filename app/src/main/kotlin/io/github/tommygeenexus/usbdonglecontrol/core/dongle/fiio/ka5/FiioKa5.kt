@@ -20,6 +20,8 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5
 
+import android.content.Context
+import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.FiioUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.ChannelBalance
@@ -37,8 +39,8 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Spd
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.VolumeMode
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
+import kotlin.math.absoluteValue
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
@@ -71,6 +73,14 @@ data class FiioKa5(
         const val MODEL_NAME = "KA5"
         const val PRODUCT_ID = 85
     }
+
+    @IgnoredOnParcel
+    override val currentVolumeLevel
+        get() = volumeLevel.displayValue.toFloat()
+
+    @IgnoredOnParcel
+    override val isVolumeControlInverted
+        get() = false
 
     @IgnoredOnParcel
     override val getFilter
@@ -141,16 +151,32 @@ data class FiioKa5(
         get() = byteArrayOf(-57, -91, 13)
 
     @IgnoredOnParcel
-    override val isVolumeControlAsc
-        get() = true
+    override val volumeStepSizeMin: Float
+        get() = 1f
 
-    @IgnoredOnParcel
-    override val currentVolumeLevel
-        get() = volumeLevel.displayValue.toFloat()
+    fun channelBalanceToDecibel(context: Context): String {
+        val offsetDb = if (channelBalance.displayValue != 0) {
+            channelBalance.displayValue.absoluteValue / 2f
+        } else {
+            0f
+        }
+        val sign = if (channelBalance.displayValue < 0) {
+            "-"
+        } else if (channelBalance.displayValue > 0) {
+            "+"
+        } else {
+            ""
+        }
+        return context.getString(R.string.channel_balance_db, sign, offsetDb.toString())
+    }
 
-    @IgnoredOnParcel
-    override val displayVolumeLevel: String
-        get() = volumeLevel.displayValueToPercent(volumeMode)
+    fun channelBalanceToDirection(context: Context) = if (channelBalance.displayValue > 0) {
+        context.getString(R.string.right)
+    } else if (channelBalance.displayValue < 0) {
+        context.getString(R.string.left)
+    } else {
+        ""
+    }
 
     override fun currentStateAsProfile(profileName: String) = Profile(
         name = profileName,
@@ -186,5 +212,10 @@ data class FiioKa5(
         isSpdifOutEnabled = SpdifOut.default().isEnabled,
         volumeLevel = VolumeLevel.default().displayValue.toFloat(),
         volumeModeId = VolumeMode.default().id
+    )
+
+    override fun displayVolumeLevel(context: Context): String = context.getString(
+        R.string.generic_percent,
+        (volumeLevel.displayValue * 100 / volumeMode.steps)
     )
 }

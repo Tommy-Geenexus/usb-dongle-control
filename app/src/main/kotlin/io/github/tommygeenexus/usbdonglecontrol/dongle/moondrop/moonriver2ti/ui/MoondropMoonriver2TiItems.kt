@@ -22,14 +22,15 @@ package io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.createFromDisplayValue
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemAudio
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemFilter
@@ -37,11 +38,11 @@ import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemGain
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemIndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
-import kotlin.math.roundToInt
 
 @Composable
 fun MoondropMoonriver2TiItems(
     modifier: Modifier = Modifier,
+    scrollState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     moondropMoonriver2Ti: MoondropMoonriver2Ti = MoondropMoonriver2Ti(),
     onFilterSelected: (Byte) -> Unit = {},
     onGainSelected: (Byte) -> Unit = {},
@@ -51,6 +52,7 @@ fun MoondropMoonriver2TiItems(
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
         modifier = modifier,
+        state = scrollState,
         contentPadding = PaddingValues(all = cardPaddingBetween),
         verticalItemSpacing = cardPaddingBetween,
         horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
@@ -76,13 +78,11 @@ fun MoondropMoonriver2TiItems(
         item {
             ItemAudio(
                 volumeLevel =
-                VolumeLevel.MIN - moondropMoonriver2Ti.volumeLevel.displayValueAndPayload.toFloat(),
-                volumeLevelInPercent = moondropMoonriver2Ti.volumeLevel.displayValueToPercent(),
-                onVolumeLevelToPercent = { volumeLevel ->
-                    VolumeLevel
-                        .createFromDisplayValue(VolumeLevel.MIN - volumeLevel.roundToInt())
-                        .displayValueToPercent()
-                },
+                VolumeLevel.MIN -
+                    moondropMoonriver2Ti.volumeLevel.displayValueAndPayload.toFloat(),
+                volumeLevelInPercent = moondropMoonriver2Ti.displayVolumeLevel(
+                    LocalContext.current
+                ),
                 onVolumeLevelSelected = { volumeLevel ->
                     onVolumeLevelSelected(VolumeLevel.MIN - volumeLevel)
                 }

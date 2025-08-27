@@ -28,7 +28,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter as FilterFiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
-import io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.data.E1da9038UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.data.FiioKa13UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.data.FiioKa5UsbRepository
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.data.MoondropDawnUsbRepository
@@ -38,7 +37,6 @@ import javax.inject.Singleton
 
 @Singleton
 class SetDacFilterUseCase @Inject constructor(
-    private val e1da9038UsbRepository: E1da9038UsbRepository,
     private val fiioKa13UsbRepository: FiioKa13UsbRepository,
     private val fiioKa5UsbRepository: FiioKa5UsbRepository,
     private val moondropDawnUsbRepository: MoondropDawnUsbRepository,

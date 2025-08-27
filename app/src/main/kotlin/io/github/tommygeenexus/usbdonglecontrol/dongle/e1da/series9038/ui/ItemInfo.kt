@@ -24,7 +24,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -32,13 +31,8 @@ import androidx.compose.material.icons.outlined.BuildCircle
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.PermDeviceInformation
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import io.github.tommygeenexus.usbdonglecontrol.R
@@ -48,6 +42,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feat
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.HardwareType
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.SampleRate
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.default
+import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlIconRow
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 
 @Composable
@@ -60,56 +55,30 @@ fun ItemInfo(
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = cardPadding),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.PermDeviceInformation,
-                    contentDescription = stringResource(id = R.string.model_s)
-                )
-                Text(
-                    text = stringResource(R.string.model_s, model),
-                    modifier = Modifier.padding(all = cardPadding),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            UsbDongleControlIconRow(
+                textRes = R.string.model_s,
+                textFormatArg = model,
+                contentDescriptionRes = R.string.model_s,
+                imageVector = Icons.Outlined.PermDeviceInformation,
+                modifier = Modifier.padding(horizontal = cardPadding)
+            )
             val viewUrl = rememberLauncherForActivityResult(ActivityResultContractViewUrl()) { }
-            Row(
+            UsbDongleControlIconRow(
+                textRes = R.string.fw_version,
+                textFormatArg = firmwareVersion,
+                contentDescriptionRes = R.string.fw_version,
+                imageVector = Icons.Outlined.BuildCircle,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(horizontal = cardPadding)
-                    .clickable { viewUrl.launch(firmwareUri) },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.BuildCircle,
-                    contentDescription = stringResource(id = R.string.fw_version)
-                )
-                Text(
-                    text = stringResource(id = R.string.fw_version, firmwareVersion),
-                    modifier = Modifier.padding(all = cardPadding),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = cardPadding),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.MusicNote,
-                    contentDescription = stringResource(id = R.string.sample_rate)
-                )
-                Text(
-                    text = stringResource(id = R.string.sample_rate, sampleRate),
-                    modifier = Modifier.padding(all = cardPadding),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+                    .clickable { viewUrl.launch(firmwareUri) }
+            )
+            UsbDongleControlIconRow(
+                textRes = R.string.sample_rate,
+                textFormatArg = sampleRate,
+                contentDescriptionRes = R.string.sample_rate,
+                imageVector = Icons.Outlined.MusicNote,
+                modifier = Modifier.padding(horizontal = cardPadding)
+            )
         }
     }
 }

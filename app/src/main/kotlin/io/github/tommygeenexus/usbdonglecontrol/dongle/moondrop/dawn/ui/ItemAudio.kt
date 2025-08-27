@@ -35,18 +35,16 @@ import com.google.android.material.slider.Slider
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 
 @Composable
 fun ItemAudio(
     modifier: Modifier = Modifier,
     volumeLevel: Float = VolumeLevel.default().displayValueAndPayload.toFloat(),
-    volumeLevelInPercent: String = VolumeLevel.default().displayValueToPercent(),
+    volumeLevelInPercent: String = "",
     volumeLevelStart: Float = VolumeLevel.MAX.toFloat(),
     volumeLevelEnd: Float = VolumeLevel.MIN.toFloat(),
     volumeLevelStepSize: Float = 0f,
-    onVolumeLevelToPercent: (Float) -> String = { _ -> volumeLevelInPercent },
     onVolumeLevelSelected: (Float) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
@@ -64,9 +62,7 @@ fun ItemAudio(
                 factory = { context ->
                     Slider(context).apply {
                         stepSize = volumeLevelStepSize
-                        setLabelFormatter { value ->
-                            onVolumeLevelToPercent(value)
-                        }
+                        setLabelFormatter { value -> value.toString() }
                         addOnSliderTouchListener(
                             object : Slider.OnSliderTouchListener {
 

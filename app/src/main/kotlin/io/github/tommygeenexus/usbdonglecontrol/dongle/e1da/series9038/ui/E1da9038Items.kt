@@ -22,8 +22,10 @@ package io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +39,7 @@ import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
 @Composable
 fun E1da9038Items(
     modifier: Modifier = Modifier,
+    scrollState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     e1da9038: E1da9038 = E1da9038(),
     onFilterSelected: (Byte, Int) -> Unit = { _, _ -> },
     onHardwareMuteEnabledSelected: (Boolean) -> Unit = {},
@@ -50,6 +53,7 @@ fun E1da9038Items(
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
         modifier = modifier,
+        state = scrollState,
         contentPadding = PaddingValues(all = cardPaddingBetween),
         verticalItemSpacing = cardPaddingBetween,
         horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)

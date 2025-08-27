@@ -20,6 +20,8 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13
 
+import android.content.Context
+import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.FiioUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.Filter
@@ -28,7 +30,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.In
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.SampleRate
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.SpdifOut
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.default
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
@@ -58,6 +59,14 @@ data class FiioKa13(
     }
 
     @IgnoredOnParcel
+    override val currentVolumeLevel
+        get() = volumeLevel.displayValueAndPayload.toFloat()
+
+    @IgnoredOnParcel
+    override val isVolumeControlInverted
+        get() = false
+
+    @IgnoredOnParcel
     override val setFilter
         get() = listOf(
             byteArrayOf(0, 17, -96, -94, 2, 2, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -84,16 +93,8 @@ data class FiioKa13(
         )
 
     @IgnoredOnParcel
-    override val isVolumeControlAsc
-        get() = false
-
-    @IgnoredOnParcel
-    override val currentVolumeLevel
-        get() = volumeLevel.displayValueAndPayload.toFloat()
-
-    @IgnoredOnParcel
-    override val displayVolumeLevel
-        get() = volumeLevel.displayValueToPercent()
+    override val volumeStepSizeMin: Float
+        get() = 1f
 
     override fun currentStateAsProfile(profileName: String) = Profile(
         name = profileName,
@@ -113,5 +114,10 @@ data class FiioKa13(
         indicatorStateId = IndicatorState.default().id,
         isSpdifOutEnabled = SpdifOut.default().isEnabled,
         volumeLevel = VolumeLevel.default().displayValueAndPayload.toFloat()
+    )
+
+    override fun displayVolumeLevel(context: Context): String = context.getString(
+        R.string.generic_percent,
+        (VolumeLevel.MIN - volumeLevel.displayValueAndPayload) * 100 / VolumeLevel.MIN
     )
 }

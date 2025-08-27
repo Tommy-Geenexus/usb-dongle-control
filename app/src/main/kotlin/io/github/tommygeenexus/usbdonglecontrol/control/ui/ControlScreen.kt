@@ -189,7 +189,6 @@ fun ControlScreen(
                 context.startService(Intent(context, UsbService::class.java))
             }
             ControlSideEffect.Service.Stop -> {
-                @Suppress("ImplicitSamInstance")
                 context.stopService(Intent(context, UsbService::class.java))
             }
             ControlSideEffect.Shortcut.Add.Failure -> {
@@ -485,6 +484,11 @@ fun ControlScreen(
                     }
                 }
             )
+            val scrollState = rememberLazyStaggeredGridState()
+            if (!scrollState.canScrollForward) {
+                bottomScrollBehavior.state.heightOffset = 0f
+                scrollState.requestScrollToItem(index = scrollState.layoutInfo.totalItemsCount - 1)
+            }
             if (selectedTabIndex == ControlTabs.State.index) {
                 when (usbDongle) {
                     is E1da9038 -> {
@@ -492,6 +496,7 @@ fun ControlScreen(
                             modifier = Modifier.padding(
                                 horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
+                            scrollState = scrollState,
                             e1da9038 = usbDongle,
                             onFilterSelected = onFilterForSampleRateSelected,
                             onHardwareMuteEnabledSelected = onHardwareMuteEnabledSelected,
@@ -508,6 +513,7 @@ fun ControlScreen(
                             modifier = Modifier.padding(
                                 horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
+                            scrollState = scrollState,
                             fiioKa13 = usbDongle,
                             onFilterSelected = { filterId ->
                                 onFilterSelected(filterId)
@@ -528,6 +534,7 @@ fun ControlScreen(
                             modifier = Modifier.padding(
                                 horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
+                            scrollState = scrollState,
                             fiioKa5 = usbDongle,
                             onChannelBalanceSelected = { channelBalance ->
                                 onChannelBalanceSelected(channelBalance)
@@ -572,6 +579,7 @@ fun ControlScreen(
                             modifier = Modifier.padding(
                                 horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
+                            scrollState = scrollState,
                             moondropDawn = usbDongle,
                             onFilterSelected = { filterId ->
                                 onFilterSelected(filterId)
@@ -592,6 +600,7 @@ fun ControlScreen(
                             modifier = Modifier.padding(
                                 horizontal = windowSizeClass.getHorizontalCardPadding()
                             ),
+                            scrollState = scrollState,
                             moondropMoonriver2Ti = usbDongle,
                             onFilterSelected = { filterId ->
                                 onFilterSelected(filterId)

@@ -18,50 +18,57 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui
+package io.github.tommygeenexus.usbdonglecontrol.core.ui
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PermDeviceInformation
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSwitchRow
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 
 @Composable
-fun ItemMisc(
-    modifier: Modifier = Modifier,
-    isStandbyEnabled: Boolean = false,
-    isHardwareMuteEnabled: Boolean = false,
-    onStandbyEnabledSwitched: (Boolean) -> Unit = {},
-    onHardwareMuteEnabledSwitched: (Boolean) -> Unit = {}
+fun UsbDongleControlIconRow(
+    @StringRes textRes: Int,
+    textFormatArg: String,
+    @StringRes contentDescriptionRes: Int,
+    imageVector: ImageVector,
+    modifier: Modifier = Modifier
 ) {
-    ElevatedCard(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(all = cardPadding)) {
-            UsbDongleControlSwitchRow(
-                textRes = R.string.standby,
-                isChecked = isStandbyEnabled,
-                modifier = Modifier.clickable { onStandbyEnabledSwitched(!isStandbyEnabled) },
-                onCheckedChange = onStandbyEnabledSwitched
-            )
-            UsbDongleControlSwitchRow(
-                textRes = R.string.hw_mute,
-                isChecked = isHardwareMuteEnabled,
-                modifier = Modifier
-                    .padding(top = cardPadding)
-                    .clickable { onHardwareMuteEnabledSwitched(!isHardwareMuteEnabled) },
-                onCheckedChange = onHardwareMuteEnabledSwitched
-            )
-        }
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = stringResource(id = contentDescriptionRes)
+        )
+        UsbDongleControlBodyText(
+            text = stringResource(id = textRes, textFormatArg),
+            modifier = Modifier.padding(all = cardPadding)
+        )
     }
 }
 
 @Preview
 @Composable
-private fun ItemMiscPreview() {
-    ItemMisc()
+private fun UsbDongleControlIconRowPreview() {
+    UsbDongleControlIconRow(
+        textRes = R.string.model_s,
+        textFormatArg = "",
+        contentDescriptionRes = R.string.model_s,
+        imageVector = Icons.Outlined.PermDeviceInformation,
+        modifier = Modifier.background(Color.White)
+    )
 }

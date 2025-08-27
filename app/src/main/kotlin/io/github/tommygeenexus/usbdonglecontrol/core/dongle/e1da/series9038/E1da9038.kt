@@ -20,6 +20,8 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038
 
+import android.content.Context
+import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.E1daUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.feature.Filter
@@ -63,6 +65,14 @@ data class E1da9038(
         const val MODEL_NAME = "#9038"
         const val PRODUCT_ID = 24595
     }
+
+    @IgnoredOnParcel
+    override val currentVolumeLevel
+        get() = volumeLevel.displayValue
+
+    @IgnoredOnParcel
+    override val isVolumeControlInverted
+        get() = false
 
     @IgnoredOnParcel
     override val getAudioFormat: ByteArray
@@ -169,16 +179,8 @@ data class E1da9038(
         get() = byteArrayOf(3, 6, 1)
 
     @IgnoredOnParcel
-    override val isVolumeControlAsc
-        get() = false
-
-    @IgnoredOnParcel
-    override val currentVolumeLevel
-        get() = volumeLevel.displayValue
-
-    @IgnoredOnParcel
-    override val displayVolumeLevel
-        get() = volumeLevel.displayValue.toString()
+    override val volumeStepSizeMin: Float
+        get() = 0.5f
 
     override fun currentStateAsProfile(profileName: String) = Profile(
         name = profileName,
@@ -207,4 +209,7 @@ data class E1da9038(
         volumeLevelMax = VolumeLevelMin.default().displayValue,
         volumeLevelMin = VolumeLevelMax.default().displayValue
     )
+
+    override fun displayVolumeLevel(context: Context): String =
+        context.getString(R.string.volume_db, volumeLevel.displayValue.toString())
 }

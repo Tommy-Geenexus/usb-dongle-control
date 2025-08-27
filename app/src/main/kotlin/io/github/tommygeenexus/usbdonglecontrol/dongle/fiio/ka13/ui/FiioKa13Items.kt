@@ -22,25 +22,26 @@ package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.createFromDisplayValue
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.ItemFilter
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemAudio
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemIndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
-import kotlin.math.roundToInt
 
 @Composable
 fun FiioKa13Items(
     modifier: Modifier = Modifier,
+    scrollState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     fiioKa13: FiioKa13 = FiioKa13(),
     onFilterSelected: (Byte) -> Unit = {},
     onIndicatorStateSelected: (Byte) -> Unit = {},
@@ -50,6 +51,7 @@ fun FiioKa13Items(
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(minSize = cardSizeMinDp),
         modifier = modifier,
+        state = scrollState,
         contentPadding = PaddingValues(all = cardPaddingBetween),
         verticalItemSpacing = cardPaddingBetween,
         horizontalArrangement = Arrangement.spacedBy(cardPaddingBetween)
@@ -76,15 +78,10 @@ fun FiioKa13Items(
             ItemAudio(
                 volumeLevel =
                 VolumeLevel.MIN - fiioKa13.volumeLevel.displayValueAndPayload.toFloat(),
-                volumeLevelInPercent = fiioKa13.displayVolumeLevel,
+                volumeLevelInPercent = fiioKa13.displayVolumeLevel(LocalContext.current),
                 volumeLevelStart = VolumeLevel.MAX.toFloat(),
                 volumeLevelEnd = VolumeLevel.MIN.toFloat(),
                 volumeLevelStepSize = 2f,
-                onVolumeLevelToPercent = { volumeLevel ->
-                    VolumeLevel
-                        .createFromDisplayValue(VolumeLevel.MIN - volumeLevel.roundToInt())
-                        .displayValueToPercent()
-                },
                 onVolumeLevelSelected = { volumeLevel ->
                     onVolumeLevelSelected(VolumeLevel.MIN - volumeLevel)
                 }

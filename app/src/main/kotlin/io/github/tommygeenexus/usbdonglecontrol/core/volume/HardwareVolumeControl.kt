@@ -20,20 +20,36 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.volume
 
+import android.content.Context
+
 interface HardwareVolumeControl {
-    val isVolumeControlAsc: Boolean
+    companion object {
+        const val VOLUME_STEP_SIZE_MAX = 3
+    }
+
     val currentVolumeLevel: Float
-    val displayVolumeLevel: String
+    val isVolumeControlInverted: Boolean
+    val volumeStepSizeMin: Float
+
+    fun displayVolumeLevel(context: Context): String
 }
 
-fun HardwareVolumeControl.volumeDown(volumeStepSize: Int) = if (isVolumeControlAsc) {
+fun HardwareVolumeControl.incrementOrWrapVolumeStepSize(volumeStepSize: Float): Float {
+    var nextVolumeStepSize = volumeStepSize + volumeStepSizeMin
+    if (nextVolumeStepSize > HardwareVolumeControl.VOLUME_STEP_SIZE_MAX) {
+        nextVolumeStepSize = volumeStepSizeMin
+    }
+    return nextVolumeStepSize
+}
+
+fun HardwareVolumeControl.volumeDown(volumeStepSize: Float) = if (isVolumeControlInverted) {
+    currentVolumeLevel + volumeStepSize
+} else {
+    currentVolumeLevel - volumeStepSize
+}
+
+fun HardwareVolumeControl.volumeUp(volumeStepSize: Float) = if (isVolumeControlInverted) {
     currentVolumeLevel - volumeStepSize
 } else {
     currentVolumeLevel + volumeStepSize
-}
-
-fun HardwareVolumeControl.volumeUp(volumeStepSize: Int) = if (isVolumeControlAsc) {
-    currentVolumeLevel + volumeStepSize
-} else {
-    currentVolumeLevel - volumeStepSize
 }

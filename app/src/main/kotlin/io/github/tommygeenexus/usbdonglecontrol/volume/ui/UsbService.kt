@@ -118,12 +118,12 @@ class UsbService : Service() {
             startForeground(
                 context = applicationContext,
                 usbDongle = currentUsbDongle,
-                volumeStepSize = UsbServiceNotification.VOLUME_STEP_SIZE_MIN
+                volumeStepSize = currentUsbDongle.volumeStepSizeMin
             )
         }
     }
 
-    private fun setVolumeLevel(usbDongle: UsbDongle, volumeLevel: Float, volumeStepSize: Int) {
+    private fun setVolumeLevel(usbDongle: UsbDongle, volumeLevel: Float, volumeStepSize: Float) {
         coroutineScope.launch {
             var currentUsbDongle = getVolumeLevelUseCase(usbDongle)
                 .getOrNull()
@@ -148,7 +148,7 @@ class UsbService : Service() {
         }
     }
 
-    private fun setVolumeStepSize(usbDongle: UsbDongle, volumeStepSize: Int) {
+    private fun setVolumeStepSize(usbDongle: UsbDongle, volumeStepSize: Float) {
         if (usbDongle !is HardwareVolumeControl) {
             return
         }

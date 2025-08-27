@@ -20,6 +20,8 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti
 
+import android.content.Context
+import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
@@ -27,7 +29,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.MoondropUsb
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.IndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.default
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.feature.displayValueToPercent
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.feature.MoondropMoonriver2TiUsbCommand
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
 import kotlinx.parcelize.IgnoredOnParcel
@@ -50,6 +51,14 @@ data class MoondropMoonriver2Ti(
         const val MODEL_NAME = "Moonriver 2 Ti"
         const val PRODUCT_ID = 61547
     }
+
+    @IgnoredOnParcel
+    override val currentVolumeLevel
+        get() = volumeLevel.displayValueAndPayload.toFloat()
+
+    @IgnoredOnParcel
+    override val isVolumeControlInverted
+        get() = true
 
     @IgnoredOnParcel
     override val getAny
@@ -76,16 +85,8 @@ data class MoondropMoonriver2Ti(
         get() = byteArrayOf(-64, -91, 4)
 
     @IgnoredOnParcel
-    override val isVolumeControlAsc
-        get() = false
-
-    @IgnoredOnParcel
-    override val currentVolumeLevel
-        get() = volumeLevel.displayValueAndPayload.toFloat()
-
-    @IgnoredOnParcel
-    override val displayVolumeLevel
-        get() = volumeLevel.displayValueToPercent()
+    override val volumeStepSizeMin: Float
+        get() = 1f
 
     override fun currentStateAsProfile(profileName: String) = Profile(
         name = profileName,
@@ -105,5 +106,10 @@ data class MoondropMoonriver2Ti(
         gainId = Gain.default().id,
         indicatorStateId = IndicatorState.default().id,
         volumeLevel = VolumeLevel.default().displayValueAndPayload.toFloat()
+    )
+
+    override fun displayVolumeLevel(context: Context): String = context.getString(
+        R.string.generic_percent,
+        ((VolumeLevel.MIN - volumeLevel.displayValueAndPayload) * 100) / VolumeLevel.MIN
     )
 }
