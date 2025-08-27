@@ -38,7 +38,7 @@ import timber.log.Timber
 @Singleton
 class SettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    @DispatcherIo private val dispatcherIo: CoroutineDispatcher
+    @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) {
 
     private val keyMaximizeVolume = booleanPreferencesKey("maximize_volume")

@@ -25,7 +25,7 @@ import androidx.annotation.StringRes
 import io.github.tommygeenexus.usbdonglecontrol.R
 import kotlinx.parcelize.Parcelize
 
-sealed class ControlTabs(@StringRes val titleRes: Int, val index: Int) : Parcelable {
+sealed class ControlTabs(@param:StringRes val titleRes: Int, val index: Int) : Parcelable {
 
     @Parcelize
     data object State : ControlTabs(
