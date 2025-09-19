@@ -21,7 +21,6 @@
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle
 
 import android.hardware.usb.UsbDevice
-import io.github.tommygeenexus.usbdonglecontrol.core.dongle.e1da.series9038.E1da9038
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.MoondropDawn35
@@ -30,7 +29,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.Moondr
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2ti.MoondropMoonriver2Ti
 
 val supportedDongles = listOf<UsbDongle>(
-    E1da9038(),
     FiioKa13(),
     FiioKa5(),
     MoondropDawn35(),
