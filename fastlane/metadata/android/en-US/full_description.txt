@@ -1,0 +1,1 @@
+<p><i>USB dongle control</i> is an Android app for controlling USB audio dongles.</p><p>Supported devices include: FiiO KA5, Moondrop Dawn 3.5mm, Moondrop Dawn 4.4mm, Moondrop Dawn Pro.</p>
