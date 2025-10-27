@@ -43,7 +43,7 @@ jobs:
 
       - name: Download apk
         id: download_apk
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ${{ env.APK_NAME }}
           github-token: ${{ secrets.GH_TOKEN }}
