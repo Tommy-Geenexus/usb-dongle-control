@@ -71,11 +71,12 @@ fun MoondropDawnItems(
         }
         item {
             ItemAudio(
-                volumeLevel =
-                VolumeLevel.MIN - moondropDawn.volumeLevel.displayValue.toFloat(),
+                volumeLevel = moondropDawn.volumeLevel.displayValue.toFloat(),
                 volumeLevelInPercent = moondropDawn.displayVolumeLevel(LocalContext.current),
+                volumeLevelStart = VolumeLevel.MAX.toFloat(),
+                volumeLevelEnd = VolumeLevel.MIN.toFloat(),
                 onVolumeLevelSelected = { volumeLevel ->
-                    onVolumeLevelSelected(VolumeLevel.MIN - volumeLevel)
+                    onVolumeLevelSelected(volumeLevel)
                 }
             )
         }

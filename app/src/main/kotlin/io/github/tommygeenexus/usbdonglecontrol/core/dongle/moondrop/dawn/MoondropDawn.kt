@@ -21,7 +21,6 @@
 package io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn
 
 import android.content.Context
-import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Filter
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Gain
@@ -99,8 +98,5 @@ sealed class MoondropDawn(
         volumeLevel = VolumeLevel.default().displayValue.toFloat()
     )
 
-    override fun displayVolumeLevel(context: Context): String = context.getString(
-        R.string.generic_percent,
-        ((VolumeLevel.MIN - volumeLevel.displayValue) * 100) / VolumeLevel.MIN
-    )
+    override fun displayVolumeLevel(context: Context): String = volumeLevel.displayValue.toString()
 }

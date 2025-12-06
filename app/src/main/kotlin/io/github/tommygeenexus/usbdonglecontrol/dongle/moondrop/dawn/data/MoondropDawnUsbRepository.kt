@@ -92,9 +92,13 @@ class MoondropDawnUsbRepository @Inject constructor(
                         delayInMillisecondsAfterTransfer = DELAY_MS
                     )
                 }
-                val volumeLevel = VolumeLevel.createFromDisplayValue(
-                    displayValue = data[REQUEST_DATA_BYTE_2].toInt()
-                )
+                val raw = data[REQUEST_DATA_BYTE_2].toInt() and 0xFF
+                val normal = VolumeLevel.rawToNormal(raw)
+                val volumeLevel = if (normal >= 0) {
+                    VolumeLevel.createFromDisplayValue(normal)
+                } else {
+                    VolumeLevel.createFromDisplayValue(data[REQUEST_DATA_BYTE_2].toInt())
+                }
                 when (usbDongle) {
                     is MoondropDawn35 -> {
                         Result.success(
@@ -265,7 +269,9 @@ class MoondropDawnUsbRepository @Inject constructor(
             coroutineContext.suspendRunCatching(onReleaseResources = { usbConnection.close() }) {
                 val data = ByteArray(REQUEST_PACKET_SIZE)
                 moondropDawn.setVolumeLevel.copyInto(data)
-                data[REQUEST_DATA_BYTE_1] = volumeLevel.displayValue.toByte()
+                val raw = VolumeLevel.normalToRaw(volumeLevel.displayValue)
+                val rawValue = if (raw >= 0) raw else volumeLevel.displayValue
+                data[REQUEST_DATA_BYTE_1] = rawValue.toByte()
                 mutex.withLock {
                     usbConnection.controlWrite(
                         payload = data,
@@ -337,7 +343,9 @@ class MoondropDawnUsbRepository @Inject constructor(
                     )
                     data.fill(0)
                     moondropDawn.setVolumeLevel.copyInto(data)
-                    data[REQUEST_DATA_BYTE_1] = volumeLevel.displayValue.toByte()
+                    val raw = VolumeLevel.normalToRaw(volumeLevel.displayValue)
+                    val rawValue = if (raw >= 0) raw else volumeLevel.displayValue
+                    data[REQUEST_DATA_BYTE_1] = rawValue.toByte()
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
