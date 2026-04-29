@@ -1,36 +1,36 @@
 [versions]
 accompanist = "0.37.3"
-activity-compose = "1.11.0"
-agp = "8.13.0"
+activity-compose = "1.13.0"
+agp = "9.2.0"
 app-compat = "1.7.1"
-compose-bom = "2025.09.00"
-compose-compiler-report-generator = "1.4.2"
+compose-bom = "2026.04.01"
+compose-compiler-report-generator = "1.5.0"
 compose-constraintlayout = "1.1.1"
 compose-lint-checks = "1.4.2"
-compose-material3 = "1.5.0-alpha04"
+compose-material3 = "1.5.0-alpha18"
 compose-material-motion = "2.0.1"
-core-ktx = "1.17.0"
+core-ktx = "1.18.0"
 coroutines = "1.10.2"
-dagger-hilt = "2.57.1"
+dagger-hilt = "2.59.2"
 dagger-hilt-extensions = "1.3.0"
-datastore = "1.1.7"
-detekt = "1.23.8"
-kotlin = "2.2.20"
-kotlinter = "5.2.0"
+datastore = "1.2.1"
+detekt = "2.0.0-alpha.3"
+kotlin = "2.3.21"
+kotlinter = "5.4.2"
 kotlinx-collections-immutable = "0.4.0"
-kotlinx-serialization = "1.9.0"
-ksp = "2.2.20-2.0.3"
+kotlinx-serialization = "1.11.0"
+ksp = "2.3.7"
 leakcanary = "2.14"
-lifecycle = "2.9.4"
+lifecycle = "2.10.0"
 material = "1.13.0"
-navigation_compose = "2.9.4"
-orbit = "10.0.0"
-paging = "3.3.6"
-paging-compose = "3.3.6"
-room = "2.8.0"
-spotless = "7.2.1"
+navigation_compose = "2.9.8"
+orbit = "11.0.0"
+paging = "3.4.2"
+paging-compose = "3.4.2"
+room = "2.8.4"
+spotless = "8.4.0"
 timber = "5.0.1"
-versions = "0.52.0"
+versions = "0.54.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
@@ -120,8 +120,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-compiler-report-generator = { id = "dev.shreyaspatil.compose-compiler-report-generator", version.ref = "compose-compiler-report-generator" }
 dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }

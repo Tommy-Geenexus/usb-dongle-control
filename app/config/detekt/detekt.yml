@@ -1,6 +1,8 @@
 complexity:
   LongParameterList:
     ignoreDefaultParameters: true
+  TooManyFunctions:
+    ignoreAnnotatedFunctions: ["Preview"]
 naming:
   FunctionNaming:
     functionPattern: "[a-zA-Z][a-zA-Z0-9]*"
@@ -11,5 +13,5 @@ naming:
 style:
   MagicNumber:
     ignorePropertyDeclaration: true
-  UnusedPrivateMember:
+  UnusedPrivateFunction:
     ignoreAnnotated: ["Preview"]
