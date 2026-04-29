@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -126,6 +126,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Profile.Apply.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -135,6 +136,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Profile.Apply.Success -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -144,6 +146,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Profile.Delete.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -153,6 +156,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Profile.Delete.Success -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -162,6 +166,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Profile.Export.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -171,6 +176,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Profile.Export.Success -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -180,15 +186,19 @@ fun ControlScreen(
                     )
                 }
             }
+
             is ControlSideEffect.Profile.Get.All -> {
                 profiles.refresh()
             }
+
             ControlSideEffect.Service.Start -> {
                 context.startService(Intent(context, UsbService::class.java))
             }
+
             ControlSideEffect.Service.Stop -> {
                 context.stopService(Intent(context, UsbService::class.java))
             }
+
             ControlSideEffect.Shortcut.Add.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -198,6 +208,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Shortcut.Add.Success -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -207,6 +218,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Shortcut.Delete.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -216,6 +228,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.Shortcut.Delete.Success -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -225,12 +238,15 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.UsbCommunication.Get.Failure -> {
                 onNavigateToSetup()
             }
+
             is ControlSideEffect.UsbCommunication.Get.Success -> {
                 viewModel.getCurrentStateForUsbDongle(usbDongle = sideEffect.usbDongle)
             }
+
             ControlSideEffect.UsbCommunication.Rw.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -240,6 +256,7 @@ fun ControlScreen(
                     )
                 }
             }
+
             ControlSideEffect.UsbCommunication.Rw.Success -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -488,6 +505,7 @@ fun ControlScreen(
                             onVolumeLevelSelected = onVolumeLevelSelected
                         )
                     }
+
                     is FiioKa13 -> {
                         FiioKa13Items(
                             modifier = Modifier.padding(
@@ -508,6 +526,7 @@ fun ControlScreen(
                             }
                         )
                     }
+
                     is FiioKa5 -> {
                         FiioKa5Items(
                             modifier = Modifier.padding(
@@ -552,6 +571,7 @@ fun ControlScreen(
                             }
                         )
                     }
+
                     is MoondropDawn -> {
                         MoondropDawnItems(
                             modifier = Modifier.padding(
@@ -572,6 +592,7 @@ fun ControlScreen(
                             }
                         )
                     }
+
                     is MoondropMoonriver2Ti -> {
                         MoondropMoonriver2TiItems(
                             modifier = Modifier.padding(

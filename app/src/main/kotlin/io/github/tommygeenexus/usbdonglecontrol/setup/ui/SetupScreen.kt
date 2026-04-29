@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -74,6 +74,7 @@ fun SetupScreen(viewModel: SetupViewModel, onNavigateToControl: () -> Unit) {
             is SetupSideEffect.Navigate.Control -> {
                 onNavigateToControl()
             }
+
             SetupSideEffect.PermissionRequest.Failure -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -83,6 +84,7 @@ fun SetupScreen(viewModel: SetupViewModel, onNavigateToControl: () -> Unit) {
                     )
                 }
             }
+
             SetupSideEffect.PermissionRequest.Success -> {
                 scope.launch {
                     snackBarHostState.currentSnackbarData?.dismiss()

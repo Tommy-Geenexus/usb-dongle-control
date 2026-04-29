@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -47,12 +47,14 @@ class SetHardwareMuteEnabledUseCase @Inject constructor(
                 hardwareMute = HardwareMuteE1da9038(isEnabled = isHardwareMuteEnabled)
             )
         }
+
         is FiioKa5 -> {
             fiioKa5UsbRepository.setHardwareMute(
                 fiioKa5 = usbDongle,
                 hardwareMute = HardwareMuteFiioKa5(isEnabled = isHardwareMuteEnabled)
             )
         }
+
         else -> Result.failure(UnsupportedUsbDongleException())
     }
 }

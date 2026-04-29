@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -50,6 +50,7 @@ class SynchronizeVolumeLevelUseCase @Inject constructor() {
                 )
             )
         }
+
         is FiioKa13 -> {
             usbDongle.copy(
                 volumeLevel = VolumeLevelFiioKa13.createFromDisplayValue(
@@ -57,6 +58,7 @@ class SynchronizeVolumeLevelUseCase @Inject constructor() {
                 )
             )
         }
+
         is FiioKa5 -> {
             usbDongle.copy(
                 volumeLevel = VolumeLevelFiioKa5.createFromDisplayValue(
@@ -65,6 +67,7 @@ class SynchronizeVolumeLevelUseCase @Inject constructor() {
                 )
             )
         }
+
         is MoondropDawn35 -> {
             usbDongle.copy(
                 volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
@@ -72,6 +75,7 @@ class SynchronizeVolumeLevelUseCase @Inject constructor() {
                 )
             )
         }
+
         is MoondropDawn44 -> {
             usbDongle.copy(
                 volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
@@ -79,6 +83,7 @@ class SynchronizeVolumeLevelUseCase @Inject constructor() {
                 )
             )
         }
+
         is MoondropMoonriver2Ti -> {
             usbDongle.copy(
                 volumeLevel = VolumeLevelMoondropDawn.createFromDisplayValue(
@@ -86,6 +91,7 @@ class SynchronizeVolumeLevelUseCase @Inject constructor() {
                 )
             )
         }
+
         else -> usbDongle
     }
 }

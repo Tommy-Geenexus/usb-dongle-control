@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -74,8 +74,8 @@ fun MoondropMoonriver2TiItems(
         item {
             ItemAudio(
                 volumeLevel =
-                VolumeLevel.MIN -
-                    moondropMoonriver2Ti.volumeLevel.displayValue.toFloat(),
+                    VolumeLevel.MIN -
+                        moondropMoonriver2Ti.volumeLevel.displayValue.toFloat(),
                 volumeLevelInPercent = moondropMoonriver2Ti.displayVolumeLevel(
                     LocalContext.current
                 ),

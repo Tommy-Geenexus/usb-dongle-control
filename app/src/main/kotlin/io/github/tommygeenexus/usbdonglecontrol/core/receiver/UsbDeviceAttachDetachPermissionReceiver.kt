@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -38,9 +38,11 @@ class UsbDeviceAttachDetachPermissionReceiver(
                     intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                 )
             }
+
             UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
                 onAttachedDevicesChanged(true)
             }
+
             UsbManager.ACTION_USB_DEVICE_DETACHED -> {
                 onAttachedDevicesChanged(false)
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -51,24 +51,28 @@ class SetDacFilterUseCase @Inject constructor(
                     filter = FilterFiioKa13.findByIdOrDefault(id)
                 )
             }
+
             is FiioKa5 -> {
                 fiioKa5UsbRepository.setFilter(
                     fiioKa5 = usbDongle,
                     filter = FilterFiioKa5.findByIdOrDefault(id)
                 )
             }
+
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setFilter(
                     moondropDawn = usbDongle,
                     filter = FilterFiioKa5.findByIdOrDefault(id)
                 )
             }
+
             is MoondropMoonriver2Ti -> {
                 moondropMoonriver2TiUsbRepository.setFilter(
                     moondropMoonriver2Ti = usbDongle,
                     filter = FilterFiioKa5.findByIdOrDefault(id)
                 )
             }
+
             else -> Result.failure(UnsupportedUsbDongleException())
         }
 }

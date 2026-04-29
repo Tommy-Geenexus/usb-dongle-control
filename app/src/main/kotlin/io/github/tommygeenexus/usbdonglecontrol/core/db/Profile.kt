@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -22,7 +22,6 @@ package io.github.tommygeenexus.usbdonglecontrol.core.db
 
 import android.os.Parcelable
 import android.os.PersistableBundle
-import androidx.core.os.persistableBundleOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
@@ -120,31 +119,35 @@ data class Profile(
         )
     }
 
-    fun toPersistableBundle() = persistableBundleOf(
-        KEY_ID to id,
-        KEY_NAME to name,
-        KEY_VENDOR_ID to vendorId,
-        KEY_PRODUCT_ID to productId,
-        KEY_CHANNEL_BALANCE to channelBalance,
-        KEY_DAC_MODE to dacModeId.toInt(),
-        KEY_DISPLAY_BRIGHTNESS to displayBrightness,
-        KEY_DISPLAY_INVERT to isDisplayInvertEnabled,
-        KEY_DISPLAY_TIMEOUT to displayTimeout,
-        KEY_FILTER to filterId.toInt(),
-        KEY_FILTERS to IntArray(filterIds.size) { filterIds[it].toInt() },
-        KEY_GAIN to gainId.toInt(),
-        KEY_HW_MUTE to isHardwareMuteEnabled,
-        KEY_HID_MODE to hidModeId.toInt(),
-        KEY_INDICATOR_STATE to indicatorStateId.toInt(),
-        KEY_MASTER_CLOCK_DIVIDERS_DSD to
-            IntArray(masterClockDividersDsdIds.size) { masterClockDividersDsdIds[it].toInt() },
-        KEY_MASTER_CLOCK_DIVIDERS_PCM to
-            IntArray(masterClockDividersPcmIds.size) { masterClockDividersPcmIds[it].toInt() },
-        KEY_SPDIF_OUT to isSpdifOutEnabled,
-        KEY_STANDBY to isStandbyEnabled,
-        KEY_VOLUME_LEVEL to volumeLevel.toDouble(),
-        KEY_VOLUME_LEVEL_MAX to volumeLevelMax.toDouble(),
-        KEY_VOLUME_LEVEL_MIN to volumeLevelMin.toDouble(),
-        KEY_VOLUME_MODE to volumeModeId.toInt()
-    )
+    fun toPersistableBundle() = PersistableBundle().apply {
+        putLong(KEY_ID, id)
+        putString(KEY_NAME, name)
+        putInt(KEY_VENDOR_ID, vendorId)
+        putInt(KEY_PRODUCT_ID, productId)
+        putInt(KEY_CHANNEL_BALANCE, channelBalance)
+        putInt(KEY_DAC_MODE, dacModeId.toInt())
+        putInt(KEY_DISPLAY_BRIGHTNESS, displayBrightness)
+        putBoolean(KEY_DISPLAY_INVERT, isDisplayInvertEnabled)
+        putInt(KEY_DISPLAY_TIMEOUT, displayTimeout)
+        putInt(KEY_FILTER, filterId.toInt())
+        putIntArray(KEY_FILTERS, IntArray(filterIds.size) { filterIds[it].toInt() })
+        putInt(KEY_GAIN, gainId.toInt())
+        putBoolean(KEY_HW_MUTE, isHardwareMuteEnabled)
+        putInt(KEY_HID_MODE, hidModeId.toInt())
+        putInt(KEY_INDICATOR_STATE, indicatorStateId.toInt())
+        putIntArray(
+            KEY_MASTER_CLOCK_DIVIDERS_DSD,
+            IntArray(masterClockDividersDsdIds.size) { masterClockDividersDsdIds[it].toInt() }
+        )
+        putIntArray(
+            KEY_MASTER_CLOCK_DIVIDERS_PCM,
+            IntArray(masterClockDividersPcmIds.size) { masterClockDividersPcmIds[it].toInt() }
+        )
+        putBoolean(KEY_SPDIF_OUT, isSpdifOutEnabled)
+        putBoolean(KEY_STANDBY, isStandbyEnabled)
+        putDouble(KEY_VOLUME_LEVEL, volumeLevel.toDouble())
+        putDouble(KEY_VOLUME_LEVEL_MAX, volumeLevelMax.toDouble())
+        putDouble(KEY_VOLUME_LEVEL_MIN, volumeLevelMin.toDouble())
+        putInt(KEY_VOLUME_MODE, volumeModeId.toInt())
+    }
 }

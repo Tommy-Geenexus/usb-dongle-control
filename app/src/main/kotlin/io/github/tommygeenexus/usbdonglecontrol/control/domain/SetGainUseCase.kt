@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -47,18 +47,21 @@ class SetGainUseCase @Inject constructor(
                     gain = Gain.findByIdOrDefault(id)
                 )
             }
+
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setGain(
                     moondropDawn = usbDongle,
                     gain = Gain.findByIdOrDefault(id)
                 )
             }
+
             is MoondropMoonriver2Ti -> {
                 moondropMoonriver2TiUsbRepository.setGain(
                     moondropMoonriver2Ti = usbDongle,
                     gain = Gain.findByIdOrDefault(id)
                 )
             }
+
             else -> {
                 Result.failure(UnsupportedUsbDongleException())
             }

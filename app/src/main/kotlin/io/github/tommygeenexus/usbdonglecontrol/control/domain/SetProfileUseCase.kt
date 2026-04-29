@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -90,6 +90,7 @@ class SetProfileUseCase @Inject constructor(
                     )
                 )
             }
+
             is FiioKa13 -> {
                 fiioKa13UsbRepository.setAll(
                     fiioKa13 = usbDongle,
@@ -103,6 +104,7 @@ class SetProfileUseCase @Inject constructor(
                     )
                 )
             }
+
             is FiioKa5 -> {
                 fiioKa5UsbRepository.setAll(
                     fiioKa5 = usbDongle,
@@ -131,6 +133,7 @@ class SetProfileUseCase @Inject constructor(
                     volumeMode = VolumeMode.findByIdOrDefault(id = profile.volumeModeId)
                 )
             }
+
             is MoondropDawn -> {
                 moondropDawnUsbRepository.setAll(
                     moondropDawn = usbDongle,
@@ -144,6 +147,7 @@ class SetProfileUseCase @Inject constructor(
                     )
                 )
             }
+
             is MoondropMoonriver2Ti -> {
                 moondropMoonriver2TiUsbRepository.setAll(
                     moondropMoonriver2Ti = usbDongle,
@@ -157,6 +161,7 @@ class SetProfileUseCase @Inject constructor(
                     )
                 )
             }
+
             else -> Result.failure(UnsupportedUsbDongleException())
         }
 }
