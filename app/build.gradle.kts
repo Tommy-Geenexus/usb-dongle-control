@@ -22,12 +22,12 @@ plugins {
 
 android {
     namespace = "io.github.tommygeenexus.usbdonglecontrol"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "io.github.tommygeenexus.usbdonglecontrol"
         minSdk = 31
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 8
         versionName = "3.2.0"
     }
