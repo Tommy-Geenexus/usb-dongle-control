@@ -20,6 +20,7 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -208,6 +209,7 @@ fun ProfileItems(
     }
 }
 
+@SuppressLint("ComposeRedundantComposable")
 @Composable
 fun Refresh(
     modifier: Modifier = Modifier,

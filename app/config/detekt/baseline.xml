@@ -4,8 +4,6 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:ControlScreen.kt:@Composable fun ControlScreen</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:SettingsAudioItem.kt:val (icon, title, subtitle, switch) = createRefs()</ID>
-    <ID>EmptyFunctionBlock:UsbDongleControlRangeSlider.kt:&lt;no name provided&gt;${ }</ID>
-    <ID>EmptyFunctionBlock:UsbDongleControlSlider.kt:&lt;no name provided&gt;${ }</ID>
     <ID>ForbiddenComment:FiioKa13UsbRepository.kt:FiioKa13UsbRepository$// FIXME: Reading current state is not working properly (firmware issue?)</ID>
     <ID>ForbiddenComment:FiioKa13UsbRepository.kt:FiioKa13UsbRepository$// TODO: Is it actually working?</ID>
     <ID>LargeClass:E1da9038UsbRepository.kt:E1da9038UsbRepository : UsbRepository</ID>
@@ -30,16 +28,13 @@
     <ID>LongMethod:SettingsAudioItem.kt:@Composable fun SettingsAudioItem</ID>
     <ID>LongMethod:SetupScreen.kt:@Composable fun SetupScreen</ID>
     <ID>LongMethod:UsbServiceNotification.kt:UsbServiceNotification$fun &lt;D&gt; build: Notification</ID>
-    <ID>MagicNumber:AttachUsbDongle.kt:2000</ID>
     <ID>MagicNumber:FiioKa13.kt:FiioKa13$100</ID>
     <ID>MagicNumber:FiioKa5.kt:FiioKa5$100</ID>
     <ID>MagicNumber:MoondropMoonriver2Ti.kt:MoondropMoonriver2Ti$100</ID>
-    <ID>MagicNumber:UsbDongleControlRangeSlider.kt:100f</ID>
-    <ID>MagicNumber:UsbDongleControlRangeSlider.kt:10f</ID>
     <ID>MagicNumber:VolumeLevel.kt:0.5f</ID>
     <ID>ReturnCount:UsbServiceVolumeLevelReceiver.kt:UsbServiceVolumeLevelReceiver$override fun onReceive</ID>
     <ID>TooGenericExceptionCaught:CoroutineExtensions.kt:exception: Exception</ID>
-    <ID>TooManyFunctions:ControlViewModel.kt:ControlViewModel : ViewModelContainerHost</ID>
+    <ID>TooManyFunctions:ControlViewModel.kt:ControlViewModel : ViewModelOrbitContainerHost</ID>
     <ID>TooManyFunctions:FiioKa5UsbRepository.kt:FiioKa5UsbRepository : UsbRepository</ID>
     <ID>TopLevelPropertyNaming:Utils.kt:const val INTENT_ACTION_SHORTCUT_PROFILE = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_SHORTCUT_PROFILE"</ID>
     <ID>TopLevelPropertyNaming:Utils.kt:const val INTENT_ACTION_USB_PERMISSION = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_USB_PERMISSION"</ID>

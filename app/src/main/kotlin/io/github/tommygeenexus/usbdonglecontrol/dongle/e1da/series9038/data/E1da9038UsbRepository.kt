@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -39,6 +39,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatchin
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -55,10 +56,10 @@ class E1da9038UsbRepository @Inject constructor(
         const val USB_IF_ID = 6
         const val USB_EP_IN = 1
         const val USB_EP_OUT = 0
-
-        const val DELAY_MS = 100L
-        const val TIMEOUT_MS = 1000
     }
+
+    val delayMs = 100.milliseconds
+    val timeoutMs = 1000.milliseconds
 
     suspend fun getCurrentState(usbDongle: E1da9038): Result<E1da9038> {
         return withContext(dispatcherIo) {
@@ -88,8 +89,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     hardwareType = HardwareType.findByIdOrDefault(
                         id = data[REQUEST_DATA_BYTE_1]
@@ -110,8 +111,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     sampleRate = SampleRate.create(
                         key = data[REQUEST_DATA_BYTE_1].toInt()
@@ -123,8 +124,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     volumeLevel = VolumeLevel.createFromPayload(
                         payload = data[REQUEST_DATA_BYTE_1]
@@ -136,8 +137,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     filters.addAll(
                         elements = listOf(
@@ -162,8 +163,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     filters.addAll(
                         elements = listOf(
@@ -188,8 +189,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     masterClockDividersPcm.addAll(
                         elements = listOf(
@@ -206,8 +207,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     masterClockDividersPcm.addAll(
                         elements = listOf(
@@ -224,8 +225,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     masterClockDividersDsd.addAll(
                         elements = listOf(
@@ -277,8 +278,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpointWrite = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     volumeLevel = VolumeLevel.createFromPayload(
                         payload = data[REQUEST_DATA_BYTE_1]
@@ -331,8 +332,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -340,8 +341,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -378,8 +379,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -387,8 +388,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -430,8 +431,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -439,8 +440,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -502,8 +503,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -511,8 +512,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -551,8 +552,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -584,8 +585,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -628,8 +629,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -637,8 +638,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setFilterPcm176To384.copyInto(data)
@@ -650,8 +651,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -659,8 +660,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setHardwareMute.copyInto(data)
@@ -669,8 +670,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -678,8 +679,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     index.set(0)
@@ -692,8 +693,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -701,8 +702,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     index.set(0)
@@ -715,8 +716,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -724,8 +725,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setMasterClockDividerPcm176To384.copyInto(data)
@@ -737,8 +738,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setInit.copyInto(data)
@@ -746,8 +747,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setStandby.copyInto(data)
@@ -756,8 +757,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     e1da9038.setVolumeLevel.copyInto(data)
@@ -767,8 +768,8 @@ class E1da9038UsbRepository @Inject constructor(
                         usbEndpoint = usbInterface.getEndpoint(USB_EP_OUT),
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }

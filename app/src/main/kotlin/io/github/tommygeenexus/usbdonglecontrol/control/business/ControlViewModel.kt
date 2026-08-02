@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -55,8 +55,8 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.volume.HardwareVolumeControl
 import io.github.tommygeenexus.usbdonglecontrol.settings.data.SettingsRepository
 import javax.inject.Inject
-import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.viewmodel.container
+import org.orbitmvi.orbit.OrbitContainerHost
+import org.orbitmvi.orbit.viewmodel.orbitContainer
 
 @HiltViewModel
 class ControlViewModel @Inject constructor(
@@ -90,9 +90,9 @@ class ControlViewModel @Inject constructor(
     private val setVolumeModeUseCase: SetVolumeModeUseCase,
     private val synchronizeVolumeLevelUseCase: SynchronizeVolumeLevelUseCase
 ) : ViewModel(),
-    ContainerHost<ControlState, ControlSideEffect> {
+    OrbitContainerHost<ControlState, ControlState, ControlSideEffect> {
 
-    override val container = container<ControlState, ControlSideEffect>(
+    override val container = orbitContainer<ControlState, ControlSideEffect>(
         initialState = ControlState(),
         savedStateHandle = savedStateHandle,
         onCreate = {

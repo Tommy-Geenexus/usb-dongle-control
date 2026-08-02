@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -33,6 +33,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.Spd
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -46,19 +47,19 @@ class FiioKa13UsbRepository @Inject constructor(
 
     private companion object {
 
-        const val DELAY_MS = 100L
-        const val TIMEOUT_MS = 200
-
         const val REQUEST_INDEX_SET_FILTER_1 = 0
         const val REQUEST_INDEX_SET_FILTER_VOLUME_2 = 11
         const val REQUEST_INDEX_SET_INDICATOR_STATE_SPDIF_OUT = 2
         const val REQUEST_INDEX_SET_VOLUME_1 = 7
 
-        private const val REQUEST_TYPE = 33
-        private const val REQUEST_ID = 9
-        private const val REQUEST_VALUE = 512
-        private const val REQUEST_INDEX = 0
+        const val REQUEST_TYPE = 33
+        const val REQUEST_ID = 9
+        const val REQUEST_VALUE = 512
+        const val REQUEST_INDEX = 0
     }
+
+    val delayMs = 100.milliseconds
+    val timeoutMs = 200.milliseconds
 
     // FIXME: Reading current state is not working properly (firmware issue?)
     suspend fun getCurrentState(usbDongle: FiioKa13): Result<FiioKa13> {
@@ -104,8 +105,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_FILTER_1, filter.payload)
                         },
                         payloadSize = fiioKa13.setFilter.size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
@@ -116,8 +117,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_FILTER_VOLUME_2, filter.payload)
                         },
                         payloadSize = fiioKa13.setFilter.size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -154,8 +155,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             destinationOffset = REQUEST_INDEX_SET_INDICATOR_STATE_SPDIF_OUT
                         ),
                         payloadSize = fiioKa13.setIndicatorState.size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -189,8 +190,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             destinationOffset = REQUEST_INDEX_SET_INDICATOR_STATE_SPDIF_OUT
                         ),
                         payloadSize = fiioKa13.setSpdifOut.size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }
@@ -224,8 +225,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_VOLUME_1, payload)
                         },
                         payloadSize = fiioKa13.setVolumeLevel.first().size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
@@ -236,8 +237,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_VOLUME_1, payload)
                         },
                         payloadSize = fiioKa13.setVolumeLevel.first().size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
@@ -248,8 +249,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_FILTER_VOLUME_2, payload)
                         },
                         payloadSize = fiioKa13.setVolumeLevel.first().size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
@@ -260,8 +261,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_FILTER_VOLUME_2, payload)
                         },
                         payloadSize = fiioKa13.setVolumeLevel.first().size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
@@ -272,8 +273,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_FILTER_VOLUME_2, payload)
                         },
                         payloadSize = fiioKa13.setVolumeLevel.first().size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     usbConnection.controlWrite(
                         requestType = REQUEST_TYPE,
@@ -284,8 +285,8 @@ class FiioKa13UsbRepository @Inject constructor(
                             set(REQUEST_INDEX_SET_FILTER_VOLUME_2, payload)
                         },
                         payloadSize = fiioKa13.setVolumeLevel.first().size,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     check(usbConnection.releaseInterface(usbInterface))
                 }

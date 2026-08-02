@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -45,6 +45,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.feature.def
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -56,11 +57,8 @@ class FiioKa5UsbRepository @Inject constructor(
     @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) : UsbRepository(context, dispatcherIo) {
 
-    private companion object {
-
-        const val DELAY_MS = 100L
-        const val TIMEOUT_MS = 1000
-    }
+    private val delayMs = 100.milliseconds
+    private val timeoutMs = 1000.milliseconds
 
     suspend fun getCurrentState(usbDongle: FiioKa5): Result<FiioKa5> {
         return withContext(dispatcherIo) {
@@ -97,8 +95,8 @@ class FiioKa5UsbRepository @Inject constructor(
                         usbConnection.controlWriteAndRead(
                             payload = data,
                             payloadSize = REQUEST_PACKET_SIZE,
-                            transferTimeout = TIMEOUT_MS,
-                            delayInMillisecondsAfterTransfer = DELAY_MS
+                            transferTimeout = timeoutMs,
+                            delayAfterTransfer = delayMs
                         )
                         if (command.contentEquals(usbDongle.getVersion)) {
                             hidMode = HidMode.findByIdOrDefault(
@@ -193,8 +191,8 @@ class FiioKa5UsbRepository @Inject constructor(
                         usbConnection.controlWriteAndRead(
                             payload = data,
                             payloadSize = REQUEST_PACKET_SIZE,
-                            transferTimeout = TIMEOUT_MS,
-                            delayInMillisecondsAfterTransfer = DELAY_MS
+                            transferTimeout = timeoutMs,
+                            delayAfterTransfer = delayMs
                         )
                         if (command.contentEquals(usbDongle.getVersion)) {
                             volumeMode = VolumeMode.findByIdOrDefault(
@@ -241,8 +239,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(channelBalance = channelBalance))
@@ -269,8 +267,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(dacMode = dacMode))
@@ -300,8 +298,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(displayBrightness = displayBrightness))
@@ -328,8 +326,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(displayInvert = displayInvert))
@@ -359,8 +357,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(displayTimeout = displayTimeout))
@@ -387,8 +385,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(filter = filter))
@@ -415,8 +413,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(gain = gain))
@@ -443,8 +441,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(hardwareMute = hardwareMute))
@@ -471,8 +469,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(hidMode = hidMode))
@@ -499,8 +497,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(spdifOut = spdifOut))
@@ -527,8 +525,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(volumeMode = volumeMode))
@@ -555,8 +553,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = fiioKa5.copy(volumeLevel = volumeLevel))
@@ -598,8 +596,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setDacMode.copyInto(data)
@@ -607,8 +605,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setDisplayBrightness.copyInto(data)
@@ -616,8 +614,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setDisplayInvert.copyInto(data)
@@ -625,8 +623,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setDisplayTimeout.copyInto(data)
@@ -634,8 +632,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setFilter.copyInto(data)
@@ -643,8 +641,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setGain.copyInto(data)
@@ -652,8 +650,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setHardwareMute.copyInto(data)
@@ -661,8 +659,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setHidMode.copyInto(data)
@@ -670,8 +668,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setSpdifOut.copyInto(data)
@@ -679,8 +677,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setVolumeLevel.copyInto(data)
@@ -688,8 +686,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     fiioKa5.setVolumeMode.copyInto(data)
@@ -697,8 +695,8 @@ class FiioKa5UsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(

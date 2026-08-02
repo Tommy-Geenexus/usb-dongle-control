@@ -36,6 +36,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.dawn.featur
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -47,11 +48,8 @@ class MoondropDawnUsbRepository @Inject constructor(
     @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) : UsbRepository(context, dispatcherIo) {
 
-    private companion object {
-
-        const val DELAY_MS = 100L
-        const val TIMEOUT_MS = 100
-    }
+    private val delayMs = 100.milliseconds
+    private val timeoutMs = 100.milliseconds
 
     suspend fun getCurrentState(usbDongle: MoondropDawn): Result<MoondropDawn> {
         return withContext(dispatcherIo) {
@@ -71,8 +69,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWriteAndRead(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     filter = Filter.findByIdOrDefault(
                         id = data[REQUEST_DATA_BYTE_1]
@@ -88,8 +86,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWriteAndRead(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 val raw = data[REQUEST_DATA_BYTE_2].toInt() and 0xFF
@@ -156,8 +154,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 when (moondropDawn) {
@@ -196,8 +194,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 when (moondropDawn) {
@@ -239,8 +237,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 when (moondropDawn) {
@@ -284,8 +282,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 when (moondropDawn) {
@@ -330,8 +328,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     moondropDawn.setGain.copyInto(data)
@@ -339,8 +337,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     moondropDawn.setIndicatorState.copyInto(data)
@@ -348,8 +346,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     moondropDawn.setVolumeLevel.copyInto(data)
@@ -359,8 +357,8 @@ class MoondropDawnUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 when (moondropDawn) {

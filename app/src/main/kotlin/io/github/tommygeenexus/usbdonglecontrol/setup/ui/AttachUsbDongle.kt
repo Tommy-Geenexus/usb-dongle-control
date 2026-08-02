@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.tommygeenexus.usbdonglecontrol.R
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -62,7 +63,7 @@ fun AttachUsbDongle(modifier: Modifier = Modifier) {
                 scope.launch {
                     while (true) {
                         atEnd = !atEnd
-                        delay(2000)
+                        delay(2000.milliseconds)
                     }
                 }
             }

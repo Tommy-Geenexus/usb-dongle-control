@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -33,6 +33,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.moondrop.moonriver2t
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -44,11 +45,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
     @param:DispatcherIo private val dispatcherIo: CoroutineDispatcher
 ) : UsbRepository(context, dispatcherIo) {
 
-    private companion object {
-
-        const val DELAY_MS = 100L
-        const val TIMEOUT_MS = 100
-    }
+    private val delayMs = 100.milliseconds
+    private val timeoutMs = 100.milliseconds
 
     suspend fun getCurrentState(usbDongle: MoondropMoonriver2Ti): Result<MoondropMoonriver2Ti> {
         return withContext(dispatcherIo) {
@@ -68,8 +66,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWriteAndRead(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     filter = Filter.findByIdOrDefault(
                         id = data[REQUEST_DATA_BYTE_1]
@@ -85,8 +83,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWriteAndRead(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 val volumeLevel = VolumeLevel.createFromDisplayValue(
@@ -126,8 +124,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = moondropMoonriver2Ti.copy(filter = filter))
@@ -157,8 +155,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = moondropMoonriver2Ti.copy(gain = gain))
@@ -188,8 +186,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = moondropMoonriver2Ti.copy(indicatorState = indicatorState))
@@ -219,8 +217,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(value = moondropMoonriver2Ti.copy(volumeLevel = volumeLevel))
@@ -253,8 +251,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     moondropMoonriver2Ti.setGain.copyInto(data)
@@ -262,8 +260,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     moondropMoonriver2Ti.setIndicatorState.copyInto(data)
@@ -271,8 +269,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                     data.fill(0)
                     moondropMoonriver2Ti.setVolumeLevel.copyInto(data)
@@ -280,8 +278,8 @@ class MoondropMoonriver2TiUsbRepository @Inject constructor(
                     usbConnection.controlWrite(
                         payload = data,
                         payloadSize = REQUEST_PACKET_SIZE,
-                        transferTimeout = TIMEOUT_MS,
-                        delayInMillisecondsAfterTransfer = DELAY_MS
+                        transferTimeout = timeoutMs,
+                        delayAfterTransfer = delayMs
                     )
                 }
                 Result.success(

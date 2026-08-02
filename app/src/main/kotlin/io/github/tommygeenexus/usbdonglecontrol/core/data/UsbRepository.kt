@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -38,6 +38,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_USB_PERM
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.IllegalStateException
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
@@ -148,9 +149,9 @@ open class UsbRepository @Inject constructor(
     @Throws(IllegalStateException::class)
     suspend fun UsbDeviceConnection.controlWriteAndRead(
         payload: ByteArray,
-        payloadSize: Int,
-        transferTimeout: Int,
-        delayInMillisecondsAfterTransfer: Long
+        @Suppress("SameParameterValue") payloadSize: Int,
+        transferTimeout: Duration,
+        delayAfterTransfer: Duration
     ) = withContext(dispatcherIo) {
         var result = controlTransfer(
             REQUEST_TYPE_WRITE,
@@ -159,12 +160,12 @@ open class UsbRepository @Inject constructor(
             REQUEST_INDEX,
             payload,
             payloadSize,
-            transferTimeout
+            transferTimeout.inWholeMilliseconds.toInt()
         )
         if (result != payloadSize) {
             error("USB control transfer $REQUEST_TYPE_WRITE failed")
         }
-        delay(delayInMillisecondsAfterTransfer)
+        delay(delayAfterTransfer)
         result = controlTransfer(
             REQUEST_TYPE_READ,
             REQUEST_ID_READ,
@@ -172,12 +173,12 @@ open class UsbRepository @Inject constructor(
             REQUEST_INDEX,
             payload,
             payloadSize,
-            transferTimeout
+            transferTimeout.inWholeMilliseconds.toInt()
         )
         if (result != payloadSize) {
             error("USB control transfer $REQUEST_TYPE_READ failed")
         }
-        delay(delayInMillisecondsAfterTransfer)
+        delay(delayAfterTransfer)
     }
 
     @Throws(IllegalStateException::class)
@@ -188,8 +189,8 @@ open class UsbRepository @Inject constructor(
         requestIndex: Int = REQUEST_INDEX,
         payload: ByteArray,
         payloadSize: Int,
-        transferTimeout: Int,
-        delayInMillisecondsAfterTransfer: Long
+        transferTimeout: Duration,
+        delayAfterTransfer: Duration
     ) = withContext(dispatcherIo) {
         val result = controlTransfer(
             requestType,
@@ -198,32 +199,32 @@ open class UsbRepository @Inject constructor(
             requestIndex,
             payload,
             payloadSize,
-            transferTimeout
+            transferTimeout.inWholeMilliseconds.toInt()
         )
         if (result != payloadSize) {
             error("USB control transfer $REQUEST_TYPE_WRITE failed")
         }
-        delay(delayInMillisecondsAfterTransfer)
+        delay(delayAfterTransfer)
     }
 
     @Throws(IllegalStateException::class)
     suspend fun UsbDeviceConnection.bulkWrite(
         usbEndpoint: UsbEndpoint,
         payload: ByteArray,
-        payloadSize: Int,
-        transferTimeout: Int,
-        delayInMillisecondsAfterTransfer: Long
+        @Suppress("SameParameterValue") payloadSize: Int,
+        transferTimeout: Duration,
+        delayAfterTransfer: Duration
     ) = withContext(dispatcherIo) {
         val result = bulkTransfer(
             usbEndpoint,
             payload,
             payloadSize,
-            transferTimeout
+            transferTimeout.inWholeMilliseconds.toInt()
         )
         if (result != payloadSize) {
             error("USB bulk transfer ${usbEndpoint.direction} failed")
         }
-        delay(delayInMillisecondsAfterTransfer)
+        delay(delayAfterTransfer)
     }
 
     @Throws(IllegalStateException::class)
@@ -231,29 +232,29 @@ open class UsbRepository @Inject constructor(
         usbEndpointRead: UsbEndpoint,
         usbEndpointWrite: UsbEndpoint,
         payload: ByteArray,
-        payloadSize: Int,
-        transferTimeout: Int,
-        delayInMillisecondsAfterTransfer: Long
+        @Suppress("SameParameterValue") payloadSize: Int,
+        transferTimeout: Duration,
+        delayAfterTransfer: Duration
     ) = withContext(dispatcherIo) {
         var result = bulkTransfer(
             usbEndpointWrite,
             payload,
             payloadSize,
-            transferTimeout
+            transferTimeout.inWholeMilliseconds.toInt()
         )
         if (result != payloadSize) {
             error("USB bulk transfer ${usbEndpointRead.direction} failed")
         }
-        delay(delayInMillisecondsAfterTransfer)
+        delay(delayAfterTransfer)
         result = bulkTransfer(
             usbEndpointRead,
             payload,
             payloadSize,
-            transferTimeout
+            transferTimeout.inWholeMilliseconds.toInt()
         )
         if (result != payloadSize) {
             error("USB bulk transfer ${usbEndpointWrite.direction} failed")
         }
-        delay(delayInMillisecondsAfterTransfer)
+        delay(delayAfterTransfer)
     }
 }
