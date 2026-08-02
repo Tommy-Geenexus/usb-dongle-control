@@ -30,7 +30,6 @@ data class VolumeLevel(val displayValue: Int, val payload: Int) : Parcelable {
 
     companion object {
 
-        const val STEP_SIZE = 1f
         const val MIN = 0
         const val MAX_A = 120
         const val MAX_B = 60

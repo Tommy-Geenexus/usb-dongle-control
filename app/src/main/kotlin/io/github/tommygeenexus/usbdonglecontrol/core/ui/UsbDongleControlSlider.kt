@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,61 +20,64 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.ui
 
-import android.content.res.ColorStateList
+import android.annotation.SuppressLint
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Label
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderDefaults.Thumb
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.material.slider.Slider
+import kotlin.math.roundToInt
 
+@SuppressLint("ComposeRedundantComposable")
 @Composable
 fun UsbDongleControlSlider(
-    stepSize: Float,
+    steps: Int,
     value: Float,
-    valueFrom: Float,
-    valueTo: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
     onValueChangeFinished: (Float) -> Unit,
     modifier: Modifier = Modifier,
-    tickActiveTintList: ColorStateList? = null,
-    tickInactiveTintList: ColorStateList? = null,
-    trackActiveTintList: ColorStateList? = null,
-    trackInactiveTintList: ColorStateList? = null
+    colors: SliderColors = SliderDefaults.colors()
 ) {
-    AndroidView(
-        factory = { context ->
-            Slider(context).apply {
-                this.stepSize = stepSize
-                if (tickActiveTintList != null) {
-                    this.tickActiveTintList = tickActiveTintList
-                }
-                if (tickInactiveTintList != null) {
-                    this.tickInactiveTintList = tickInactiveTintList
-                }
-                if (trackActiveTintList != null) {
-                    this.trackActiveTintList = trackActiveTintList
-                }
-                if (trackInactiveTintList != null) {
-                    this.trackInactiveTintList = trackInactiveTintList
-                }
-                setLabelFormatter { value -> value.toString() }
-                addOnSliderTouchListener(
-                    object : Slider.OnSliderTouchListener {
-
-                        override fun onStartTrackingTouch(slider: Slider) {
-                        }
-
-                        override fun onStopTrackingTouch(slider: Slider) {
-                            onValueChangeFinished(slider.value)
-                        }
-                    }
-                )
-            }
-        },
+    var sliderPosition by remember { mutableFloatStateOf(value) }
+    val interactionSource = remember { MutableInteractionSource() }
+    Slider(
+        value = sliderPosition,
+        valueRange = valueRange,
+        steps = steps,
+        onValueChange = { sliderPosition = it },
         modifier = modifier,
-        update = { slider ->
-            slider.valueFrom = valueFrom
-            slider.valueTo = valueTo
-            slider.value = value.coerceIn(minimumValue = valueFrom, maximumValue = valueTo)
+        onValueChangeFinished = { onValueChangeFinished(sliderPosition) },
+        colors = colors,
+        interactionSource = interactionSource,
+        thumb = {
+            val sliderDraggedState = interactionSource.collectIsDraggedAsState()
+            Label(
+                label = {
+                    PlainTooltip(
+                        modifier = Modifier.wrapContentSize(),
+                        shape = CircleShape
+                    ) {
+                        Text(text = sliderPosition.roundToInt().toString())
+                    }
+                },
+                interactionSource = interactionSource,
+                isPersistent = sliderDraggedState.value
+            ) {
+                Thumb(interactionSource = interactionSource, colors = colors)
+            }
         }
     )
 }
@@ -83,10 +86,9 @@ fun UsbDongleControlSlider(
 @Composable
 private fun UsbDongleControlSliderPreview() {
     UsbDongleControlSlider(
-        stepSize = 0.5f,
+        steps = 255,
         value = -100f,
-        valueFrom = -127.5f,
-        valueTo = 0f,
+        valueRange = -127.5f..0f,
         onValueChangeFinished = {}
     )
 }

@@ -33,7 +33,6 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.ItemFilter
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.ItemInfo
-import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemAudio
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.ItemIndicatorState
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPaddingBetween
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardSizeMinDp
@@ -80,7 +79,6 @@ fun FiioKa13Items(
                 volumeLevelInPercent = fiioKa13.displayVolumeLevel(LocalContext.current),
                 volumeLevelStart = VolumeLevel.MAX.toFloat(),
                 volumeLevelEnd = VolumeLevel.MIN.toFloat(),
-                volumeLevelStepSize = 2f,
                 onVolumeLevelSelected = { volumeLevel ->
                     onVolumeLevelSelected(VolumeLevel.MIN - volumeLevel)
                 }

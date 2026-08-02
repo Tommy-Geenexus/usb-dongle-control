@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -45,11 +45,9 @@ fun ItemDisplay(
     displayBrightness: Float = DisplayBrightness.default().displayValue.toFloat(),
     displayBrightnessStart: Float = DisplayBrightness.MIN.toFloat(),
     displayBrightnessEnd: Float = DisplayBrightness.MAX.toFloat(),
-    displayBrightnessStepSize: Float = DisplayBrightness.STEP_SIZE,
     displayTimeout: Float = DisplayTimeout.default().displayValue.toFloat(),
     displayTimeoutStart: Float = DisplayTimeout.MIN.toFloat(),
     displayTimeoutEnd: Float = DisplayTimeout.MAX.toFloat(),
-    displayTimeoutStepSize: Float = DisplayTimeout.STEP_SIZE,
     isDisplayInvertEnabled: Boolean = false,
     onDisplayBrightnessSelected: (Int) -> Unit = {},
     onDisplayTimeoutSelected: (Int) -> Unit = {},
@@ -63,10 +61,9 @@ fun ItemDisplay(
                 modifier = Modifier.padding(top = cardPadding)
             )
             UsbDongleControlSlider(
-                stepSize = displayBrightnessStepSize,
+                steps = (displayBrightnessEnd - displayBrightnessStart).roundToInt(),
                 value = displayBrightness,
-                valueFrom = displayBrightnessStart,
-                valueTo = displayBrightnessEnd,
+                valueRange = displayBrightnessStart..displayBrightnessEnd,
                 onValueChangeFinished = { value ->
                     onDisplayBrightnessSelected(value.roundToInt())
                 },
@@ -81,10 +78,9 @@ fun ItemDisplay(
                 modifier = Modifier.padding(top = cardPadding)
             )
             UsbDongleControlSlider(
-                stepSize = displayTimeoutStepSize,
+                steps = displayTimeoutEnd.roundToInt(),
                 value = displayTimeout,
-                valueFrom = displayTimeoutStart,
-                valueTo = displayTimeoutEnd,
+                valueRange = displayTimeoutStart..displayTimeoutEnd,
                 onValueChangeFinished = { value ->
                     onDisplayTimeoutSelected(value.roundToInt())
                 },

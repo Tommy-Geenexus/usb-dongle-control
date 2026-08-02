@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -35,6 +35,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlBodyText
 import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSlider
 import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlTitleText
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
+import kotlin.math.roundToInt
 
 @Composable
 fun ItemAudio(
@@ -43,7 +44,6 @@ fun ItemAudio(
     volumeLevelInPercent: String = "",
     volumeLevelStart: Float = VolumeLevel.MAX.toFloat(),
     volumeLevelEnd: Float = VolumeLevel.MIN.toFloat(),
-    volumeLevelStepSize: Float = VolumeLevel.STEP_SIZE,
     onVolumeLevelSelected: (Float) -> Unit = {}
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
@@ -54,10 +54,9 @@ fun ItemAudio(
                 modifier = Modifier.padding(top = cardPadding)
             )
             UsbDongleControlSlider(
-                stepSize = volumeLevelStepSize,
+                steps = volumeLevelEnd.roundToInt(),
                 value = volumeLevel,
-                valueFrom = volumeLevelStart,
-                valueTo = volumeLevelEnd,
+                valueRange = volumeLevelStart..volumeLevelEnd,
                 onValueChangeFinished = onVolumeLevelSelected,
                 modifier = Modifier.padding(top = cardPadding)
             )

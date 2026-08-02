@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,15 +20,12 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
-import android.content.res.ColorStateList
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
@@ -41,6 +38,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlRadioGro
 import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlSlider
 import io.github.tommygeenexus.usbdonglecontrol.core.ui.UsbDongleControlTitleText
 import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.collections.immutable.persistentListOf
 
@@ -52,14 +50,12 @@ fun ItemAudio(
     channelBalanceDirection: String = "",
     channelBalanceStart: Float = ChannelBalance.MIN.toFloat(),
     channelBalanceEnd: Float = ChannelBalance.MAX.toFloat(),
-    channelBalanceStepSize: Float = ChannelBalance.STEP_SIZE,
     volumeModeId: Byte = VolumeMode.default().id,
     volumeLevel: Float = VolumeLevel.default().displayValue.toFloat(),
     volumeLevelInPercent: String = "",
     volumeLevelStart: Float = VolumeLevel.MIN.toFloat(),
     volumeLevelEndModeA: Float = VolumeLevel.MAX_A.toFloat(),
     volumeLevelEndModeB: Float = VolumeLevel.MAX_B.toFloat(),
-    volumeLevelStepSize: Float = VolumeLevel.STEP_SIZE,
     onChannelBalanceSelected: (Int) -> Unit = {},
     onVolumeLevelSelected: (Float) -> Unit = {},
     onVolumeModeSelected: (Byte) -> Unit = {}
@@ -75,22 +71,14 @@ fun ItemAudio(
                 ),
                 modifier = Modifier.padding(top = cardPadding)
             )
-            val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
-            val surfaceContainerHighestColor =
-                MaterialTheme.colorScheme.surfaceContainerHighest.toArgb()
             UsbDongleControlSlider(
-                stepSize = channelBalanceStepSize,
+                steps = (abs(channelBalanceStart) + channelBalanceEnd).roundToInt(),
                 value = channelBalance,
-                valueFrom = channelBalanceStart,
-                valueTo = channelBalanceEnd,
+                valueRange = channelBalanceStart..channelBalanceEnd,
                 onValueChangeFinished = { value ->
                     onChannelBalanceSelected(value.roundToInt())
                 },
-                modifier = Modifier.padding(top = cardPadding),
-                tickActiveTintList = ColorStateList.valueOf(primaryColor),
-                tickInactiveTintList = ColorStateList.valueOf(primaryColor),
-                trackActiveTintList = ColorStateList.valueOf(surfaceContainerHighestColor),
-                trackInactiveTintList = ColorStateList.valueOf(surfaceContainerHighestColor)
+                modifier = Modifier.padding(top = cardPadding)
             )
             UsbDongleControlTitleText(
                 textRes = R.string.volume,
@@ -100,18 +88,23 @@ fun ItemAudio(
                 text = stringResource(id = R.string.volume_level, volumeLevelInPercent),
                 modifier = Modifier.padding(top = cardPadding)
             )
-            UsbDongleControlSlider(
-                stepSize = volumeLevelStepSize,
-                value = volumeLevel,
-                valueFrom = volumeLevelStart,
-                valueTo = if (volumeModeId == VolumeMode.S120.id) {
-                    volumeLevelEndModeA
-                } else {
-                    volumeLevelEndModeB
-                },
-                onValueChangeFinished = onVolumeLevelSelected,
-                modifier = Modifier.padding(top = cardPadding)
-            )
+            if (volumeModeId == VolumeMode.S120.id) {
+                UsbDongleControlSlider(
+                    steps = volumeLevelEndModeA.roundToInt(),
+                    value = volumeLevel,
+                    valueRange = volumeLevelStart..volumeLevelEndModeA,
+                    onValueChangeFinished = onVolumeLevelSelected,
+                    modifier = Modifier.padding(top = cardPadding)
+                )
+            } else {
+                UsbDongleControlSlider(
+                    steps = volumeLevelEndModeB.roundToInt(),
+                    value = volumeLevel,
+                    valueRange = volumeLevelStart..volumeLevelEndModeB,
+                    onValueChangeFinished = onVolumeLevelSelected,
+                    modifier = Modifier.padding(top = cardPadding)
+                )
+            }
             UsbDongleControlTitleText(
                 textRes = R.string.volume_steps,
                 modifier = Modifier.padding(vertical = cardPadding)
