@@ -25,7 +25,7 @@ import android.os.PersistableBundle
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import io.github.tommygeenexus.usbdonglecontrol.core.util.TOP_LEVEL_PACKAGE_NAME
+import io.github.tommygeenexus.usbdonglecontrol.core.util.IntentUtils.TOP_LEVEL_PACKAGE_NAME
 import kotlinx.parcelize.Parcelize
 
 @Entity

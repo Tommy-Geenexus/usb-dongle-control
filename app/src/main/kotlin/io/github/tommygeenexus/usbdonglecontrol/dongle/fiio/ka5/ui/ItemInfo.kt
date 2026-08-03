@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,7 +20,6 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -47,7 +46,7 @@ import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 fun ItemInfo(
     modifier: Modifier = Modifier,
     firmwareVersion: String = FirmwareVersion.default().displayValue,
-    firmwareUri: Uri = FiioKa5.FIRMWARE_URL.toUri(),
+    firmwareUrl: String = FiioKa5.FIRMWARE_URL,
     sampleRate: String = SampleRate.default().displayValue
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
@@ -58,7 +57,7 @@ fun ItemInfo(
                 textFormatArg = firmwareVersion,
                 contentDescriptionRes = R.string.fw_version,
                 imageVector = Icons.Outlined.BuildCircle,
-                modifier = Modifier.clickable { viewUrl.launch(firmwareUri) }
+                modifier = Modifier.clickable { viewUrl.launch(firmwareUrl.toUri()) }
             )
             UsbDongleControlIconRow(
                 textRes = R.string.sample_rate,

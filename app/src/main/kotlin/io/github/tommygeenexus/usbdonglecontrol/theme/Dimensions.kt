@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,13 +20,10 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.theme
 
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.unit.dp
+import io.github.tommygeenexus.usbdonglecontrol.core.window.WindowWidthSizeClass
 
-fun WindowSizeClass.getHorizontalCardPadding() = if (
-    widthSizeClass == WindowWidthSizeClass.Compact
-) {
+fun WindowWidthSizeClass.getHorizontalCardPadding() = if (this == WindowWidthSizeClass.Compact) {
     8.dp
 } else {
     16.dp

@@ -37,7 +37,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -47,8 +46,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.window.WindowWidthSizeClass
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.settings.business.SettingsViewModel
 import org.orbitmvi.orbit.compose.collectAsState
@@ -56,7 +54,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun SettingsScreen(
-    windowSizeClass: WindowSizeClass,
+    windowWidthSizeClass: WindowWidthSizeClass,
     viewModel: SettingsViewModel,
     onNavigateUp: () -> Unit
 ) {
@@ -71,7 +69,7 @@ fun SettingsScreen(
     }
     val state by viewModel.collectAsState()
     SettingScreen(
-        windowSizeClass = windowSizeClass,
+        windowWidthSizeClass = windowWidthSizeClass,
         isMaximizeVolumeEnabled = state.isMaximizeVolumeEnabled,
         onMaximizeVolumeRequested = { isEnabled ->
             viewModel.storeMaximizeVolume(isEnabled)
@@ -82,7 +80,7 @@ fun SettingsScreen(
 
 @Composable
 fun SettingScreen(
-    windowSizeClass: WindowSizeClass,
+    windowWidthSizeClass: WindowWidthSizeClass,
     modifier: Modifier = Modifier,
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
     topScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
@@ -121,7 +119,7 @@ fun SettingScreen(
             LazyColumn {
                 item {
                     SettingsAudioItem(
-                        windowSizeClass = windowSizeClass,
+                        windowWidthSizeClass = windowWidthSizeClass,
                         isMaximizeVolumeEnabled = isMaximizeVolumeEnabled,
                         onMaximizeVolumeSwitched = onMaximizeVolumeRequested
                     )
@@ -134,11 +132,11 @@ fun SettingScreen(
 @Preview("Compact")
 @Composable
 private fun SettingsScreen1() {
-    SettingScreen(windowSizeClass = windowWidthSizeClassCompact)
+    SettingScreen(windowWidthSizeClass = WindowWidthSizeClass.Compact)
 }
 
 @Preview("Expanded")
 @Composable
 private fun SettingsScreen2() {
-    SettingScreen(windowSizeClass = windowWidthSizeClassExpanded)
+    SettingScreen(windowWidthSizeClass = WindowWidthSizeClass.Expanded)
 }

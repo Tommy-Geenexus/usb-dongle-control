@@ -55,7 +55,7 @@ import com.google.accompanist.permissions.shouldShowRationale
 import io.github.tommygeenexus.usbdonglecontrol.R
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UnsupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbDeviceAttachDetachPermissionReceiver
-import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_USB_PERMISSION
+import io.github.tommygeenexus.usbdonglecontrol.core.util.IntentUtils.INTENT_ACTION_USB_PERMISSION
 import io.github.tommygeenexus.usbdonglecontrol.setup.business.SetupSideEffect
 import io.github.tommygeenexus.usbdonglecontrol.setup.business.SetupViewModel
 import kotlinx.coroutines.launch

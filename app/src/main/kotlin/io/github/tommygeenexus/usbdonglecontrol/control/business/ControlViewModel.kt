@@ -174,8 +174,6 @@ class ControlViewModel @Inject constructor(
         if (result.isSuccess) {
             val (_, _, isUsbPermissionGranted) = result.getOrThrow()
             if (!isUsbPermissionGranted) {
-                // Device has been detached then attached again without permission auto-grant
-                // while in another screen
                 postSideEffect(ControlSideEffect.UsbCommunication.Get.Failure)
             }
         } else {

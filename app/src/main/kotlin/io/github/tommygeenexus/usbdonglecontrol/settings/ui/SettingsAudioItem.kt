@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -31,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,13 +39,12 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.window.WindowWidthSizeClass
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
 
 @Composable
 fun SettingsAudioItem(
-    windowSizeClass: WindowSizeClass,
+    windowWidthSizeClass: WindowWidthSizeClass,
     modifier: Modifier = Modifier,
     isMaximizeVolumeEnabled: Boolean = false,
     onMaximizeVolumeSwitched: (Boolean) -> Unit = {}
@@ -55,7 +53,7 @@ fun SettingsAudioItem(
         Text(
             text = stringResource(id = R.string.audio),
             modifier = Modifier.padding(
-                start = 8.dp + windowSizeClass.getHorizontalCardPadding(),
+                start = 8.dp + windowWidthSizeClass.getHorizontalCardPadding(),
                 top = 24.dp,
                 bottom = 8.dp
             ),
@@ -121,11 +119,11 @@ fun SettingsAudioItem(
 @Preview("Compact")
 @Composable
 private fun SettingsAudioItemPreview1() {
-    SettingsAudioItem(windowSizeClass = windowWidthSizeClassCompact)
+    SettingsAudioItem(windowWidthSizeClass = WindowWidthSizeClass.Compact)
 }
 
 @Preview("Expanded")
 @Composable
 private fun SettingsAudioItemPreview2() {
-    SettingsAudioItem(windowSizeClass = windowWidthSizeClassExpanded)
+    SettingsAudioItem(windowWidthSizeClass = WindowWidthSizeClass.Expanded)
 }

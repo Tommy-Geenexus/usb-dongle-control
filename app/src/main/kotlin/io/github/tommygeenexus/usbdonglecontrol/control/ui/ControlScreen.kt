@@ -41,7 +41,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -56,9 +55,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.tommygeenexus.usbdonglecontrol.R
@@ -78,12 +76,12 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.profileFlow
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.consumeProfileShortcut
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbDeviceAttachDetachPermissionReceiver
 import io.github.tommygeenexus.usbdonglecontrol.core.receiver.UsbServiceVolumeLevelChangedReceiver
+import io.github.tommygeenexus.usbdonglecontrol.core.window.WindowWidthSizeClass
 import io.github.tommygeenexus.usbdonglecontrol.dongle.e1da.series9038.ui.E1da9038Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka13.ui.FiioKa13Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.FiioKa5Items
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.dawn.ui.MoondropDawnItems
 import io.github.tommygeenexus.usbdonglecontrol.dongle.moondrop.moonriver2ti.ui.MoondropMoonriver2TiItems
-import io.github.tommygeenexus.usbdonglecontrol.navigation.NavDestinations
 import io.github.tommygeenexus.usbdonglecontrol.theme.getHorizontalCardPadding
 import io.github.tommygeenexus.usbdonglecontrol.volume.ui.UsbService
 import kotlinx.coroutines.launch
@@ -92,8 +90,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun ControlScreen(
-    windowSizeClass: WindowSizeClass,
-    navController: NavController,
+    windowWidthSizeClass: WindowWidthSizeClass,
     viewModel: ControlViewModel,
     onNavigateToSettings: () -> Unit,
     onNavigateToSetup: () -> Unit
@@ -270,19 +267,6 @@ fun ControlScreen(
     }
     val bottomScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            navController.currentBackStackEntryFlow.collect { navBackStackEntry ->
-                if (navBackStackEntry
-                        .destination
-                        .route
-                        ?.endsWith(NavDestinations.Control.toString()) == true
-                ) {
-                    viewModel.verifyUsbDongleIsAttachedAndUsbPermissionIsGranted()
-                }
-            }
-        }
-    }
     DisposableEffect(lifecycleOwner) {
         val usbReceiver = UsbDeviceAttachDetachPermissionReceiver(
             onAttachedDevicesChanged = { isAttached ->
@@ -315,11 +299,14 @@ fun ControlScreen(
             context.unregisterReceiver(usbServiceVolumeLevelChangedReceiver)
         }
     }
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        viewModel.verifyUsbDongleIsAttachedAndUsbPermissionIsGranted()
+    }
     val profileListState = rememberLazyStaggeredGridState()
     val state by viewModel.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(ControlTabs.State.index) }
     ControlScreen(
-        windowSizeClass = windowSizeClass,
+        windowWidthSizeClass = windowWidthSizeClass,
         profileListState = profileListState,
         snackBarHostState = snackBarHostState,
         profiles = profiles,
@@ -414,7 +401,7 @@ fun ControlScreen(
 
 @Composable
 fun ControlScreen(
-    windowSizeClass: WindowSizeClass,
+    windowWidthSizeClass: WindowWidthSizeClass,
     modifier: Modifier = Modifier,
     profileListState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -461,7 +448,7 @@ fun ControlScreen(
         },
         bottomBar = {
             ControlBottomAppBar(
-                windowSizeClass = windowSizeClass,
+                windowWidthSizeClass = windowWidthSizeClass,
                 onRefresh = onRefresh,
                 onReset = onReset,
                 onProfileExport = onProfileExport,
@@ -494,7 +481,7 @@ fun ControlScreen(
                     is E1da9038 -> {
                         E1da9038Items(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalCardPadding()
+                                horizontal = windowWidthSizeClass.getHorizontalCardPadding()
                             ),
                             e1da9038 = usbDongle,
                             onFilterSelected = onFilterForSampleRateSelected,
@@ -509,7 +496,7 @@ fun ControlScreen(
                     is FiioKa13 -> {
                         FiioKa13Items(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalCardPadding()
+                                horizontal = windowWidthSizeClass.getHorizontalCardPadding()
                             ),
                             fiioKa13 = usbDongle,
                             onFilterSelected = { filterId ->
@@ -530,7 +517,7 @@ fun ControlScreen(
                     is FiioKa5 -> {
                         FiioKa5Items(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalCardPadding()
+                                horizontal = windowWidthSizeClass.getHorizontalCardPadding()
                             ),
                             fiioKa5 = usbDongle,
                             onChannelBalanceSelected = { channelBalance ->
@@ -575,7 +562,7 @@ fun ControlScreen(
                     is MoondropDawn -> {
                         MoondropDawnItems(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalCardPadding()
+                                horizontal = windowWidthSizeClass.getHorizontalCardPadding()
                             ),
                             moondropDawn = usbDongle,
                             onFilterSelected = { filterId ->
@@ -596,7 +583,7 @@ fun ControlScreen(
                     is MoondropMoonriver2Ti -> {
                         MoondropMoonriver2TiItems(
                             modifier = Modifier.padding(
-                                horizontal = windowSizeClass.getHorizontalCardPadding()
+                                horizontal = windowWidthSizeClass.getHorizontalCardPadding()
                             ),
                             moondropMoonriver2Ti = usbDongle,
                             onFilterSelected = { filterId ->
@@ -617,7 +604,7 @@ fun ControlScreen(
             } else {
                 ProfileItems(
                     modifier = Modifier.padding(
-                        horizontal = windowSizeClass.getHorizontalCardPadding()
+                        horizontal = windowWidthSizeClass.getHorizontalCardPadding()
                     ),
                     state = profileListState,
                     profiles = profiles,

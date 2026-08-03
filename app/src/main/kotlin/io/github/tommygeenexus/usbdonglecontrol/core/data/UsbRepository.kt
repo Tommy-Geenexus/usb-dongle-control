@@ -34,7 +34,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.dongle.UsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.isSupportedUsbDongle
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.toUsbDongleOrNull
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
-import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_USB_PERMISSION
+import io.github.tommygeenexus.usbdonglecontrol.core.util.IntentUtils.INTENT_ACTION_USB_PERMISSION
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.IllegalStateException

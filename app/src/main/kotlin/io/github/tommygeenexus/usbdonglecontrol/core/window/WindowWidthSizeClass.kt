@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,16 +18,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.github.tommygeenexus.usbdonglecontrol.navigation
+package io.github.tommygeenexus.usbdonglecontrol.core.window
 
-sealed class NavDestinations {
+import androidx.window.core.layout.WindowSizeClass
 
-    @kotlinx.serialization.Serializable
-    data object Setup : NavDestinations()
+sealed interface WindowWidthSizeClass {
 
-    @kotlinx.serialization.Serializable
-    data object Control : NavDestinations()
+    data object Compact : WindowWidthSizeClass
 
-    @kotlinx.serialization.Serializable
-    data object Settings : NavDestinations()
+    data object Medium : WindowWidthSizeClass
+
+    data object Expanded : WindowWidthSizeClass
 }
+
+fun WindowSizeClass.getWindowWidthSizeClass(): WindowWidthSizeClass =
+    if (isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)) {
+        WindowWidthSizeClass.Expanded
+    } else if (isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+        WindowWidthSizeClass.Medium
+    } else {
+        WindowWidthSizeClass.Compact
+    }

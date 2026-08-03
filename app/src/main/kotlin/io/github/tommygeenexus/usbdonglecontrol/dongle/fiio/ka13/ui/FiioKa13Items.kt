@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.net.toUri
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.FiioKa13
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka13.feature.VolumeLevel
 import io.github.tommygeenexus.usbdonglecontrol.dongle.fiio.ka5.ui.ItemFilter
@@ -56,7 +55,7 @@ fun FiioKa13Items(
         item {
             ItemInfo(
                 firmwareVersion = fiioKa13.firmwareVersion.displayValue,
-                firmwareUri = FiioKa13.FIRMWARE_URL.toUri(),
+                firmwareUrl = FiioKa13.FIRMWARE_URL,
                 sampleRate = fiioKa13.sampleRate.displayValue
             )
         }

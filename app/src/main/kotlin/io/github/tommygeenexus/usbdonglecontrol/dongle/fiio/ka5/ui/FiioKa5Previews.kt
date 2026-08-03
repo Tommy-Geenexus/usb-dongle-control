@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2023-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -24,9 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.control.ui.ControlScreen
 import io.github.tommygeenexus.usbdonglecontrol.core.dongle.fiio.ka5.FiioKa5
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassMedium
+import io.github.tommygeenexus.usbdonglecontrol.core.window.WindowWidthSizeClass
 
 private val usbDongle = FiioKa5()
 
@@ -34,7 +32,7 @@ private val usbDongle = FiioKa5()
 @Composable
 private fun ControlScreenPreview1() {
     ControlScreen(
-        windowSizeClass = windowWidthSizeClassCompact,
+        windowWidthSizeClass = WindowWidthSizeClass.Compact,
         usbDongle = usbDongle,
         isLoading = true
     )
@@ -44,7 +42,7 @@ private fun ControlScreenPreview1() {
 @Composable
 private fun ControlScreenPreview2() {
     ControlScreen(
-        windowSizeClass = windowWidthSizeClassCompact,
+        windowWidthSizeClass = WindowWidthSizeClass.Compact,
         usbDongle = usbDongle
     )
 }
@@ -53,7 +51,7 @@ private fun ControlScreenPreview2() {
 @Composable
 private fun ControlScreenPreview3() {
     ControlScreen(
-        windowSizeClass = windowWidthSizeClassMedium,
+        windowWidthSizeClass = WindowWidthSizeClass.Medium,
         usbDongle = usbDongle
     )
 }
@@ -62,7 +60,7 @@ private fun ControlScreenPreview3() {
 @Composable
 private fun ControlScreenPreview4() {
     ControlScreen(
-        windowSizeClass = windowWidthSizeClassExpanded,
+        windowWidthSizeClass = WindowWidthSizeClass.Expanded,
         usbDongle = usbDongle
     )
 }

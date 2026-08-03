@@ -22,11 +22,11 @@
     <ID>LongMethod:MoondropDawnUsbRepository.kt:MoondropDawnUsbRepository$suspend fun getCurrentState: Result&lt;MoondropDawn&gt;</ID>
     <ID>LongMethod:MoondropDawnUsbRepository.kt:MoondropDawnUsbRepository$suspend fun setAll: Result&lt;MoondropDawn&gt;</ID>
     <ID>LongMethod:MoondropMoonriver2TiUsbRepository.kt:MoondropMoonriver2TiUsbRepository$suspend fun setAll: Result&lt;MoondropMoonriver2Ti&gt;</ID>
-    <ID>LongMethod:NavGraph.kt:@Composable fun NavGraph</ID>
     <ID>LongMethod:ProfileItems.kt:@Composable fun ProfileItems</ID>
     <ID>LongMethod:SetProfileUseCase.kt:SetProfileUseCase$suspend operator fun invoke: Result&lt;UsbDongle&gt;</ID>
     <ID>LongMethod:SettingsAudioItem.kt:@Composable fun SettingsAudioItem</ID>
     <ID>LongMethod:SetupScreen.kt:@Composable fun SetupScreen</ID>
+    <ID>LongMethod:UsbDongleControlNavigationDisplay.kt:@Composable fun UsbDongleControlNavigationDisplay</ID>
     <ID>LongMethod:UsbServiceNotification.kt:UsbServiceNotification$fun &lt;D&gt; build: Notification</ID>
     <ID>MagicNumber:FiioKa13.kt:FiioKa13$100</ID>
     <ID>MagicNumber:FiioKa5.kt:FiioKa5$100</ID>
@@ -36,9 +36,5 @@
     <ID>TooGenericExceptionCaught:CoroutineExtensions.kt:exception: Exception</ID>
     <ID>TooManyFunctions:ControlViewModel.kt:ControlViewModel : ViewModelOrbitContainerHost</ID>
     <ID>TooManyFunctions:FiioKa5UsbRepository.kt:FiioKa5UsbRepository : UsbRepository</ID>
-    <ID>TopLevelPropertyNaming:Utils.kt:const val INTENT_ACTION_SHORTCUT_PROFILE = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_SHORTCUT_PROFILE"</ID>
-    <ID>TopLevelPropertyNaming:Utils.kt:const val INTENT_ACTION_USB_PERMISSION = TOP_LEVEL_PACKAGE_NAME + "INTENT_ACTION_USB_PERMISSION"</ID>
-    <ID>TopLevelPropertyNaming:Utils.kt:const val INTENT_EXTRA_CONSUMED = TOP_LEVEL_PACKAGE_NAME + "EXTRA_CONSUMED"</ID>
-    <ID>TopLevelPropertyNaming:Utils.kt:const val TOP_LEVEL_PACKAGE_NAME = "io.github.tommygeenexus."</ID>
   </CurrentIssues>
 </SmellBaseline>

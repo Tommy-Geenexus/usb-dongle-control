@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2022-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -31,7 +31,7 @@ import io.github.tommygeenexus.usbdonglecontrol.core.db.Profile
 import io.github.tommygeenexus.usbdonglecontrol.core.db.ProfileDao
 import io.github.tommygeenexus.usbdonglecontrol.core.di.DispatcherIo
 import io.github.tommygeenexus.usbdonglecontrol.core.extension.suspendRunCatching
-import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_SHORTCUT_PROFILE
+import io.github.tommygeenexus.usbdonglecontrol.core.util.IntentUtils.INTENT_ACTION_SHORTCUT_PROFILE
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher

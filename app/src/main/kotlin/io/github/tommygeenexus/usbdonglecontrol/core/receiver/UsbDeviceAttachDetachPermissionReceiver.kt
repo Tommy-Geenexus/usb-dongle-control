@@ -24,7 +24,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.hardware.usb.UsbManager
-import io.github.tommygeenexus.usbdonglecontrol.core.util.INTENT_ACTION_USB_PERMISSION
+import io.github.tommygeenexus.usbdonglecontrol.core.util.IntentUtils.INTENT_ACTION_USB_PERMISSION
 
 class UsbDeviceAttachDetachPermissionReceiver(
     val onPermissionGrantResult: ((Boolean) -> Unit)? = null,

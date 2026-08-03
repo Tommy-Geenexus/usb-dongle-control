@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2024-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -39,8 +39,6 @@ import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,12 +49,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.tommygeenexus.usbdonglecontrol.R
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassCompact
-import io.github.tommygeenexus.usbdonglecontrol.core.util.windowWidthSizeClassExpanded
+import io.github.tommygeenexus.usbdonglecontrol.core.window.WindowWidthSizeClass
 
 @Composable
 fun ControlBottomAppBar(
-    windowSizeClass: WindowSizeClass,
+    windowWidthSizeClass: WindowWidthSizeClass,
     modifier: Modifier = Modifier,
     scrollBehavior: BottomAppBarScrollBehavior? = null,
     onRefresh: () -> Unit = {},
@@ -66,9 +63,7 @@ fun ControlBottomAppBar(
 ) {
     FlexibleBottomAppBar(
         modifier = modifier,
-        horizontalArrangement = if (windowSizeClass.widthSizeClass ==
-            WindowWidthSizeClass.Compact
-        ) {
+        horizontalArrangement = if (windowWidthSizeClass == WindowWidthSizeClass.Compact) {
             BottomAppBarDefaults.FlexibleHorizontalArrangement
         } else {
             BottomAppBarDefaults.FlexibleFixedHorizontalArrangement
@@ -160,11 +155,11 @@ fun ControlBottomAppBar(
 @Preview(name = "Compact")
 @Composable
 private fun ControlBottomAppBarPreview1() {
-    ControlBottomAppBar(windowSizeClass = windowWidthSizeClassCompact)
+    ControlBottomAppBar(windowWidthSizeClass = WindowWidthSizeClass.Compact)
 }
 
 @Preview(name = "Expanded")
 @Composable
 private fun ControlBottomAppBarPreview2() {
-    ControlBottomAppBar(windowSizeClass = windowWidthSizeClassExpanded)
+    ControlBottomAppBar(windowWidthSizeClass = WindowWidthSizeClass.Expanded)
 }

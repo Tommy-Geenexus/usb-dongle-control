@@ -8,7 +8,7 @@ compose-compiler-report-generator = "1.5.0"
 compose-constraintlayout = "1.1.2"
 compose-lint-checks = "1.5.3"
 compose-material3 = "1.5.0-alpha25"
-compose-material-motion = "2.0.1"
+compose-material3-adaptive = "1.2.0"
 core-ktx = "1.19.0"
 coroutines = "1.11.0"
 dagger-hilt = "2.60.1"
@@ -23,7 +23,8 @@ ksp = "2.3.10"
 leakcanary = "2.14"
 lifecycle = "2.11.0"
 material = "1.14.0"
-navigation_compose = "2.9.8"
+navigation3 = "1.1.5"
+navigation3-vm = "2.11.0"
 orbit = "12.0.0"
 paging = "3.5.0"
 paging-compose = "3.5.0"
@@ -42,8 +43,7 @@ compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = 
 compose-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraintlayout" }
 compose-lint-checks = { module = "com.slack.lint.compose:compose-lint-checks", version.ref = "compose-lint-checks" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
-compose-material3-windowsizeclass = { module = "androidx.compose.material3:material3-window-size-class" }
-compose-material-motion = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "compose-material-motion" }
+compose-material3-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "compose-material3-adaptive" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
@@ -61,7 +61,9 @@ leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.re
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
-navigation_compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation_compose" }
+navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
+navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+navigation3-vm = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "navigation3-vm" }
 orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbit" }
 orbit-vm = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbit" }
 paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging-compose" }
@@ -81,8 +83,7 @@ implementation = [
     "compose-animation-graphics",
     "compose-constraintlayout",
     "compose-material3",
-    "compose-material3-windowsizeclass",
-    "compose-material-motion",
+    "compose-material3-adaptive",
     "compose-ui",
     "compose-ui-tooling",
     "core-ktx",
@@ -96,7 +97,9 @@ implementation = [
     "lifecycle-runtime-ktx",
     "material",
     "material-icons-extended",
-    "navigation_compose",
+    "navigation3-runtime",
+    "navigation3-ui",
+    "navigation3-vm",
     "orbit-compose",
     "orbit-vm",
     "paging-compose",
