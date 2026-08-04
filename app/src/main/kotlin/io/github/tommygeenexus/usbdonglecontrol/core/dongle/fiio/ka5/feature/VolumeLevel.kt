@@ -60,7 +60,13 @@ fun VolumeLevel.Companion.createFromDisplayValue(
     displayValue: Int,
     volumeMode: VolumeMode
 ): VolumeLevel {
-    val displayValue = displayValue.coerceIn(minimumValue = MIN, maximumValue = MAX_B)
+    val displayValue = displayValue.coerceIn(
+        minimumValue = MIN,
+        maximumValue = when (volumeMode) {
+            VolumeMode.S60 -> MAX_B
+            VolumeMode.S120 -> MAX_A
+        }
+    )
     return VolumeLevel(
         displayValue = when (volumeMode) {
             VolumeMode.S60 -> displayValue
