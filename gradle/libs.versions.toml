@@ -6,7 +6,7 @@ app-compat = "1.7.1"
 compose-bom = "2026.06.01"
 compose-compiler-report-generator = "1.5.0"
 compose-constraintlayout = "1.1.2"
-compose-lint-checks = "1.5.3"
+compose-lint-checks = "1.5.4"
 compose-material3 = "1.5.0-alpha25"
 compose-material3-adaptive = "1.2.0"
 core-ktx = "1.19.0"
@@ -14,15 +14,14 @@ coroutines = "1.11.0"
 dagger-hilt = "2.60.1"
 dagger-hilt-extensions = "1.4.0"
 datastore = "1.2.1"
-detekt = "2.0.0-alpha.5"
+detekt = "2.0.0-alpha.6"
 kotlin = "2.4.10"
 kotlinter = "5.6.0"
 kotlinx-collections-immutable = "0.5.1"
 kotlinx-serialization = "1.11.0"
-ksp = "2.3.10"
+ksp = "2.3.11"
 leakcanary = "2.14"
 lifecycle = "2.11.0"
-material = "1.14.0"
 navigation3 = "1.1.5"
 navigation3-vm = "2.11.0"
 orbit = "12.0.0"
@@ -31,7 +30,7 @@ paging-compose = "3.5.0"
 room = "2.8.4"
 spotless = "8.9.0"
 timber = "5.0.1"
-versions = "0.58.0"
+versions = "0.59.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
@@ -59,8 +58,6 @@ kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
-material = { module = "com.google.android.material:material", version.ref = "material" }
-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 navigation3-vm = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "navigation3-vm" }
@@ -95,8 +92,6 @@ implementation = [
     "kotlinx-serialization",
     "kotlin-stdlib",
     "lifecycle-runtime-ktx",
-    "material",
-    "material-icons-extended",
     "navigation3-runtime",
     "navigation3-ui",
     "navigation3-vm",
@@ -130,4 +125,4 @@ kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
+versions = { id = "io.github.ben-manes.versions", version.ref = "versions" }
