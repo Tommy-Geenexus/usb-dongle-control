@@ -72,7 +72,7 @@ fun ItemAudio(
                 modifier = Modifier.padding(top = cardPadding)
             )
             UsbDongleControlSlider(
-                steps = (abs(channelBalanceStart) + channelBalanceEnd).roundToInt(),
+                steps = ((abs(channelBalanceStart) + channelBalanceEnd) - 1).roundToInt(),
                 value = channelBalance,
                 valueRange = channelBalanceStart..channelBalanceEnd,
                 onValueChangeFinished = { value ->
