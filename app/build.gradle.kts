@@ -28,8 +28,8 @@ android {
         applicationId = "io.github.tommygeenexus.usbdonglecontrol"
         minSdk = 31
         targetSdk = 37
-        versionCode = 8
-        versionName = "3.2.0"
+        versionCode = 9
+        versionName = "3.3.0"
     }
 
     signingConfigs {
