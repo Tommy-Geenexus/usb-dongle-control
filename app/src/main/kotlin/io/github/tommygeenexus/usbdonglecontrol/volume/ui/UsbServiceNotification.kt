@@ -108,7 +108,7 @@ internal object UsbServiceNotification {
         )
         .addAction(
             Notification.Action.Builder(
-                Icon.createWithResource(context, R.drawable.ic_volume_up),
+                Icon.createWithResource(context, R.drawable.volume_up_24px),
                 context.getString(R.string.volume_up),
                 PendingIntent.getBroadcast(
                     context,
@@ -124,7 +124,7 @@ internal object UsbServiceNotification {
         )
         .addAction(
             Notification.Action.Builder(
-                Icon.createWithResource(context, R.drawable.ic_volume_down),
+                Icon.createWithResource(context, R.drawable.volume_down_24px),
                 context.getString(R.string.volume_down),
                 PendingIntent.getBroadcast(
                     context,
@@ -140,7 +140,7 @@ internal object UsbServiceNotification {
         )
         .addAction(
             Notification.Action.Builder(
-                Icon.createWithResource(context, R.drawable.ic_step),
+                Icon.createWithResource(context, R.drawable.step_24px),
                 context.getString(R.string.volume_steps_up),
                 PendingIntent.getBroadcast(
                     context,

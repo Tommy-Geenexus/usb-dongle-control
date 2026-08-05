@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
+ * Copyright (c) 2025-2026, Tom Geiselmann (tomgapplicationsdevelopment@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,19 +20,18 @@
 
 package io.github.tommygeenexus.usbdonglecontrol.core.ui
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.PermDeviceInformation
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.tommygeenexus.usbdonglecontrol.R
@@ -42,8 +41,8 @@ import io.github.tommygeenexus.usbdonglecontrol.theme.cardPadding
 fun UsbDongleControlIconRow(
     @StringRes textRes: Int,
     textFormatArg: String,
+    @DrawableRes drawableId: Int,
     @StringRes contentDescriptionRes: Int,
-    imageVector: ImageVector,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -51,7 +50,7 @@ fun UsbDongleControlIconRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = imageVector,
+            painter = painterResource(id = drawableId),
             contentDescription = stringResource(id = contentDescriptionRes)
         )
         UsbDongleControlBodyText(
@@ -67,8 +66,8 @@ private fun UsbDongleControlIconRowPreview() {
     UsbDongleControlIconRow(
         textRes = R.string.model_s,
         textFormatArg = "",
+        drawableId = R.drawable.mobile_info_24px,
         contentDescriptionRes = R.string.model_s,
-        imageVector = Icons.Outlined.PermDeviceInformation,
         modifier = Modifier.background(Color.White)
     )
 }

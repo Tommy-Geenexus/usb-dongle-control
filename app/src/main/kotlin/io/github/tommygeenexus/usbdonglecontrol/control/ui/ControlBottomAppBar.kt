@@ -21,11 +21,6 @@
 package io.github.tommygeenexus.usbdonglecontrol.control.ui
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ImportExport
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.FilledIconButton
@@ -45,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -94,7 +90,7 @@ fun ControlBottomAppBar(
             ) {
                 IconButton(onClick = { onReset() }) {
                     Icon(
-                        imageVector = Icons.Outlined.SettingsBackupRestore,
+                        painter = painterResource(id = R.drawable.settings_backup_restore_24px),
                         contentDescription = factoryReset
                     )
                 }
@@ -109,7 +105,7 @@ fun ControlBottomAppBar(
             ) {
                 IconButton(onClick = { showExportProfile = true }) {
                     Icon(
-                        imageVector = Icons.Outlined.ImportExport,
+                        painter = painterResource(id = R.drawable.export_notes_24px),
                         contentDescription = exportProfile
                     )
                 }
@@ -124,7 +120,7 @@ fun ControlBottomAppBar(
             ) {
                 IconButton(onClick = onNavigateToSettings) {
                     Icon(
-                        imageVector = Icons.Outlined.Settings,
+                        painter = painterResource(id = R.drawable.settings_24px),
                         contentDescription = settings
                     )
                 }
@@ -143,7 +139,7 @@ fun ControlBottomAppBar(
                     shape = IconButtonDefaults.smallSquareShape
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Refresh,
+                        painter = painterResource(id = R.drawable.refresh_24px),
                         contentDescription = refresh
                     )
                 }

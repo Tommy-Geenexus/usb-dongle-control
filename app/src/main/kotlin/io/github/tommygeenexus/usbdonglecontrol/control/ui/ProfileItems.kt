@@ -33,10 +33,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.SwitchAccessShortcut
-import androidx.compose.material.icons.outlined.SwitchAccessShortcutAdd
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -105,13 +102,17 @@ fun ProfileItems(
                     ) {
                         FilledTonalIconButton(onClick = { onProfileShortcutRemove(profile) }) {
                             Icon(
-                                imageVector = Icons.Outlined.SwitchAccessShortcut,
+                                painter = painterResource(
+                                    id = R.drawable.switch_access_shortcut_24px
+                                ),
                                 contentDescription = stringResource(id = R.string.shortcut_add)
                             )
                         }
                         FilledTonalIconButton(onClick = { onProfileShortcutAdd(profile) }) {
                             Icon(
-                                imageVector = Icons.Outlined.SwitchAccessShortcutAdd,
+                                painter = painterResource(
+                                    id = R.drawable.switch_access_shortcut_add_24px
+                                ),
                                 contentDescription = stringResource(id = R.string.shortcut_delete)
                             )
                         }
@@ -222,7 +223,7 @@ fun Refresh(
     ) {
         IconButton(onClick = { onRefresh() }) {
             Icon(
-                imageVector = Icons.Outlined.Refresh,
+                painter = painterResource(id = R.drawable.refresh_24px),
                 contentDescription = stringResource(id = R.string.refresh)
             )
         }

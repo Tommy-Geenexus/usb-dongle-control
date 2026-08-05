@@ -25,9 +25,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BuildCircle
-import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -55,15 +52,15 @@ fun ItemInfo(
             UsbDongleControlIconRow(
                 textRes = R.string.fw_version,
                 textFormatArg = firmwareVersion,
+                drawableId = R.drawable.build_24px,
                 contentDescriptionRes = R.string.fw_version,
-                imageVector = Icons.Outlined.BuildCircle,
                 modifier = Modifier.clickable { viewUrl.launch(firmwareUrl.toUri()) }
             )
             UsbDongleControlIconRow(
                 textRes = R.string.sample_rate,
                 textFormatArg = sampleRate,
-                contentDescriptionRes = R.string.sample_rate,
-                imageVector = Icons.Outlined.MusicNote
+                drawableId = R.drawable.music_note_2_24px,
+                contentDescriptionRes = R.string.sample_rate
             )
         }
     }
